@@ -12,7 +12,7 @@
 
         <!-- Project Options -->
         <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
+        <!-- LangVersion managed by Directory.Build.props -->
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>OperationPrime</RootNamespace>
 
