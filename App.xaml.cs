@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Services;
 using OperationPrime.Presentation.ViewModels;
+using OperationPrime.Infrastructure;
+using System.IO;
 
 namespace OperationPrime
 {
@@ -71,16 +73,10 @@ namespace OperationPrime
                 services.AddTransient<MainPageViewModel>();
                 services.AddTransient<BaseViewModel>();
 
-                // NavigationService will be created by MainWindow with its ContentFrame
-                // We don't register it here since it needs the Frame from MainWindow
-                
-                // Register MainWindow - it will handle NavigationService creation
-                // Note: MainWindow is not registered in DI since it needs special handling
-
-                // TODO: Add future services here:
-                // services.AddScoped<IIncidentService, IncidentService>();
-                // services.AddScoped<IRepository<Incident>, IncidentRepository>();
-                // services.AddDbContext<ApplicationDbContext>(options => ...);
+                // Register infrastructure services and repositories
+                var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OperationPrime", "incidents.db");
+                var connectionString = $"Data Source={dbPath}";
+                services.AddInfrastructure(connectionString);
             });
 
             _host = builder.Build();

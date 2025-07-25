@@ -4,6 +4,8 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Allow building Windows-targeted projects on non-Windows hosts -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     
     <!-- Common Build Settings -->
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
