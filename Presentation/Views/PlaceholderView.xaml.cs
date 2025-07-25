@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.Logging.Abstractions;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.ViewModels;
 
@@ -36,7 +37,8 @@ public sealed partial class PlaceholderView : Page
     {
         // Create a mock navigation service for now
         var mockNavService = new MockNavigationService();
-        return new PlaceholderViewModel(mockNavService);
+        var logger = Microsoft.Extensions.Logging.Abstractions.NullLogger<PlaceholderViewModel>.Instance;
+        return new PlaceholderViewModel(mockNavService, logger);
     }
 
     /// <summary>

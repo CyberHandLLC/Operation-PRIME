@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Services;
 using OperationPrime.Presentation.ViewModels;
 using OperationPrime.Infrastructure;
+using System.Collections.Generic;
 using System.IO;
 
 namespace OperationPrime
@@ -64,7 +66,7 @@ namespace OperationPrime
         private void ConfigureServices()
         {
             var builder = Host.CreateDefaultBuilder();
-            
+
             builder.ConfigureServices((context, services) =>
             {
                 // Register ViewModels as Transient (new instance each time)
@@ -73,10 +75,22 @@ namespace OperationPrime
                 services.AddTransient<MainPageViewModel>();
                 services.AddTransient<BaseViewModel>();
 
+                // Create configuration for the infrastructure layer
+                var dbPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "OperationPrime",
+                    "incidents.db");
+
+                var config = new ConfigurationBuilder()
+                    .AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        ["Database:ConnectionString"] = $"Data Source={dbPath}",
+                        ["Database:EncryptionKey"] = "local-dev-key"
+                    })
+                    .Build();
+
                 // Register infrastructure services and repositories
-                var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OperationPrime", "incidents.db");
-                var connectionString = $"Data Source={dbPath}";
-                services.AddInfrastructure(connectionString);
+                services.AddInfrastructure(config);
             });
 
             _host = builder.Build();

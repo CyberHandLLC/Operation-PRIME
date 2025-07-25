@@ -21,9 +21,11 @@ public class NeuronsService : INeuronsService
 
     public async Task<Incident?> FetchIncidentAsync(string incidentNumber)
     {
+        _logger.LogDebug("Fetching incident {IncidentNumber} from Neurons", incidentNumber);
         try
         {
             var response = await _httpClient.GetFromJsonAsync<Incident>($"incidents/{incidentNumber}");
+            _logger.LogDebug("Received incident data for {IncidentNumber}", incidentNumber);
             return response;
         }
         catch (Exception ex)
