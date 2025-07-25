@@ -199,7 +199,7 @@ graph TD
 - **Minimal Dependencies**: Only essential NuGet packages
 - **SOLID Principles**: Follow all five principles for maintainable code
 - **Modern MVVM Pattern**: All ViewModels must inherit from `BaseViewModel : ObservableValidator` and use `[ObservableProperty]` partials for observable properties. Validation is handled via data annotations and toolkit support.
-- **C# Preview Features**: The `.csproj` must set `<LangVersion>preview</LangVersion>` to enable partial property support and future-proofing.
+- **C# Preview Features**: Uses `Directory.Build.props` with `<LangVersion>preview</LangVersion>` to enable partial property support and future-proofing across all projects.
 - **Toolkit Analyzer Enforcement**: MVVM Toolkit analyzers must be enabled to surface usage errors and warnings.
 
 ### Testing Strategy

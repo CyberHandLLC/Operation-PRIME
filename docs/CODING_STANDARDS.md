@@ -666,7 +666,7 @@ public static class RequirementVerification
 #### Modern MVVM Pattern (2025+)
 - All ViewModels must inherit from `BaseViewModel : ObservableValidator` (CommunityToolkit.Mvvm v8.4+).
 - Use `[ObservableProperty]` partials for observable properties (supports protected set, required, null-annotations, etc.).
-- Enable `<LangVersion>preview</LangVersion>` in `.csproj` for partial property support and future-proofing.
+- Uses `Directory.Build.props` with `<LangVersion>preview</LangVersion>` for partial property support and future-proofing across all projects.
 - MVVM Toolkit analyzers must be enabled to enforce correct usage and surface errors/warnings.
 - Use `[RelayCommand]` and `IAsyncRelayCommand` for commands; use `IMessenger` for decoupled messaging between ViewModels.
 - Validation is handled via data annotations and toolkit support—no need to manually implement `INotifyDataErrorInfo`.
