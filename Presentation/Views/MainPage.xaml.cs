@@ -1,4 +1,4 @@
-namespace OperationPrime.Views
+namespace OperationPrime.Presentation.Views
 {
     /// <summary>
     /// A simple page that can be used on its own or navigated to within a Frame.
