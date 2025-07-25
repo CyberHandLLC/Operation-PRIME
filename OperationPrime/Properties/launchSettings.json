@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "OperationPrime (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "OperationPrime (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
