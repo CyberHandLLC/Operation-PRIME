@@ -26,6 +26,12 @@
 - Attempted to run EF Core migration generation but build failed due to missing .NET 9 SDK.
 - Fixed build errors by adding missing Microsoft.Extensions.Logging using statements to repositories.
 
+=======
+- 
+=======
+=======
+
+
 ## Outstanding Tasks
 - Complete EF Core migrations once .NET 9 SDK is available.
 - Implement advanced UI features in later phases.
@@ -41,3 +47,8 @@
 - Fixed DI configuration error by creating an in-memory configuration for the database options and passing it to AddInfrastructure.
 - Updated App.xaml.cs accordingly with required using statements.
 - Build still fails because dotnet is not installed in the environment.
+
+=======
+=======
+=======
+
