@@ -34,6 +34,11 @@ public class MajorIncidentWorkflowService : IMajorIncidentWorkflowService
         return incident;
     }
 
+    public Task<string> GenerateNoiAsync(MajorIncident incident, string templateType)
+    {
+        _logger.LogInformation("Generating NOI for incident {Id}", incident.Id);
+        var content = _noiService.GenerateNOI(incident, templateType);
+        return Task.FromResult(content);
     public async Task<string> GenerateNoiAsync(MajorIncident incident, string templateType)
     {
         _logger.LogInformation("Generating NOI for incident {Id}", incident.Id);
