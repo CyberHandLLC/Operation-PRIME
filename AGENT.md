@@ -24,6 +24,9 @@
 - Started Data Persistence phase: added DatabaseOptions, updated DbContext to use SQLCipher connection and added DbSets.
 - Registered DatabaseOptions and DbContext in DI container.
 - Attempted to run EF Core migration generation but build failed due to missing .NET 9 SDK.
+- Fixed build errors by adding missing Microsoft.Extensions.Logging using statements to repositories.
+=======
+
 
 ## Outstanding Tasks
 - Complete EF Core migrations once .NET 9 SDK is available.
@@ -36,3 +39,6 @@
   - Extended `OperationPrimeDbContext` with `AuditLogEntries` DbSet and index configuration
   - IncidentService now records audit actions on create, update and delete
 - Database migrations still blocked due to missing .NET SDK
+- dotnet build/test executed but fail due to missing SDK on runner
+=======
+

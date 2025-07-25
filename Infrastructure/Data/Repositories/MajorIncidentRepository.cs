@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Domain.Interfaces;
 
