@@ -43,6 +43,7 @@ public class MajorIncidentWorkflowService : IMajorIncidentWorkflowService
         _logger.LogInformation("Generating NOI for incident {Id}", incident.Id);
         var content = _noiService.GenerateNOI(incident, templateType);
         return Task.FromResult(content);
+    }
     // The following async version is commented out as a placeholder for future async implementation.
     // It is currently redundant, but left here for AI agents or developers to reference or correct later.
     /*
