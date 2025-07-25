@@ -45,3 +45,5 @@
 - Added OperationPrimeDbContextFactory for EF Core design-time support.
 - Plan updated to reflect migration tooling and upcoming UI tasks.
 - Fixed Options namespace ambiguity in OperationPrimeDbContextFactory for design-time creation.
+
+
