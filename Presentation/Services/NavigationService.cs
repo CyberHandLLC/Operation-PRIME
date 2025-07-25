@@ -3,10 +3,11 @@ using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Constants;
 using OperationPrime.Presentation.Views;
 
-namespace OperationPrime.Infrastructure.Services;
+namespace OperationPrime.Presentation.Services;
 
 /// <summary>
 /// Implementation of navigation service for WinUI 3 applications.
+/// Resides in Presentation layer to avoid Clean Architecture violations.
 /// </summary>
 public class NavigationService : INavigationService
 {

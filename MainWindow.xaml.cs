@@ -3,8 +3,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
-using OperationPrime.Infrastructure.Services;
 using OperationPrime.Presentation.Constants;
+using OperationPrime.Presentation.Services;
 using OperationPrime.Presentation.Views;
 
 namespace OperationPrime;
@@ -16,23 +16,37 @@ namespace OperationPrime;
 public sealed partial class MainWindow : Window
 {
     private readonly INavigationService _navigationService;
+    private readonly IServiceProvider _serviceProvider;
 
-    public MainWindow()
+    public MainWindow(IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        
         this.InitializeComponent();
         
         // Set window title
         this.Title = "OPERATION PRIME - Network Operations Center";
         
-        // Initialize NavigationService with the ContentFrame
+        // Create NavigationService with the ContentFrame
         _navigationService = new NavigationService(ContentFrame);
-        
-        // Register the NavigationService as singleton in DI (replace placeholder)
-        var services = App.Current.Services as ServiceCollection;
-        // Note: In production, we'd configure this differently, but for now this works
         
         // Navigate to Dashboard by default
         _navigationService.NavigateTo(NavigationConstants.Dashboard);
+    }
+
+    /// <summary>
+    /// Gets the navigation service for external access.
+    /// </summary>
+    public INavigationService NavigationService => _navigationService;
+
+    /// <summary>
+    /// Gets a service from the dependency injection container.
+    /// </summary>
+    /// <typeparam name="T">The type of service to get.</typeparam>
+    /// <returns>The service instance.</returns>
+    public T GetService<T>() where T : class
+    {
+        return _serviceProvider.GetRequiredService<T>();
     }
 
     /// <summary>
@@ -101,9 +115,4 @@ public sealed partial class MainWindow : Window
             return false;
         }
     }
-
-    /// <summary>
-    /// Gets the navigation service for external access.
-    /// </summary>
-    public INavigationService NavigationService => _navigationService;
 }

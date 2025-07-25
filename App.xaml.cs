@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
-using OperationPrime.Infrastructure.Services;
+using OperationPrime.Presentation.Services;
 using OperationPrime.Presentation.ViewModels;
 
 namespace OperationPrime
@@ -42,7 +42,7 @@ namespace OperationPrime
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            _window = Services.GetRequiredService<MainWindow>();
+            _window = new MainWindow(Services);
             _window.Activate();
         }
 
@@ -68,18 +68,14 @@ namespace OperationPrime
                 // Register ViewModels as Transient (new instance each time)
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<PlaceholderViewModel>();
+                services.AddTransient<MainPageViewModel>();
                 services.AddTransient<BaseViewModel>();
 
-                // Register Services as Singleton (single instance for app lifetime)
-                services.AddSingleton<INavigationService>(provider =>
-                {
-                    // NavigationService will be configured with Frame in MainWindow
-                    // For now, return a placeholder that will be replaced
-                    return new NavigationService(new Microsoft.UI.Xaml.Controls.Frame());
-                });
-
-                // Register MainWindow as Transient
-                services.AddTransient<MainWindow>();
+                // NavigationService will be created by MainWindow with its ContentFrame
+                // We don't register it here since it needs the Frame from MainWindow
+                
+                // Register MainWindow - it will handle NavigationService creation
+                // Note: MainWindow is not registered in DI since it needs special handling
 
                 // TODO: Add future services here:
                 // services.AddScoped<IIncidentService, IncidentService>();

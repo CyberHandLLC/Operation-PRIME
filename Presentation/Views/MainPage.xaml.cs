@@ -1,18 +1,28 @@
-namespace OperationPrime.Presentation.Views
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml.Controls;
+using OperationPrime.Presentation.ViewModels;
+
+namespace OperationPrime.Presentation.Views;
+
+/// <summary>
+/// A simple page that can be used on its own or navigated to within a Frame.
+/// Follows MVVM pattern with proper ViewModel binding.
+/// </summary>
+public sealed partial class MainPage : Page
 {
     /// <summary>
-    /// A simple page that can be used on its own or navigated to within a Frame.
+    /// Gets the ViewModel for this page.
     /// </summary>
-    public partial class MainPage : Page
+    public MainPageViewModel ViewModel { get; }
+
+    public MainPage()
     {
-        int count = 0;
-
-        public MainPage()
-        {
-            this.InitializeComponent();
-        }
-
-        private void OnCountClicked(object sender, RoutedEventArgs e)
-            => txtCount.Text = $"Current count: {count++}";
+        // Create ViewModel - in production this would come from DI
+        ViewModel = new MainPageViewModel();
+        
+        this.InitializeComponent();
+        
+        // Set DataContext for binding
+        this.DataContext = ViewModel;
     }
 }
