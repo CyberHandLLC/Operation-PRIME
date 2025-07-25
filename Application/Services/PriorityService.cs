@@ -25,6 +25,7 @@ public class PriorityService : IPriorityService
 
     public string CalculatePriority(UrgencyLevel urgency, ImpactLevel impact, string? overridePriority = null)
     {
+        _logger.LogDebug("Calculating priority. Urgency: {Urgency}; Impact: {Impact}; Override: {Override}", urgency, impact, overridePriority);
         if (!ValidateUrgency(urgency) || !ValidateImpact(impact))
         {
             _logger.LogWarning("Invalid inputs for priority calculation: {Urgency} {Impact}", urgency, impact);
@@ -37,7 +38,23 @@ public class PriorityService : IPriorityService
         return finalPriority;
     }
 
-    public bool ValidateUrgency(UrgencyLevel urgency) => Enum.IsDefined(typeof(UrgencyLevel), urgency);
+    public bool ValidateUrgency(UrgencyLevel urgency)
+    {
+        var valid = Enum.IsDefined(typeof(UrgencyLevel), urgency);
+        if (!valid)
+        {
+            _logger.LogDebug("Invalid urgency level provided: {Urgency}", urgency);
+        }
+        return valid;
+    }
 
-    public bool ValidateImpact(ImpactLevel impact) => Enum.IsDefined(typeof(ImpactLevel), impact);
+    public bool ValidateImpact(ImpactLevel impact)
+    {
+        var valid = Enum.IsDefined(typeof(ImpactLevel), impact);
+        if (!valid)
+        {
+            _logger.LogDebug("Invalid impact level provided: {Impact}", impact);
+        }
+        return valid;
+    }
 }

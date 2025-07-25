@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.Logging.Abstractions;
 using OperationPrime.Presentation.ViewModels;
 
 namespace OperationPrime.Presentation.Views;
@@ -18,7 +19,8 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         // Create ViewModel - in production this would come from DI
-        ViewModel = new MainPageViewModel();
+        var logger = Microsoft.Extensions.Logging.Abstractions.NullLogger<MainPageViewModel>.Instance;
+        ViewModel = new MainPageViewModel(logger);
         
         this.InitializeComponent();
         
