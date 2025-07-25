@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml.Navigation;
-using OperationPrime.Presentation.Views;
 
 namespace OperationPrime
 {
@@ -8,7 +7,7 @@ namespace OperationPrime
     /// </summary>
     public partial class App : Application
     {
-        private Window window = Window.Current;
+        private Window? m_window;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -26,17 +25,8 @@ namespace OperationPrime
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            window ??= new Window();
-
-            if (window.Content is not Frame rootFrame)
-            {
-                rootFrame = new Frame();
-                rootFrame.NavigationFailed += OnNavigationFailed;
-                window.Content = rootFrame;
-            }
-
-            _ = rootFrame.Navigate(typeof(MainPage), e.Arguments);
-            window.Activate();
+            m_window = new MainWindow();
+            m_window.Activate();
         }
 
         /// <summary>

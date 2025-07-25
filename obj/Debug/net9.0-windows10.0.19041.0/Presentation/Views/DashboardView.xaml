@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Page x:Class="OperationPrime.Presentation.Views.DashboardView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Margin="24" Spacing="16">
+            
+            <!-- Page Header -->
+            <TextBlock Text="Dashboard" 
+                      Style="{StaticResource TitleTextBlockStyle}"
+                      Margin="0,0,0,16"/>
+            
+            <!-- Quick Stats Cards -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Active Incidents Card -->
+                <Border Grid.Column="0" 
+                       Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                       CornerRadius="8" 
+                       Padding="16" 
+                       Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="Active Incidents" 
+                                  Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="12" 
+                                  Style="{StaticResource TitleLargeTextBlockStyle}"
+                                  Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Pre-Incidents Card -->
+                <Border Grid.Column="1" 
+                       Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                       CornerRadius="8" 
+                       Padding="16" 
+                       Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="Pre-Incidents" 
+                                  Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="8" 
+                                  Style="{StaticResource TitleLargeTextBlockStyle}"
+                                  Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Major Incidents Card -->
+                <Border Grid.Column="2" 
+                       Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                       CornerRadius="8" 
+                       Padding="16" 
+                       Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="Major Incidents" 
+                                  Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="3" 
+                                  Style="{StaticResource TitleLargeTextBlockStyle}"
+                                  Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Resolved Today Card -->
+                <Border Grid.Column="3" 
+                       Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                       CornerRadius="8" 
+                       Padding="16" 
+                       Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Resolved Today" 
+                                  Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="15" 
+                                  Style="{StaticResource TitleLargeTextBlockStyle}"
+                                  Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            
+            <!-- Recent Incidents Section -->
+            <TextBlock Text="Recent Incidents" 
+                      Style="{StaticResource SubtitleTextBlockStyle}"
+                      Margin="0,24,0,8"/>
+            
+            <!-- Incidents List -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                   CornerRadius="8"
+                   Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="No incidents to display" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              HorizontalAlignment="Center"
+                              Margin="0,24"/>
+                    
+                    <!-- TODO: Replace with actual incident list when data models are implemented -->
+                </StackPanel>
+            </Border>
+            
+            <!-- Quick Actions -->
+            <TextBlock Text="Quick Actions" 
+                      Style="{StaticResource SubtitleTextBlockStyle}"
+                      Margin="0,24,0,8"/>
+            
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Create Pre-Incident" 
+                       Style="{StaticResource AccentButtonStyle}"/>
+                <Button Content="Create Major Incident"/>
+                <Button Content="View All Incidents"/>
+            </StackPanel>
+            
+        </StackPanel>
+    </ScrollViewer>
+</Page>
+
