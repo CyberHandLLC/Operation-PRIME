@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Constants;
+using Microsoft.Extensions.Logging;
 
 namespace OperationPrime.Presentation.ViewModels;
 
@@ -11,17 +12,20 @@ namespace OperationPrime.Presentation.ViewModels;
 public partial class DashboardViewModel : BaseViewModel
 {
     private readonly INavigationService _navigationService;
+    private readonly ILogger<DashboardViewModel> _logger;
 
     /// <summary>
     /// Initializes a new instance of the DashboardViewModel class.
     /// </summary>
     /// <param name="navigationService">The navigation service.</param>
-    public DashboardViewModel(INavigationService navigationService)
+    public DashboardViewModel(INavigationService navigationService, ILogger<DashboardViewModel> logger)
     {
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        _logger = logger;
         
         // Initialize with sample data - will be replaced with real data later
         InitializeSampleData();
+        _logger.LogDebug("DashboardViewModel initialized");
     }
 
     /// <summary>
@@ -66,6 +70,7 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private void CreateIncident()
     {
+        _logger.LogDebug("Navigating to CreateIncident view");
         _navigationService.NavigateTo(NavigationConstants.CreateIncident);
     }
 
@@ -75,6 +80,7 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private void ViewIncidents()
     {
+        _logger.LogDebug("Navigating to IncidentList view");
         _navigationService.NavigateTo(NavigationConstants.IncidentList);
     }
 
@@ -84,6 +90,7 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private void ViewReports()
     {
+        _logger.LogDebug("Navigating to Reports view");
         _navigationService.NavigateTo(NavigationConstants.Reports);
     }
 
@@ -94,6 +101,7 @@ public partial class DashboardViewModel : BaseViewModel
     private async Task RefreshDataAsync()
     {
         IsLoading = true;
+        _logger.LogDebug("Refreshing dashboard data");
         
         try
         {
@@ -107,9 +115,7 @@ public partial class DashboardViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            // TODO: Add proper error handling and logging
-            // For now, just reset loading state
-            System.Diagnostics.Debug.WriteLine($"Error refreshing dashboard data: {ex.Message}");
+            _logger.LogError(ex, "Error refreshing dashboard data");
         }
         finally
         {
@@ -152,6 +158,7 @@ public partial class DashboardViewModel : BaseViewModel
     /// </summary>
     public override async Task OnViewLoadedAsync()
     {
+        _logger.LogDebug("Dashboard view loaded");
         await RefreshDataAsync();
     }
 }
