@@ -1,6 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using OperationPrime.Application.Interfaces;
+using OperationPrime.Infrastructure.Services;
+using OperationPrime.Presentation.Constants;
 using OperationPrime.Presentation.Views;
 
 namespace OperationPrime;
@@ -11,6 +15,8 @@ namespace OperationPrime;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+    private readonly INavigationService _navigationService;
+
     public MainWindow()
     {
         this.InitializeComponent();
@@ -18,8 +24,15 @@ public sealed partial class MainWindow : Window
         // Set window title
         this.Title = "OPERATION PRIME - Network Operations Center";
         
+        // Initialize NavigationService with the ContentFrame
+        _navigationService = new NavigationService(ContentFrame);
+        
+        // Register the NavigationService as singleton in DI (replace placeholder)
+        var services = App.Current.Services as ServiceCollection;
+        // Note: In production, we'd configure this differently, but for now this works
+        
         // Navigate to Dashboard by default
-        NavigateToPage("Dashboard");
+        _navigationService.NavigateTo(NavigationConstants.Dashboard);
     }
 
     /// <summary>
@@ -38,51 +51,59 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Navigation routing method that maps tags to page types
+    /// Navigation routing method using NavigationService with constants
     /// Following Clean Architecture pattern - UI routes to Presentation layer Views
     /// </summary>
     private void NavigateToPage(string pageTag)
     {
-        Type? pageType = pageTag switch
+        // Map legacy tags to NavigationConstants
+        var viewName = pageTag switch
         {
-            "Dashboard" => typeof(DashboardView),
-            // TODO: Create these Views in Presentation/Views/ as we implement features
-            "CreatePreIncident" => typeof(PlaceholderView), // Will create CreatePreIncidentView later
-            "CreateMajorIncident" => typeof(PlaceholderView), // Will create CreateMajorIncidentView later
-            "ViewIncidents" => typeof(PlaceholderView), // Will create IncidentListView later
-            "Reports" => typeof(PlaceholderView), // Will create ReportsView later
-            _ => typeof(DashboardView) // Default fallback to Dashboard
+            "Dashboard" => NavigationConstants.Dashboard,
+            "CreatePreIncident" => NavigationConstants.CreateIncident,
+            "CreateMajorIncident" => NavigationConstants.CreateIncident,
+            "ViewIncidents" => NavigationConstants.IncidentList,
+            "Reports" => NavigationConstants.Reports,
+            "Settings" => NavigationConstants.Settings,
+            "Help" => NavigationConstants.Help,
+            _ => NavigationConstants.Dashboard // Default fallback
         };
 
-        if (pageType != null)
+        try
         {
-            try
+            var success = _navigationService.NavigateTo(viewName);
+            if (!success)
             {
-                ContentFrame.Navigate(pageType);
+                // Fallback to Dashboard if navigation fails
+                _navigationService.NavigateTo(NavigationConstants.Dashboard);
+                System.Diagnostics.Debug.WriteLine($"Navigation failed for {pageTag}, falling back to Dashboard");
             }
-            catch (System.Exception ex)
-            {
-                // For now, fallback to MainPage if navigation fails
-                // TODO: Implement proper error handling and logging
-                ContentFrame.Navigate(typeof(MainPage));
-                System.Diagnostics.Debug.WriteLine($"Navigation failed for {pageTag}: {ex.Message}");
-            }
+        }
+        catch (System.Exception ex)
+        {
+            // Fallback to Dashboard on any exception
+            _navigationService.NavigateTo(NavigationConstants.Dashboard);
+            System.Diagnostics.Debug.WriteLine($"Navigation exception for {pageTag}: {ex.Message}");
         }
     }
 
     /// <summary>
-    /// Public method for programmatic navigation (for future navigation service)
+    /// Public method for programmatic navigation using NavigationService
     /// </summary>
-    public bool NavigateTo(string pageTag)
+    public bool NavigateTo(string viewName)
     {
         try
         {
-            NavigateToPage(pageTag);
-            return true;
+            return _navigationService.NavigateTo(viewName);
         }
         catch
         {
             return false;
         }
     }
+
+    /// <summary>
+    /// Gets the navigation service for external access.
+    /// </summary>
+    public INavigationService NavigationService => _navigationService;
 }

@@ -1,13 +1,29 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml.Navigation;
+using OperationPrime.Application.Interfaces;
+using OperationPrime.Infrastructure.Services;
+using OperationPrime.Presentation.ViewModels;
 
 namespace OperationPrime
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    public partial class App : Application
+    public partial class App : Microsoft.UI.Xaml.Application
     {
-        private Window? m_window;
+        private Window? _window;
+        private IHost? _host;
+
+        /// <summary>
+        /// Gets the current application instance.
+        /// </summary>
+        public static new App Current => (App)Microsoft.UI.Xaml.Application.Current;
+
+        /// <summary>
+        /// Gets the service provider for dependency injection.
+        /// </summary>
+        public IServiceProvider Services => _host?.Services ?? throw new InvalidOperationException("Services not initialized");
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -16,6 +32,7 @@ namespace OperationPrime
         public App()
         {
             this.InitializeComponent();
+            ConfigureServices();
         }
 
         /// <summary>
@@ -25,8 +42,8 @@ namespace OperationPrime
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            _window = Services.GetRequiredService<MainWindow>();
+            _window.Activate();
         }
 
         /// <summary>
@@ -37,6 +54,50 @@ namespace OperationPrime
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
+        }
+
+        /// <summary>
+        /// Configures the dependency injection services.
+        /// </summary>
+        private void ConfigureServices()
+        {
+            var builder = Host.CreateDefaultBuilder();
+            
+            builder.ConfigureServices((context, services) =>
+            {
+                // Register ViewModels as Transient (new instance each time)
+                services.AddTransient<DashboardViewModel>();
+                services.AddTransient<PlaceholderViewModel>();
+                services.AddTransient<BaseViewModel>();
+
+                // Register Services as Singleton (single instance for app lifetime)
+                services.AddSingleton<INavigationService>(provider =>
+                {
+                    // NavigationService will be configured with Frame in MainWindow
+                    // For now, return a placeholder that will be replaced
+                    return new NavigationService(new Microsoft.UI.Xaml.Controls.Frame());
+                });
+
+                // Register MainWindow as Transient
+                services.AddTransient<MainWindow>();
+
+                // TODO: Add future services here:
+                // services.AddScoped<IIncidentService, IncidentService>();
+                // services.AddScoped<IRepository<Incident>, IncidentRepository>();
+                // services.AddDbContext<ApplicationDbContext>(options => ...);
+            });
+
+            _host = builder.Build();
+        }
+
+        /// <summary>
+        /// Gets a service of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of service to get.</typeparam>
+        /// <returns>The service instance.</returns>
+        public T GetService<T>() where T : class
+        {
+            return Services.GetRequiredService<T>();
         }
     }
 }

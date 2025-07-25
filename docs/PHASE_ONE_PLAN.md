@@ -114,14 +114,18 @@ OperationPrime/
 
 ### 1. MVVM Foundation
 - [x] Create `BaseViewModel` in ViewModels/ inheriting from `ObservableValidator` (CommunityToolkit.Mvvm v8.4+)
-- [ ] Set up DI container
-- [ ] Scaffold MainWindow with NavigationView and status bar
+- [x] Scaffold MainWindow with NavigationView and status bar
+- [x] Create UI Framework Foundation (DashboardView, PlaceholderView)
+- [ ] Set up DI container and service registration
+- [ ] Implement NavigationService abstraction
 
-### 2. Core Data Models
-- [ ] Create enums: `IncidentStatus`, `Priority`, `Urgency`, `IncidentSource`
+### 2. Core Data Models (CURRENT FOCUS)
+- [ ] Create enums: `IncidentStatus`, `Priority`, `UrgencyLevel`, `ImpactLevel`, `IncidentType`
+- [ ] Create `BaseEntity` with audit trail properties
 - [ ] Implement `Incident` base class
 - [ ] Implement `PreIncident` and `MajorIncident` classes
 - [ ] Add validation attributes (use data annotations for validation)
+- [ ] Create `PriorityMatrix` value object
 
 ### 3. DbContext & Persistence
 - [ ] Implement `AppDbContext` with encryption
