@@ -1,0 +1,43 @@
+# Build Artifacts
+bin/
+obj/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.cache
+*.log
+
+# NuGet
+packages/
+*.nupkg
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# JetBrains
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# WinUI 3 specific
+*.xbf
+*.g.cs
+*.g.i.cs
+XamlSaveStateFile.xml
+XamlTypeInfo.g.cs
+*.resfiles
+*.resfiles.intermediate
+
+# Application specific
+appsettings.local.json
+*.db
+*.sqlite
