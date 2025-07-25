@@ -50,3 +50,8 @@
 ## 2025-07-25T22:10:15Z Update
 - Fixed Options ambiguity by fully qualifying Microsoft.Extensions.Options.Options.Create in design-time factory. Build verified locally.
 - Progress on Data Persistence now at 65%.
+
+## 2025-07-25T23:40:00Z Update
+- Commented out duplicate async GenerateNoiAsync method with note for future implementation
+- Restored fully qualified Options.Create usage in OperationPrimeDbContextFactory
+- Updated MULTI_PHASE_PLAN checklist and progress markers
