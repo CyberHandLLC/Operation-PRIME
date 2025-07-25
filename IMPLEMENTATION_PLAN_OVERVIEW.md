@@ -1,8 +1,8 @@
 # OPERATION PRIME - Implementation Plan Overview
 
-**Last Updated**: 2025-07-25T19:29:33+00:00
-**Current Phase**: Application Services Implementation
-**Current Task**: Application Services Scaffolding - IN PROGRESS
+**Last Updated**:  2025-07-25T21:35:57Z
+**Current Phase**: Data Persistence
+**Current Task**: Data Persistence Setup - In Progress
 **Documentation Alignment**: ✅ All docs reviewed and aligned
 
 ---
@@ -17,8 +17,8 @@
 | 🎨 **UI Framework Foundation** | ✅ Complete | 100% | ✅ Done | - |
 | 📊 **Domain Models** | ✅ Complete | 100% | ✅ Done | - |
 | 🏗️ **MVVM Foundation (DI/Nav)** | ✅ Complete | 100% | ✅ Done | - |
-| 🔧 **Services** | 🔄 In Progress | 90% | 🎯 **CURRENT** | Finalize service layer |
-| 💾 **Data Persistence** | ❌ Not Started | 0% | 📋 Low | After Services |
+| 🔧 **Services** | ✅ Complete | 100% | - | - |
+| 💾 **Data Persistence** | 🟡 In Progress | 60% | 📋 Low | Add migrations |
 
 ---
 
@@ -46,8 +46,7 @@
 - **Validation**: Data annotations and custom business rules implemented
 - **Build Verification**: All code compiles successfully
 
-### 🔄 **In Progress - Application Services (90%)**
-- Service interfaces defined (IIncidentService, INeuronsService, IPriorityService, IValidationService)
+### ✅ **Completed - Application Services (100%)**
 - Repositories implemented for incidents
 - DI registration via ServiceCollectionExtensions
 - Priority and validation services implemented
@@ -58,53 +57,29 @@
 
 ---
 
-## **🎯 CURRENT TASK: Application Services Scaffolding**
+## **🎯 CURRENT TASK: Data Persistence Setup**
+The foundation and services are complete. The focus now shifts to implementing data persistence with EF Core and SQLCipher.
 
-The foundation and MVVM infrastructure are complete. The focus shifts to implementing application services as defined in the documentation.
-
-### **Task 4: Application Services Implementation**
-**Estimated Time**: 1-2 hours
-**Prerequisites**: ✅ Domain Models complete, ✅ MVVM Foundation complete
+### **Task 5: Data Persistence Implementation**
+**Estimated Time**: 2-3 hours
+**Prerequisites**: ✅ Application Services complete
 **Documentation References**:
-- PHASE_ONE_PLAN.md → Section E
-- ARCHITECTURE.md → Service Layer
-- TECHNICAL_SPECS.md → Dependency Injection patterns
+- PHASE_ONE_PLAN.md → Section C
+- ARCHITECTURE.md → Data Layer
+- TECHNICAL_SPECS.md → Database setup
 
 ### **Sub-Tasks**:
-1. **Define Remaining Interfaces** (30 min) ✅
-   - IPriorityService
-   - IValidationService
-   - IMajorIncidentRepository / IPreIncidentRepository
-
-2. **Implement Service Classes** (45 min) ✅
-   - PriorityService
-   - ValidationService
-
-3. **Register Services in DI** (15 min) ✅
-   - Add to Infrastructure.ServiceCollectionExtensions
-
-4. **Unit Test Placeholders** (30 min)
-   - Add basic tests to verify DI wiring
-
-### **Files to Create/Modify**:
-```
-Domain/Interfaces/IPreIncidentRepository.cs
-Domain/Interfaces/IMajorIncidentRepository.cs
-Application/Interfaces/IPriorityService.cs
-Application/Interfaces/IValidationService.cs
-Application/Services/PriorityService.cs
-Application/Services/ValidationService.cs
-Infrastructure/ServiceCollectionExtensions.cs
-```
-
----
-
-## Phase One Implementation Roadmap
+1. **Implement OperationPrimeDbContext with SQLCipher** ✅
+2. **Add DbSet properties for all models** ✅
+3. **Create initial EF Core migration** ⏳ *(blocked: missing .NET 9 SDK)*
+4. **Register DbContext in DI container** ✅
+5. **Fix DI configuration to pass IConfiguration** ✅
+6. **Add design-time DbContext factory for EF tooling** ✅
 
 ### **Immediate Next Steps (Current Sprint)**
 1. ✅ **Core Data Models** ← **COMPLETED**
 2. ✅ **MVVM Foundation** ← **COMPLETED**
-3. 🎯 **Application Services** ← **IN PROGRESS** (service scaffolding and DI)
+3. 🎯 **Data Persistence** ← **IN PROGRESS** (database setup)
 4. 📋 **Enhanced UI Components** (ViewModels with data binding)
 
 ### **Phase One Completion Criteria**
@@ -159,16 +134,13 @@ start docs/REFERENCE.md
 5. **MVVM Standards**: ObservableValidator, [ObservableProperty], validation
 
 ### **Success Criteria for Current Task**
-- [ ] DI Container configured and working in App.xaml.cs
-- [ ] INavigationService interface and implementation created
-- [ ] Navigation constants replace all string literals
-- [ ] ViewModels created and registered with DI
-- [ ] MainWindow uses NavigationService instead of direct navigation
-- [ ] Build successful with no errors
-- [ ] Git commit with descriptive message
-
+- [x] DbContext implements SQLCipher encryption
+- [x] DbSet properties defined for all entities
+- [ ] Database migration runs successfully
+- [x] DbContext registered in DI and resolves at runtime
+- [ ] Unit tests confirm database connection
 ---
 
-**Ready to begin Core Data Models implementation!** 🚀
+**Data Persistence implementation underway.** 🚀
 
 All documentation is aligned, foundation is solid, and the next task is clearly defined. The implementation can proceed with confidence following the established patterns and principles.

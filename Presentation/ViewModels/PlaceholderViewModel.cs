@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Constants;
+using Microsoft.Extensions.Logging;
 
 namespace OperationPrime.Presentation.ViewModels;
 
@@ -11,18 +12,21 @@ namespace OperationPrime.Presentation.ViewModels;
 public partial class PlaceholderViewModel : BaseViewModel
 {
     private readonly INavigationService _navigationService;
+    private readonly ILogger<PlaceholderViewModel> _logger;
 
     /// <summary>
     /// Initializes a new instance of the PlaceholderViewModel class.
     /// </summary>
     /// <param name="navigationService">The navigation service.</param>
-    public PlaceholderViewModel(INavigationService navigationService)
+    public PlaceholderViewModel(INavigationService navigationService, ILogger<PlaceholderViewModel> logger)
     {
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        _logger = logger;
         
         // Set default values
         FeatureName = "Feature";
         Message = "This feature is coming soon! We're working hard to bring you the best experience.";
+        _logger.LogDebug("PlaceholderViewModel initialized for {Feature}", FeatureName);
     }
 
     /// <summary>
@@ -55,6 +59,7 @@ public partial class PlaceholderViewModel : BaseViewModel
     [RelayCommand]
     private void BackToDashboard()
     {
+        _logger.LogDebug("Navigating back to Dashboard");
         _navigationService.NavigateTo(NavigationConstants.Dashboard);
     }
 
@@ -66,11 +71,12 @@ public partial class PlaceholderViewModel : BaseViewModel
     {
         if (_navigationService.CanGoBack)
         {
+            _logger.LogDebug("Navigating back via navigation history");
             _navigationService.GoBack();
         }
         else
         {
-            // Fallback to dashboard if no history
+            _logger.LogDebug("No navigation history. Fallback to Dashboard");
             BackToDashboard();
         }
     }
@@ -84,6 +90,7 @@ public partial class PlaceholderViewModel : BaseViewModel
     /// <param name="estimatedCompletion">Estimated completion timeframe.</param>
     public void SetFeatureInfo(string featureName, string? message = null, string? additionalDetails = null, string? estimatedCompletion = null)
     {
+        _logger.LogDebug("Setting placeholder feature info: {FeatureName}", featureName);
         FeatureName = featureName;
         
         if (!string.IsNullOrEmpty(message))
