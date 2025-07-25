@@ -20,10 +20,13 @@ public class TokenProvider : ITokenProvider
 
     public async Task<string> GetTokenAsync()
     {
+        _logger.LogDebug("Requesting authentication token");
         try
         {
             var response = await _httpClient.GetFromJsonAsync<TokenResponse>("token");
-            return response?.Token ?? string.Empty;
+            var token = response?.Token ?? string.Empty;
+            _logger.LogDebug("Token retrieved: {HasToken}", !string.IsNullOrEmpty(token));
+            return token;
         }
         catch (Exception ex)
         {
