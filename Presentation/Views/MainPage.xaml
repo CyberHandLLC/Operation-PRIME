@@ -26,9 +26,9 @@
                 FontSize="16"
                 HorizontalAlignment="Center"
                 Style="{StaticResource MyLabel}"
-                Text="{x:Bind ViewModel.CountText, Mode=OneWay}" />
+                Text="{Binding CountText}" />
             <Button
-                Command="{x:Bind ViewModel.IncrementCountCommand}"
+                Command="{Binding IncrementCountCommand}"
                 Content="Click Me"
                 HorizontalAlignment="Center"
                 Style="{StaticResource PrimaryAction}" />

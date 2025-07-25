@@ -12,20 +12,20 @@
                      FontSize="48" 
                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             
-            <TextBlock Text="{x:Bind ViewModel.FeatureName, Mode=OneWay}" 
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding FeatureName, FallbackValue='Feature Coming Soon'}" 
+                      Style="{StaticResource TitleTextBlockStyle}"
+                      HorizontalAlignment="Center"/>
             
-            <TextBlock Text="{x:Bind ViewModel.Message, Mode=OneWay}" 
-                       Style="{StaticResource BodyTextBlockStyle}"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       HorizontalAlignment="Center"
-                       TextWrapping="Wrap"
-                       MaxWidth="400"/>
+            <TextBlock Text="{Binding Message, FallbackValue='This feature is planned for implementation in a future update.'}" 
+                      Style="{StaticResource BodyTextBlockStyle}"
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                      HorizontalAlignment="Center"
+                      TextWrapping="Wrap"
+                      MaxWidth="400"/>
             
             <Button Content="Back to Dashboard" 
                    Style="{StaticResource AccentButtonStyle}"
-                   Command="{x:Bind ViewModel.BackToDashboardCommand}"
+                   Command="{Binding BackToDashboardCommand}"
                    Margin="0,16,0,0"/>
             
         </StackPanel>
