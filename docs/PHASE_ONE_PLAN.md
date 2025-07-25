@@ -102,30 +102,30 @@ OperationPrime/
 ## 4. Step-by-Step Checklist
 
 ### 0. Clean Architecture & Foundation
-- [ ] Create solution folders/projects for:
+- [x] Create solution folders/projects for:
   - Domain (entities, value objects, business rules)
   - Application (use-cases, workflow logic, interfaces)
   - Infrastructure (EF Core, SQLCipher, repository/service implementations)
   - Presentation (WinUI 3 UI, ViewModels, XAML, Services, Utils)
-- [ ] Define repository/service interfaces in Domain/Application, implementations in Infrastructure
-- [ ] Set up DI/service registration for all interfaces with correct lifetimes
+- [x] Define repository/service interfaces in Domain/Application, implementations in Infrastructure
+- [x] Set up DI/service registration for all interfaces with correct lifetimes
 - [ ] Scaffold basic audit logging and error handling (IAuditService, ILogger<T> usage)
-- [ ] Enforce Clean Architecture, DI, and logging/audit/error handling patterns for all future development
+- [x] Enforce Clean Architecture, DI, and logging/audit/error handling patterns for all future development
 
 ### 1. MVVM Foundation
 - [x] Create `BaseViewModel` in ViewModels/ inheriting from `ObservableValidator` (CommunityToolkit.Mvvm v8.4+)
 - [x] Scaffold MainWindow with NavigationView and status bar
 - [x] Create UI Framework Foundation (DashboardView, PlaceholderView)
-- [ ] Set up DI container and service registration
-- [ ] Implement NavigationService abstraction
+- [x] Set up DI container and service registration
+- [x] Implement NavigationService abstraction
 
 ### 2. Core Data Models (CURRENT FOCUS)
-- [ ] Create enums: `IncidentStatus`, `Priority`, `UrgencyLevel`, `ImpactLevel`, `IncidentType`
-- [ ] Create `BaseEntity` with audit trail properties
-- [ ] Implement `Incident` base class
-- [ ] Implement `PreIncident` and `MajorIncident` classes
-- [ ] Add validation attributes (use data annotations for validation)
-- [ ] Create `PriorityMatrix` value object
+- [x] Create enums: `IncidentStatus`, `Priority`, `UrgencyLevel`, `ImpactLevel`, `IncidentType`
+- [x] Create `BaseEntity` with audit trail properties
+- [x] Implement `Incident` base class
+- [x] Implement `PreIncident` and `MajorIncident` classes
+- [x] Add validation attributes (use data annotations for validation)
+- [x] Create `PriorityMatrix` value object
 
 ### 3. DbContext & Persistence
 - [ ] Implement `AppDbContext` with encryption
@@ -137,8 +137,8 @@ OperationPrime/
 - [ ] Scaffold `DashboardView`, `IncidentWizardView`, `IncidentDetailView`
 
 ### 5. Services
-- [ ] Create skeletons for all services
-- [ ] Register services in DI
+- [x] Create skeletons for all services
+- [x] Register services in DI
 
 ### 6. Workflows & UI
 - [ ] Scaffold wizard flows for Pre/Major Incidents
