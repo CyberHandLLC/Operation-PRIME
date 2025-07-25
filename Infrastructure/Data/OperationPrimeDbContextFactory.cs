@@ -31,7 +31,7 @@ public class OperationPrimeDbContextFactory : IDesignTimeDbContextFactory<Operat
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 
         return new OperationPrimeDbContext(
-            Options.Create(options),
+            Microsoft.Extensions.Options.Options.Create(options),
             loggerFactory);
     }
 }
