@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.Logging;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Constants;
 using OperationPrime.Presentation.Views;
@@ -13,15 +14,18 @@ public class NavigationService : INavigationService
 {
     private readonly Frame _frame;
     private readonly Stack<string> _navigationHistory;
+    private readonly ILogger<NavigationService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the NavigationService class.
     /// </summary>
     /// <param name="frame">The frame to use for navigation.</param>
-    public NavigationService(Frame frame)
+    public NavigationService(Frame frame, ILogger<NavigationService> logger)
     {
         _frame = frame ?? throw new ArgumentNullException(nameof(frame));
         _navigationHistory = new Stack<string>();
+        _logger = logger;
+        _logger.LogDebug("NavigationService initialized");
     }
 
     /// <summary>
@@ -60,6 +64,8 @@ public class NavigationService : INavigationService
         if (string.IsNullOrWhiteSpace(viewName))
             return false;
 
+        _logger.LogDebug("Navigating to {View} with parameter {Parameter}", viewName, parameter);
+
         // Validate view name
         if (!NavigationConstants.IsValidViewName(viewName))
             return false;
@@ -84,16 +90,17 @@ public class NavigationService : INavigationService
             if (success)
             {
                 CurrentView = viewName;
-                
+                _logger.LogDebug("Navigation to {View} succeeded", viewName);
+
                 // Raise navigation event
                 NavigationOccurred?.Invoke(this, new NavigationEventArgs(viewName, parameter, previousView));
             }
 
             return success;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Log exception in production
+            _logger.LogError(ex, "Navigation to {View} failed", viewName);
             return false;
         }
     }
@@ -106,6 +113,8 @@ public class NavigationService : INavigationService
     {
         if (!CanGoBack)
             return false;
+
+        _logger.LogDebug("Navigating back from {View}", CurrentView);
 
         try
         {
@@ -122,14 +131,16 @@ public class NavigationService : INavigationService
                 CurrentView = null;
             }
 
+            _logger.LogDebug("Navigated back to {View}", CurrentView);
+
             // Raise navigation event
             NavigationOccurred?.Invoke(this, new NavigationEventArgs(CurrentView ?? "Unknown", null, previousView));
 
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Log exception in production
+            _logger.LogError(ex, "GoBack failed");
             return false;
         }
     }
@@ -145,9 +156,9 @@ public class NavigationService : INavigationService
         {
             NavigationConstants.Dashboard => typeof(DashboardView),
             NavigationConstants.Placeholder => typeof(PlaceholderView),
-            NavigationConstants.CreateIncident => typeof(PlaceholderView), // TODO: Replace with actual view
+            NavigationConstants.CreateIncident => typeof(IncidentWizardView),
             NavigationConstants.IncidentList => typeof(PlaceholderView), // TODO: Replace with actual view
-            NavigationConstants.IncidentDetails => typeof(PlaceholderView), // TODO: Replace with actual view
+            NavigationConstants.IncidentDetails => typeof(IncidentDetailView),
             NavigationConstants.Reports => typeof(PlaceholderView), // TODO: Replace with actual view
             NavigationConstants.Settings => typeof(PlaceholderView), // TODO: Replace with actual view
             NavigationConstants.Help => typeof(PlaceholderView), // TODO: Replace with actual view

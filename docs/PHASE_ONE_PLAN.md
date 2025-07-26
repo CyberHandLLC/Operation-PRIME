@@ -128,13 +128,13 @@ OperationPrime/
 - [x] Create `PriorityMatrix` value object
 
 ### 3. DbContext & Persistence
-- [ ] Implement `AppDbContext` with encryption
-- [ ] Add `DbSet<>` properties for all models
+- [x] Implement `AppDbContext` with encryption
+- [x] Add `DbSet<>` properties for all models
 - [ ] Create and apply initial migration
 
 ### 4. ViewModels & Views
-- [ ] Implement `IncidentViewModel`, `PreIncidentViewModel`, `MajorIncidentViewModel` (inherit from `BaseViewModel : ObservableValidator`, use `[ObservableProperty]` partials)
-- [ ] Scaffold `DashboardView`, `IncidentWizardView`, `IncidentDetailView`
+- [x] Implement `IncidentViewModel`, `PreIncidentViewModel`, `MajorIncidentViewModel` (inherit from `BaseViewModel : ObservableValidator`, use `[ObservableProperty]` partials)
+- [x] Scaffold `DashboardView`, `IncidentWizardView`, `IncidentDetailView`
 
 ### 5. Services
 - [x] Create skeletons for all services
@@ -146,8 +146,8 @@ OperationPrime/
 - [ ] Add keyboard shortcuts
 
 ### 7. Testing & Verification
-- [ ] Add unit tests for core logic
-- [ ] Document implementation evidence
+- [ ] Add unit tests for core logic *(deferred - environment lacks .NET 9 tooling)*
+- [ ] Document implementation evidence *(pending test completion)*
 
 ---
 
