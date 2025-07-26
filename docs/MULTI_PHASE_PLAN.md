@@ -97,6 +97,7 @@ Logs should be verbose in debug builds and minimal in release builds. Persist lo
 ## 8. Summary Checklist
 - [x] Add missing interfaces (`INOIService`, workflow services).
 - [x] Correct `OperationPrimeDbContextFactory` constructor usage.
+- [x] Ensure all services and ViewModels use `ILogger<T>`.
 - [ ] Ensure all services and ViewModels use `ILogger<T>`.
 - [x] Implement DI registration for new services.
 - [ ] Expand unit tests and architecture checks in `tests/`.

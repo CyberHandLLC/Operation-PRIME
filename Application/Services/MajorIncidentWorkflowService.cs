@@ -34,6 +34,14 @@ public class MajorIncidentWorkflowService : IMajorIncidentWorkflowService
         return incident;
     }
 
+    // Future asynchronous version placeholder. Once template rendering or
+    // email sending becomes asynchronous, uncomment and implement accordingly.
+    // public async Task<string> GenerateNoiAsync(MajorIncident incident, string templateType)
+    // {
+    //     _logger.LogInformation("Generating NOI for incident {Id}", incident.Id);
+    //     var content = await SomeAsyncNoiGenerationMethod(incident, templateType);
+    //     return content;
+    // }
     /// <summary>
     /// Generates NOI content for a major incident.
     /// TODO: Make this method truly async when NOI generation requires I/O or external calls.
@@ -44,6 +52,7 @@ public class MajorIncidentWorkflowService : IMajorIncidentWorkflowService
         var content = _noiService.GenerateNOI(incident, templateType);
         return Task.FromResult(content);
     }
+
     // The following async version is commented out as a placeholder for future async implementation.
     // It is currently redundant, but left here for AI agents or developers to reference or correct later.
     /*
