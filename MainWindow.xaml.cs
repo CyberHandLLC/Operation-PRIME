@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
@@ -28,7 +29,8 @@ public sealed partial class MainWindow : Window
         this.Title = "OPERATION PRIME - Network Operations Center";
         
         // Create NavigationService with the ContentFrame
-        _navigationService = new NavigationService(ContentFrame);
+        var navLogger = _serviceProvider.GetRequiredService<ILogger<NavigationService>>();
+        _navigationService = new NavigationService(ContentFrame, navLogger);
         
         // Navigate to Dashboard by default
         _navigationService.NavigateTo(NavigationConstants.Dashboard);
@@ -74,8 +76,8 @@ public sealed partial class MainWindow : Window
         var viewName = pageTag switch
         {
             "Dashboard" => NavigationConstants.Dashboard,
-            "CreatePreIncident" => NavigationConstants.CreateIncident,
-            "CreateMajorIncident" => NavigationConstants.CreateIncident,
+            "CreatePreIncident" => NavigationConstants.PreIncidentWizard,
+            "CreateMajorIncident" => NavigationConstants.MajorIncidentWizard,
             "ViewIncidents" => NavigationConstants.IncidentList,
             "Reports" => NavigationConstants.Reports,
             "Settings" => NavigationConstants.Settings,

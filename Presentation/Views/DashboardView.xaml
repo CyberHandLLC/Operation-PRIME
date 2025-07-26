@@ -107,10 +107,13 @@
                       Margin="0,24,0,8"/>
             
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Content="Create Pre-Incident" 
-                       Style="{StaticResource AccentButtonStyle}"/>
-                <Button Content="Create Major Incident"/>
-                <Button Content="View All Incidents"/>
+                <Button Content="Create Pre-Incident"
+                       Style="{StaticResource AccentButtonStyle}"
+                       Command="{Binding CreatePreIncidentCommand}"/>
+                <Button Content="Create Major Incident"
+                       Command="{Binding CreateMajorIncidentCommand}"/>
+                <Button Content="View All Incidents"
+                       Command="{Binding ViewIncidentsCommand}"/>
             </StackPanel>
             
         </StackPanel>

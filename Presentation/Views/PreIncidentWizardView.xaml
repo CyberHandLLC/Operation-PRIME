@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page x:Class="OperationPrime.Presentation.Views.PreIncidentWizardView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Margin="24" Spacing="16">
+        <TextBlock Text="Pre-Incident Wizard" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock Text="Step {Binding StepIndex}" Style="{StaticResource BodyTextBlockStyle}"/>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Content="Previous" Command="{Binding PreviousStepCommand}"/>
+            <Button Content="Next" Command="{Binding NextStepCommand}"/>
+        </StackPanel>
+    </StackPanel>
+</Page>
