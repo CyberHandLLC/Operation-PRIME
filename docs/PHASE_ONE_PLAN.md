@@ -146,8 +146,8 @@ OperationPrime/
 - [ ] Add keyboard shortcuts
 
 ### 7. Testing & Verification
-- [ ] Add unit tests for core logic
-- [ ] Document implementation evidence
+- [ ] Add unit tests for core logic *(deferred - environment lacks .NET 9 tooling)*
+- [ ] Document implementation evidence *(pending test completion)*
 
 ---
 

@@ -86,6 +86,7 @@ OPERATION PRIME is a secure, offline-first desktop application for managing netw
 ### Core Documentation
 - [Quick Reference](./docs/QUICK_REFERENCE.md) - Cheat sheet for common tasks and workflows
 - [Architecture Guide](./docs/ARCHITECTURE.md) - Technical architecture and design patterns
+- [Multi-Phase Plan](./docs/MULTI_PHASE_PLAN.md) - Consolidated roadmap and checklist
 - [User Interface Guide](./docs/UI_GUIDE.md) - UI components and design specifications
 - [Workflow Guide](./docs/WORKFLOWS.md) - Detailed incident management workflows
 
