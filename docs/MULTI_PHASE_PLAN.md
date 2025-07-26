@@ -38,7 +38,7 @@ Presentation/
 - **BaseViewModel** (`Presentation/ViewModels`): Inherits from `ObservableValidator` and contains common properties (`IsBusy`, `Title`).
 - **BaseEntity** (`Domain/Entities`): Provides audit trail fields and `UpdateAuditFields` method.
 - **Validation**: Start with data annotations in ViewModels; later migrate to FluentValidation in the Application layer.
-- **Logging**: Inject `ILogger<T>` into all services, repositories and ViewModels. Use debug-level logs for workflow steps and information-level logs for important actions.
+- **Logging**: Inject `ILogger<T>` into all services, repositories, and ViewModels. Logging is now fully implemented and consistent across all core Application services, repositories, ViewModels, and infrastructure services. Use debug-level logs for workflow steps and information-level logs for important actions.
 
 ## 4. Database and Encryption Setup
 - Use `OperationPrimeDbContext` with SQLCipher via `Microsoft.Data.Sqlite` connection string format.
@@ -91,10 +91,13 @@ Logs should be verbose in debug builds and minimal in release builds. Persist lo
 ## 8. Summary Checklist
 - [x] Add missing interfaces (`INOIService`, workflow services).
 - [x] Correct `OperationPrimeDbContextFactory` constructor usage.
-- [x] Ensure all services and ViewModels use `ILogger<T>`.
+- [x] Ensure all services, repositories, and ViewModels use `ILogger<T>` (logging is fully implemented and consistent across all core layers).
 - [x] Implement DI registration for new services.
+- [x] Migration files present in `/Migrations` (initial migration created).
+- [x] Data persistence fully verified (EF Core migrations ran successfully, 2025-07-25).
 - [ ] Expand unit tests and architecture checks in `tests/` *(deferred until tooling is available)*.
-- [ ] Ensure all services and ViewModels use `ILogger<T>`.
-- [x] Implement DI registration for new services.
+- [ ] Implement `PriorityMatrix` value object (still missing; currently handled as a private matrix in `PriorityService`).
+- [ ] Scaffold wizard/navigation logic and views (e.g., `IncidentWizardView`, `IncidentDetailView`) for incident workflows.
+
 This consolidated plan streamlines the documentation and clarifies next actions for continuing Operation Prime development.
 
