@@ -85,10 +85,12 @@
 - Registered new ViewModels in App.ConfigureServices
 - Updated PHASE_ONE_PLAN and status trackers to mark ViewModel tasks complete
 ## 2025-07-26T02:29:08Z Update
+## 2025-07-26T02:29:08Z Update
 - Scaffolded IncidentWizardViewModel with logger and step commands
 - Added IncidentWizardView and IncidentDetailView pages with basic layout
 - Updated NavigationService to route to new pages
 - Registered IncidentWizardViewModel in dependency injection
+## 2025-07-26T05:14:36Z Update
 ## 2025-07-26T05:14:36Z Update
 - Introduced WizardViewModelBase for common wizard logic
 - Added PreIncidentWizardViewModel and MajorIncidentWizardViewModel derived from the base
@@ -101,6 +103,21 @@
 - Updated IncidentViewModel and WizardViewModelBase to generic forms so derived classes inject ILogger<T>
 - Removed unused IncidentViewModel registration from DI
 - Updated PHASE_ONE_PLAN checklist and Implementation Status progress
+
+## 2025-07-26T05:33:29Z Update
+- Created dedicated PreIncidentWizardView and MajorIncidentWizardView pages with DI-backed ViewModels
+- Added navigation constants and routes for the new wizard views
+- Updated Dashboard buttons to invoke new commands for pre/major incident creation
+- Adjusted MainWindow routing and NavigationService mappings
+- Marked wizard scaffolding step complete in PHASE_ONE_PLAN and bumped ViewModel progress to 90%
+## 2025-07-26T05:45:25Z Update
+- Consolidated Pre and Major incident wizards into a single IncidentWizard
+- Removed old wizard viewmodels and views; navigation updated to pass incident type parameter
+- Updated DI registrations and dashboard commands for the unified wizard
+- Documentation and status tracker updated
+
+## 2025-07-26T06:15:00Z Update\n- Revised Coding Standards to reflect unified IncidentWizardViewModel approach and note duplication as bad.\n
+
 ## 2025-07-25T19:10:55-07:00 Update
 - Data Persistence milestone achieved: EF Core migrations ran successfully and database schema fully verified.
 - All documentation and status trackers updated to reflect completion.

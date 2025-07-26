@@ -11,6 +11,12 @@ namespace OperationPrime.Presentation.ViewModels;
 public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
     where TViewModel : class
 {
+    protected ILogger<TViewModel> Logger { get; }
+
+    protected WizardViewModelBase(ILogger<TViewModel> logger)
+    {
+        Logger = logger;
+        Logger.LogDebug("{ViewModel} initialized", typeof(TViewModel).Name);
     private readonly ILogger<TViewModel> _logger;
 
     protected WizardViewModelBase(ILogger<TViewModel> logger)
@@ -32,6 +38,7 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
     public void NextStep()
     {
         StepIndex++;
+        Logger.LogDebug("Advanced to step {Step}", StepIndex);
         _logger.LogDebug("Advanced to step {Step}", StepIndex);
     }
 
@@ -44,6 +51,7 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
         if (StepIndex > 0)
         {
             StepIndex--;
+            Logger.LogDebug("Returned to step {Step}", StepIndex);
             _logger.LogDebug("Returned to step {Step}", StepIndex);
         }
     }

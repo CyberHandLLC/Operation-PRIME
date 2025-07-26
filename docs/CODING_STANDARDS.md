@@ -249,68 +249,53 @@ public string GenerateNOICompleteProcess(IncidentViewModel incident, bool sendEm
 
 ### Avoid Component Code Reuse
 
-#### Create Dedicated Components
+#### Unified Wizard with Conditional Fields
 ```csharp
-// ✅ GOOD - Separate, dedicated ViewModels
-public class PreIncidentWizardViewModel : WizardViewModelBase
+// ✅ GOOD - Single wizard ViewModel with conditional logic
+public partial class IncidentWizardViewModel : WizardViewModelBase<IncidentWizardViewModel>
 {
-    // Pre-incident specific logic only
-    public ObservableCollection<string> PreIncidentSources { get; } = new()
+    private readonly IPreIncidentWorkflowService _preWorkflow;
+    private readonly IMajorIncidentWorkflowService _majorWorkflow;
+
+    public PreIncidentViewModel PreIncident { get; }
+    public MajorIncidentViewModel MajorIncident { get; }
+
+    public IncidentType IncidentType { get; private set; }
+
+    public IncidentWizardViewModel(
+        IPreIncidentWorkflowService preWorkflow,
+        IMajorIncidentWorkflowService majorWorkflow,
+        PreIncidentViewModel preIncident,
+        MajorIncidentViewModel majorIncident,
+        ILogger<IncidentWizardViewModel> logger)
+        : base(logger)
     {
-        "Service Desk", "NOC", "SME"
-    };
-    
+        _preWorkflow = preWorkflow;
+        _majorWorkflow = majorWorkflow;
+        PreIncident = preIncident;
+        MajorIncident = majorIncident;
+    }
+
+    public void Initialize(IncidentType type)
+    {
+        IncidentType = type;
+        Logger.LogDebug("Wizard initialized for {Type}", type);
+    }
+
     protected override ValidationResult ValidateStep(int stepIndex)
     {
-        return stepIndex switch
+        return IncidentType switch
         {
-            0 => ValidateBasicFields(),
-            1 => ValidatePreIncidentSpecificFields(),
+            IncidentType.PreIncident => ValidatePreIncidentStep(stepIndex),
+            IncidentType.MajorIncident => ValidateMajorIncidentStep(stepIndex),
             _ => ValidationResult.Success
         };
     }
 }
 
-public class MajorIncidentWizardViewModel : WizardViewModelBase
-{
-    // Major incident specific logic only
-    public ObservableCollection<string> EscalationContacts { get; } = new();
-    public bool RequiresNOI => true;
-    
-    protected override ValidationResult ValidateStep(int stepIndex)
-    {
-        return stepIndex switch
-        {
-            0 => ValidateBasicFields(),
-            1 => ValidateMajorIncidentFields(),
-            2 => ValidateNOIRequirements(),
-            _ => ValidationResult.Success
-        };
-    }
-}
-
-// ❌ BAD - Shared component with branching logic
-public class SharedIncidentWizardViewModel
-{
-    public string IncidentType { get; set; }
-    
-    public void ValidateCurrentStep()
-    {
-        if (IncidentType == "Pre")
-        {
-            // Pre-incident validation
-            if (string.IsNullOrEmpty(Title)) AddError("Title required");
-            if (ImpactedUsers > 100) AddError("Pre-incidents limited to 100 users");
-        }
-        else if (IncidentType == "Major")
-        {
-            // Major incident validation
-            if (string.IsNullOrEmpty(Title)) AddError("Title required");
-            if (string.IsNullOrEmpty(BusinessImpact)) AddError("Business impact required");
-            if (EscalationContacts.Count == 0) AddError("Escalation contacts required");
-        }
-    }
-}
+// ❌ BAD - Duplicating entire wizard ViewModels
+public class PreIncidentWizardViewModel : WizardViewModelBase { /* duplicate fields */ }
+public class MajorIncidentWizardViewModel : WizardViewModelBase { /* duplicate fields */ }
 ```
 
 #### Separate Service Implementations

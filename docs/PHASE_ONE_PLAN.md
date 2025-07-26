@@ -148,6 +148,8 @@ OperationPrime/
 - [x] Register services in DI (dependency injection setup is complete and covers all core layers)
 
 ### 6. Workflows & UI
+- [x] Scaffold unified incident wizard with conditional fields
+- [ ] Implement validation and navigation logic
 - [ ] Scaffold wizard flows for Pre/Major Incidents (wizard/navigation logic not yet implemented)
 - [ ] Implement validation and navigation logic (partial; some validation present, navigation logic for wizard missing)
 - [ ] Add keyboard shortcuts

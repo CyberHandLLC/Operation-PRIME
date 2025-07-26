@@ -1,5 +1,9 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml.Navigation;
+using OperationPrime.Presentation.ViewModels;
+using OperationPrime.Domain.Enums;
+using OperationPrime;
 using OperationPrime.Presentation.ViewModels;
 using OperationPrime;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,6 +20,17 @@ public sealed partial class IncidentWizardView : Page
         this.InitializeComponent();
 
         ViewModel = App.Current.GetService<IncidentWizardViewModel>();
+        DataContext = ViewModel;
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        if (e.Parameter is IncidentType type)
+        {
+            ViewModel.Initialize(type);
+        }
+    }
         // Temporary ViewModel creation until DI is wired for pages
         var logger = NullLogger<IncidentWizardViewModel>.Instance;
         ViewModel = new IncidentWizardViewModel(logger);
