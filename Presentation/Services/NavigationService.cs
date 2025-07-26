@@ -157,8 +157,6 @@ public class NavigationService : INavigationService
             NavigationConstants.Dashboard => typeof(DashboardView),
             NavigationConstants.Placeholder => typeof(PlaceholderView),
             NavigationConstants.CreateIncident => typeof(IncidentWizardView),
-            NavigationConstants.PreIncidentWizard => typeof(PreIncidentWizardView),
-            NavigationConstants.MajorIncidentWizard => typeof(MajorIncidentWizardView),
             NavigationConstants.IncidentList => typeof(PlaceholderView), // TODO: Replace with actual view
             NavigationConstants.IncidentDetails => typeof(IncidentDetailView),
             NavigationConstants.Reports => typeof(PlaceholderView), // TODO: Replace with actual view

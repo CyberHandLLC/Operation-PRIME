@@ -23,12 +23,6 @@ public static class NavigationConstants
     /// <summary>
     /// Pre-Incident wizard view.
     /// </summary>
-    public const string PreIncidentWizard = "PreIncidentWizard";
-
-    /// <summary>
-    /// Major Incident wizard view.
-    /// </summary>
-    public const string MajorIncidentWizard = "MajorIncidentWizard";
 
     /// <summary>
     /// Incident list view.
@@ -66,8 +60,6 @@ public static class NavigationConstants
             Dashboard,
             Placeholder,
             CreateIncident,
-            PreIncidentWizard,
-            MajorIncidentWizard,
             IncidentList,
             IncidentDetails,
             Reports,

@@ -76,8 +76,8 @@ public sealed partial class MainWindow : Window
         var viewName = pageTag switch
         {
             "Dashboard" => NavigationConstants.Dashboard,
-            "CreatePreIncident" => NavigationConstants.PreIncidentWizard,
-            "CreateMajorIncident" => NavigationConstants.MajorIncidentWizard,
+            "CreatePreIncident" => NavigationConstants.CreateIncident,
+            "CreateMajorIncident" => NavigationConstants.CreateIncident,
             "ViewIncidents" => NavigationConstants.IncidentList,
             "Reports" => NavigationConstants.Reports,
             "Settings" => NavigationConstants.Settings,

@@ -109,3 +109,9 @@
 - Updated Dashboard buttons to invoke new commands for pre/major incident creation
 - Adjusted MainWindow routing and NavigationService mappings
 - Marked wizard scaffolding step complete in PHASE_ONE_PLAN and bumped ViewModel progress to 90%
+## 2025-07-26T05:45:25Z Update
+- Consolidated Pre and Major incident wizards into a single IncidentWizard
+- Removed old wizard viewmodels and views; navigation updated to pass incident type parameter
+- Updated DI registrations and dashboard commands for the unified wizard
+- Documentation and status tracker updated
+

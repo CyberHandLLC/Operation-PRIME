@@ -141,7 +141,7 @@ OperationPrime/
 - [x] Register services in DI
 
 ### 6. Workflows & UI
-- [x] Scaffold wizard flows for Pre/Major Incidents
+- [x] Scaffold unified incident wizard with conditional fields
 - [ ] Implement validation and navigation logic
 - [ ] Add keyboard shortcuts
 

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Constants;
+using OperationPrime.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace OperationPrime.Presentation.ViewModels;
@@ -70,8 +71,8 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private void CreatePreIncident()
     {
-        _logger.LogDebug("Navigating to PreIncidentWizard view");
-        _navigationService.NavigateTo(NavigationConstants.PreIncidentWizard);
+        _logger.LogDebug("Navigating to IncidentWizard view for Pre-Incident");
+        _navigationService.NavigateTo(NavigationConstants.CreateIncident, IncidentType.PreIncident);
     }
 
     /// <summary>
@@ -80,8 +81,8 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private void CreateMajorIncident()
     {
-        _logger.LogDebug("Navigating to MajorIncidentWizard view");
-        _navigationService.NavigateTo(NavigationConstants.MajorIncidentWizard);
+        _logger.LogDebug("Navigating to IncidentWizard view for Major Incident");
+        _navigationService.NavigateTo(NavigationConstants.CreateIncident, IncidentType.MajorIncident);
     }
 
     /// <summary>
