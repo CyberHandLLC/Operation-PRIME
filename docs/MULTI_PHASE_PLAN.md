@@ -88,19 +88,13 @@ Logs should be verbose in debug builds and minimal in release builds. Persist lo
 - Integrate Neurons HTTP calls via `TokenProvider` and `NeuronsService`.
 - Build WinUI pages and ViewModels that consume application services.
 
-### Phase 3 – Testing & Validation
-- Add xUnit tests for services and repositories.
-- Add NetArchTest rules to validate layer dependencies.
-- Verify logging output and error handling.
-- Prepare migration scripts and data seeding once .NET 9 SDK is available.
-
 ## 8. Summary Checklist
 - [x] Add missing interfaces (`INOIService`, workflow services).
 - [x] Correct `OperationPrimeDbContextFactory` constructor usage.
 - [x] Ensure all services and ViewModels use `ILogger<T>`.
+- [x] Implement DI registration for new services.
+- [ ] Expand unit tests and architecture checks in `tests/` *(deferred until tooling is available)*.
 - [ ] Ensure all services and ViewModels use `ILogger<T>`.
 - [x] Implement DI registration for new services.
-- [ ] Expand unit tests and architecture checks in `tests/`.
-
 This consolidated plan streamlines the documentation and clarifies next actions for continuing Operation Prime development.
 
