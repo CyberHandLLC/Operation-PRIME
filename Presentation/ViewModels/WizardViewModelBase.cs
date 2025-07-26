@@ -5,21 +5,18 @@ using Microsoft.Extensions.Logging;
 namespace OperationPrime.Presentation.ViewModels;
 
 /// <summary>
-/// ViewModel orchestrating the multi-step incident creation wizard.
+/// Base class for wizard style ViewModels with step tracking logic.
+/// Provides Next/Previous commands and exposes the current step index.
 /// </summary>
-public partial class IncidentWizardViewModel : WizardViewModelBase<IncidentWizardViewModel>
+public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
+    where TViewModel : class
 {
-    public IncidentWizardViewModel(ILogger<IncidentWizardViewModel> logger)
-        : base(logger)
-    {
-public partial class IncidentWizardViewModel : BaseViewModel
-{
-    private readonly ILogger<IncidentWizardViewModel> _logger;
+    private readonly ILogger<TViewModel> _logger;
 
-    public IncidentWizardViewModel(ILogger<IncidentWizardViewModel> logger)
+    protected WizardViewModelBase(ILogger<TViewModel> logger)
     {
         _logger = logger;
-        _logger.LogDebug("IncidentWizardViewModel initialized");
+        _logger.LogDebug("{ViewModel} initialized", typeof(TViewModel).Name);
     }
 
     /// <summary>
@@ -32,7 +29,7 @@ public partial class IncidentWizardViewModel : BaseViewModel
     /// Advances to the next wizard step.
     /// </summary>
     [RelayCommand]
-    private void NextStep()
+    public void NextStep()
     {
         StepIndex++;
         _logger.LogDebug("Advanced to step {Step}", StepIndex);
@@ -42,7 +39,7 @@ public partial class IncidentWizardViewModel : BaseViewModel
     /// Returns to the previous wizard step if possible.
     /// </summary>
     [RelayCommand]
-    private void PreviousStep()
+    public void PreviousStep()
     {
         if (StepIndex > 0)
         {

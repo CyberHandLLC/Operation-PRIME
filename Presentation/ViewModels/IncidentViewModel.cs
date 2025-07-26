@@ -10,6 +10,12 @@ namespace OperationPrime.Presentation.ViewModels;
 /// Base ViewModel for all incident types.
 /// Provides common incident fields and validation.
 /// </summary>
+public partial class IncidentViewModel<TViewModel> : BaseViewModel where TViewModel : IncidentViewModel<TViewModel>
+{
+    protected readonly IIncidentService IncidentService;
+    protected readonly ILogger<TViewModel> Logger;
+
+    public IncidentViewModel(IIncidentService incidentService, ILogger<TViewModel> logger)
 public partial class IncidentViewModel : BaseViewModel
 {
     protected readonly IIncidentService IncidentService;

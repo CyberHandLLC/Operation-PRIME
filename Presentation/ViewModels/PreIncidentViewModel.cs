@@ -10,6 +10,7 @@ namespace OperationPrime.Presentation.ViewModels;
 /// <summary>
 /// ViewModel for creating and managing pre-incidents.
 /// </summary>
+public partial class PreIncidentViewModel : IncidentViewModel<PreIncidentViewModel>
 public partial class PreIncidentViewModel : IncidentViewModel
 {
     private readonly ILogger<PreIncidentViewModel> _logger;

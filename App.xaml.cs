@@ -74,6 +74,11 @@ namespace OperationPrime
                 services.AddTransient<PlaceholderViewModel>();
                 services.AddTransient<MainPageViewModel>();
                 services.AddTransient<BaseViewModel>();
+                services.AddTransient<PreIncidentViewModel>();
+                services.AddTransient<MajorIncidentViewModel>();
+                services.AddTransient<IncidentWizardViewModel>();
+                services.AddTransient<PreIncidentWizardViewModel>();
+                services.AddTransient<MajorIncidentWizardViewModel>()
                 services.AddTransient<IncidentViewModel>();
                 services.AddTransient<PreIncidentViewModel>();
                 services.AddTransient<MajorIncidentViewModel>();

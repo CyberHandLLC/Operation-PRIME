@@ -109,7 +109,7 @@ OperationPrime/
   - Presentation (WinUI 3 UI, ViewModels, XAML, Services, Utils)
 - [x] Define repository/service interfaces in Domain/Application, implementations in Infrastructure
 - [x] Set up DI/service registration for all interfaces with correct lifetimes
-- [ ] Scaffold basic audit logging and error handling (IAuditService, ILogger<T> usage)
+ - [x] Scaffold basic audit logging and error handling (IAuditService, ILogger<T> usage)
 - [x] Enforce Clean Architecture, DI, and logging/audit/error handling patterns for all future development
 
 ### 1. MVVM Foundation

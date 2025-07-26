@@ -11,6 +11,7 @@ namespace OperationPrime.Presentation.ViewModels;
 /// <summary>
 /// ViewModel for creating and managing major incidents.
 /// </summary>
+public partial class MajorIncidentViewModel : IncidentViewModel<MajorIncidentViewModel>
 public partial class MajorIncidentViewModel : IncidentViewModel
 {
     private readonly INOIService _noiService;
