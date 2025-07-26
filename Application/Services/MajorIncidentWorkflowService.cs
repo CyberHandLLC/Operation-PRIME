@@ -42,6 +42,7 @@ public class MajorIncidentWorkflowService : IMajorIncidentWorkflowService
     //     var content = await SomeAsyncNoiGenerationMethod(incident, templateType);
     //     return content;
     // }
+
     /// <summary>
     /// Generates NOI content for a major incident.
     /// TODO: Make this method truly async when NOI generation requires I/O or external calls.
