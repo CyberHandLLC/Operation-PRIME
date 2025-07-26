@@ -7,21 +7,15 @@ using OperationPrime.Domain.Enums;
 namespace OperationPrime.Presentation.ViewModels;
 
 /// <summary>
-/// Base ViewModel for all incident types.
-/// Provides common incident fields and validation.
+/// Base ViewModel for all incident types. Provides common incident fields and validation.
 /// </summary>
-public partial class IncidentViewModel<TViewModel> : BaseViewModel where TViewModel : IncidentViewModel<TViewModel>
+public partial class IncidentViewModel<TViewModel> : BaseViewModel
+    where TViewModel : IncidentViewModel<TViewModel>
 {
     protected readonly IIncidentService IncidentService;
     protected readonly ILogger<TViewModel> Logger;
 
     public IncidentViewModel(IIncidentService incidentService, ILogger<TViewModel> logger)
-public partial class IncidentViewModel : BaseViewModel
-{
-    protected readonly IIncidentService IncidentService;
-    protected readonly ILogger<IncidentViewModel> Logger;
-
-    public IncidentViewModel(IIncidentService incidentService, ILogger<IncidentViewModel> logger)
     {
         IncidentService = incidentService;
         Logger = logger;
@@ -62,4 +56,3 @@ public partial class IncidentViewModel : BaseViewModel
     [Required(ErrorMessage = "Support team is required")]
     private string supportTeam = string.Empty;
 }
-

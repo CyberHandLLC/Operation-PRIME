@@ -11,14 +11,10 @@ namespace OperationPrime.Presentation.ViewModels;
 /// ViewModel for creating and managing pre-incidents.
 /// </summary>
 public partial class PreIncidentViewModel : IncidentViewModel<PreIncidentViewModel>
-public partial class PreIncidentViewModel : IncidentViewModel
 {
-    private readonly ILogger<PreIncidentViewModel> _logger;
-
     public PreIncidentViewModel(IIncidentService incidentService, ILogger<PreIncidentViewModel> logger)
         : base(incidentService, logger)
     {
-        _logger = logger;
     }
 
     [ObservableProperty]
@@ -31,7 +27,7 @@ public partial class PreIncidentViewModel : IncidentViewModel
     [RelayCommand]
     private async Task SaveAsync()
     {
-        _logger.LogDebug("Saving pre-incident {Number}", IncidentNumber);
+        Logger.LogDebug("Saving pre-incident {Number}", IncidentNumber);
         var entity = new PreIncident
         {
             IncidentNumber = IncidentNumber,

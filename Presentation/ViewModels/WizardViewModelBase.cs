@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
 namespace OperationPrime.Presentation.ViewModels;
 
@@ -17,12 +18,6 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
     {
         Logger = logger;
         Logger.LogDebug("{ViewModel} initialized", typeof(TViewModel).Name);
-    private readonly ILogger<TViewModel> _logger;
-
-    protected WizardViewModelBase(ILogger<TViewModel> logger)
-    {
-        _logger = logger;
-        _logger.LogDebug("{ViewModel} initialized", typeof(TViewModel).Name);
     }
 
     /// <summary>
@@ -32,14 +27,28 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
     private int stepIndex;
 
     /// <summary>
+    /// Performs validation for the specified step.
+    /// </summary>
+    /// <param name="stepIndex">The step index to validate.</param>
+    /// <returns>A <see cref="ValidationResult"/> indicating the result.</returns>
+    protected virtual ValidationResult ValidateStep(int stepIndex) => ValidationResult.Success!;
+
+    /// <summary>
     /// Advances to the next wizard step.
     /// </summary>
     [RelayCommand]
     public void NextStep()
     {
-        StepIndex++;
-        Logger.LogDebug("Advanced to step {Step}", StepIndex);
-        _logger.LogDebug("Advanced to step {Step}", StepIndex);
+        var result = ValidateStep(StepIndex);
+        if (result == ValidationResult.Success)
+        {
+            StepIndex++;
+            Logger.LogDebug("Advanced to step {Step}", StepIndex);
+        }
+        else
+        {
+            Logger.LogWarning("Step {Step} validation failed: {Message}", StepIndex, result.ErrorMessage);
+        }
     }
 
     /// <summary>
@@ -52,7 +61,6 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
         {
             StepIndex--;
             Logger.LogDebug("Returned to step {Step}", StepIndex);
-            _logger.LogDebug("Returned to step {Step}", StepIndex);
         }
     }
 }

@@ -125,7 +125,7 @@ OperationPrime/
 - [x] Implement `Incident` base class
 - [x] Implement `PreIncident` and `MajorIncident` classes
 - [x] Add validation attributes (use data annotations for validation)
-- [ ] Implement `PriorityMatrix` value object (currently handled as a private matrix in `PriorityService`; value object not yet created)
+- [x] Implement `PriorityMatrix` value object (replaces private matrix in `PriorityService`)
 
 ### 3. DbContext & Persistence
 - [x] Implement `AppDbContext` with encryption
