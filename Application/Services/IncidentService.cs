@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Domain.Interfaces;
+using System.Linq;
 
 namespace OperationPrime.Application.Services;
 
@@ -40,8 +41,8 @@ public class IncidentService : IIncidentService
     public async Task<IEnumerable<Incident>> GetAllAsync()
     {
         _logger.LogDebug("Retrieving all incidents");
-        var result = await _repository.GetAllAsync();
-        _logger.LogDebug("Retrieved {Count} incidents", result?.Count() ?? 0);
+        var result = await _repository.GetAllAsync() ?? Enumerable.Empty<Incident>();
+        _logger.LogDebug("Retrieved {Count} incidents", result.Count());
         return result;
     }
 

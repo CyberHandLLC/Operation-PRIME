@@ -74,6 +74,9 @@ namespace OperationPrime
                 services.AddTransient<PlaceholderViewModel>();
                 services.AddTransient<MainPageViewModel>();
                 services.AddTransient<BaseViewModel>();
+                services.AddTransient<IncidentViewModel>();
+                services.AddTransient<PreIncidentViewModel>();
+                services.AddTransient<MajorIncidentViewModel>();
 
                 // Create configuration for the infrastructure layer
                 var dbPath = Path.Combine(
