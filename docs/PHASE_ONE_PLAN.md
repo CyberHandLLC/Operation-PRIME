@@ -125,7 +125,7 @@ OperationPrime/
 - [x] Implement `Incident` base class
 - [x] Implement `PreIncident` and `MajorIncident` classes
 - [x] Add validation attributes (use data annotations for validation)
-- [x] Create `PriorityMatrix` value object
+- [ ] Implement `PriorityMatrix` value object (currently handled as a private matrix in `PriorityService`; value object not yet created)
 
 ### 3. DbContext & Persistence
 - [x] Implement `AppDbContext` with encryption
@@ -135,14 +135,21 @@ OperationPrime/
 ### 4. ViewModels & Views
 - [x] Implement `IncidentViewModel`, `PreIncidentViewModel`, `MajorIncidentViewModel` (inherit from `BaseViewModel : ObservableValidator`, use `[ObservableProperty]` partials)
 - [x] Scaffold `DashboardView`, `IncidentWizardView`, `IncidentDetailView`
+- [x] Create and apply initial migration (migration files exist in `/Migrations`)
+- [x] Data persistence fully verified (EF Core migrations ran successfully, 2025-07-25)
+
+### 4. ViewModels & Views
+- [x] Implement `IncidentViewModel`, `PreIncidentViewModel`, `MajorIncidentViewModel` (inherit from `BaseViewModel : ObservableValidator`, use `[ObservableProperty]` partials)
+- [x] Scaffold `DashboardView`
+- [ ] Scaffold `IncidentWizardView`, `IncidentDetailView` (not yet implemented)
 
 ### 5. Services
 - [x] Create skeletons for all services
-- [x] Register services in DI
+- [x] Register services in DI (dependency injection setup is complete and covers all core layers)
 
 ### 6. Workflows & UI
-- [ ] Scaffold wizard flows for Pre/Major Incidents
-- [ ] Implement validation and navigation logic
+- [ ] Scaffold wizard flows for Pre/Major Incidents (wizard/navigation logic not yet implemented)
+- [ ] Implement validation and navigation logic (partial; some validation present, navigation logic for wizard missing)
 - [ ] Add keyboard shortcuts
 
 ### 7. Testing & Verification
@@ -158,5 +165,6 @@ OperationPrime/
 - MVVM Toolkit analyzers must be enabled to enforce correct usage and surface errors/warnings
 - Use `[RelayCommand]` and `IAsyncRelayCommand` for commands; use `IMessenger` for decoupled messaging between ViewModels
 - Validation is handled via data annotations and toolkit support—no need to manually implement `INotifyDataErrorInfo`
+- **Logging is now fully implemented and consistent across all core Application services, repositories, ViewModels, and infrastructure services.**
 
 **Refer to this plan as you build out Phase One. Each step is designed to ensure maintainability, testability, and alignment with project standards and requirements.**
