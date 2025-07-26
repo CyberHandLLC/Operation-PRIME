@@ -1,47 +1,26 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Application.Services;
-using OperationPrime.Domain.Interfaces;
-using OperationPrime.Infrastructure.Data;
-using OperationPrime.Infrastructure.Data.Repositories;
-using OperationPrime.Infrastructure.Services;
-using OperationPrime.Infrastructure.Options;
 
 namespace OperationPrime.Infrastructure;
 
 /// <summary>
-/// Service registration extensions for the Infrastructure layer.
+/// Extension methods for configuring infrastructure services.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>
+    /// Adds simplified infrastructure services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        // Register the simple in-memory incident service
+        services.AddSingleton<IIncidentService, IncidentService>();
 
-        services.Configure<Options.DatabaseOptions>(configuration.GetSection("Database"));
 
-        services.AddDbContext<OperationPrimeDbContext>((sp, options) =>
-        {
-            var dbOpts = sp.GetRequiredService<IOptions<Options.DatabaseOptions>>().Value;
-            var connection = $"{dbOpts.ConnectionString};Password={dbOpts.EncryptionKey}";
-            options.UseSqlite(connection);
-        });
 
-        services.AddScoped<IIncidentRepository, IncidentRepository>();
-        services.AddScoped<IPreIncidentRepository, PreIncidentRepository>();
-        services.AddScoped<IMajorIncidentRepository, MajorIncidentRepository>();
-
-        services.AddScoped<IIncidentService, IncidentService>();
-        services.AddScoped<IPriorityService, PriorityService>();
-        services.AddScoped<IValidationService, ValidationService>();
-        services.AddScoped<IAuditService, AuditService>();
-
-        services.AddHttpClient<ITokenProvider, TokenProvider>();
-        services.AddHttpClient<INeuronsService, NeuronsService>();
         return services;
     }
 }

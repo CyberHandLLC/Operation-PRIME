@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
-using OperationPrime.Presentation.Services;
 using OperationPrime.Presentation.ViewModels;
 using OperationPrime.Infrastructure;
 using System.IO;
@@ -44,7 +43,7 @@ namespace OperationPrime
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            _window = new MainWindow(Services);
+            _window = new MainWindow();
             _window.Activate();
         }
 
@@ -68,15 +67,11 @@ namespace OperationPrime
             builder.ConfigureServices((context, services) =>
             {
                 // Register ViewModels as Transient (new instance each time)
-                services.AddTransient<DashboardViewModel>();
-                services.AddTransient<PlaceholderViewModel>();
                 services.AddTransient<MainPageViewModel>();
                 services.AddTransient<BaseViewModel>();
 
-                // Register infrastructure services and repositories
-                var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OperationPrime", "incidents.db");
-                var connectionString = $"Data Source={dbPath}";
-                services.AddInfrastructure(connectionString);
+                // Register infrastructure services
+                services.AddInfrastructure();
             });
 
             _host = builder.Build();

@@ -1,61 +1,102 @@
-using Microsoft.Extensions.Logging;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
-using OperationPrime.Domain.Interfaces;
 
 namespace OperationPrime.Application.Services;
 
 /// <summary>
-/// Application service providing higher level incident operations.
+/// Simple in-memory implementation of incident service for development.
 /// </summary>
 public class IncidentService : IIncidentService
 {
-    private readonly IIncidentRepository _repository;
-    private readonly ILogger<IncidentService> _logger;
-    private readonly IAuditService _auditService;
+    private static readonly List<Incident> _incidents = new();
+    private static readonly object _lock = new();
 
-    public IncidentService(IIncidentRepository repository, IAuditService auditService, ILogger<IncidentService> logger)
+    /// <summary>
+    /// Gets all incidents in the system.
+    /// </summary>
+    /// <returns>A list of all incidents.</returns>
+    public Task<List<Incident>> GetAllAsync()
     {
-        _repository = repository;
-        _auditService = auditService;
-        _logger = logger;
+        lock (_lock)
+        {
+            return Task.FromResult(new List<Incident>(_incidents));
+        }
     }
 
-    public async Task CreateAsync(Incident incident)
+    /// <summary>
+    /// Gets an incident by its unique identifier.
+    /// </summary>
+    /// <param name="id">The incident ID.</param>
+    /// <returns>The incident if found, null otherwise.</returns>
+    public Task<Incident?> GetByIdAsync(Guid id)
     {
-        _logger.LogDebug("Creating incident {IncidentNumber}", incident.IncidentNumber);
-        await _repository.AddAsync(incident);
-        await _auditService.LogActionAsync(incident.Id, "Created", "Incident created", incident.CreatedBy);
-        _logger.LogInformation("Incident {Id} created", incident.Id);
+        lock (_lock)
+        {
+            var incident = _incidents.FirstOrDefault(i => i.Id == id);
+            return Task.FromResult(incident);
+        }
     }
 
-    public async Task DeleteAsync(Guid id)
+    /// <summary>
+    /// Creates a new incident.
+    /// </summary>
+    /// <param name="incident">The incident to create.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public Task CreateAsync(Incident incident)
     {
-        _logger.LogDebug("Deleting incident {Id}", id);
-        await _repository.DeleteAsync(id);
-        await _auditService.LogActionAsync(id, "Deleted", "Incident deleted", "system");
-        _logger.LogInformation("Incident {Id} deleted", id);
+        if (incident == null)
+            throw new ArgumentNullException(nameof(incident));
+
+        lock (_lock)
+        {
+            incident.CreatedAt = DateTime.UtcNow;
+            incident.UpdatedAt = DateTime.UtcNow;
+            _incidents.Add(incident);
+        }
+
+        return Task.CompletedTask;
     }
 
-    public async Task<IEnumerable<Incident>> GetAllAsync()
+    /// <summary>
+    /// Updates an existing incident.
+    /// </summary>
+    /// <param name="incident">The incident to update.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public Task UpdateAsync(Incident incident)
     {
-        _logger.LogDebug("Retrieving all incidents");
-        var result = await _repository.GetAllAsync();
-        _logger.LogDebug("Retrieved {Count} incidents", result?.Count() ?? 0);
-        return result;
+        if (incident == null)
+            throw new ArgumentNullException(nameof(incident));
+
+        lock (_lock)
+        {
+            var existingIncident = _incidents.FirstOrDefault(i => i.Id == incident.Id);
+            if (existingIncident != null)
+            {
+                var index = _incidents.IndexOf(existingIncident);
+                incident.UpdatedAt = DateTime.UtcNow;
+                _incidents[index] = incident;
+            }
+        }
+
+        return Task.CompletedTask;
     }
 
-    public async Task<Incident?> GetAsync(Guid id)
+    /// <summary>
+    /// Deletes an incident by its unique identifier.
+    /// </summary>
+    /// <param name="id">The incident ID to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public Task DeleteAsync(Guid id)
     {
-        _logger.LogDebug("Retrieving incident {Id}", id);
-        return await _repository.GetAsync(id);
-    }
+        lock (_lock)
+        {
+            var incident = _incidents.FirstOrDefault(i => i.Id == id);
+            if (incident != null)
+            {
+                _incidents.Remove(incident);
+            }
+        }
 
-    public async Task UpdateAsync(Incident incident)
-    {
-        _logger.LogDebug("Updating incident {Id}", incident.Id);
-        await _repository.UpdateAsync(incident);
-        await _auditService.LogActionAsync(incident.Id, "Updated", "Incident updated", incident.UpdatedBy);
-        _logger.LogInformation("Incident {Id} updated", incident.Id);
+        return Task.CompletedTask;
     }
 }
