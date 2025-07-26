@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Presentation.Constants;
+using OperationPrime.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace OperationPrime.Presentation.ViewModels;
@@ -65,13 +66,23 @@ public partial class DashboardViewModel : BaseViewModel
     public partial DateTime LastRefreshTime { get; set; } = DateTime.Now;
 
     /// <summary>
-    /// Command to create a new incident.
+    /// Command to launch the pre-incident wizard.
     /// </summary>
     [RelayCommand]
-    private void CreateIncident()
+    private void CreatePreIncident()
     {
-        _logger.LogDebug("Navigating to CreateIncident view");
-        _navigationService.NavigateTo(NavigationConstants.CreateIncident);
+        _logger.LogDebug("Navigating to IncidentWizard view for Pre-Incident");
+        _navigationService.NavigateTo(NavigationConstants.CreateIncident, IncidentType.PreIncident);
+    }
+
+    /// <summary>
+    /// Command to launch the major incident wizard.
+    /// </summary>
+    [RelayCommand]
+    private void CreateMajorIncident()
+    {
+        _logger.LogDebug("Navigating to IncidentWizard view for Major Incident");
+        _navigationService.NavigateTo(NavigationConstants.CreateIncident, IncidentType.MajorIncident);
     }
 
     /// <summary>

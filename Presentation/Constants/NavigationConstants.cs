@@ -21,6 +21,10 @@ public static class NavigationConstants
     public const string CreateIncident = "CreateIncident";
 
     /// <summary>
+    /// Pre-Incident wizard view.
+    /// </summary>
+
+    /// <summary>
     /// Incident list view.
     /// </summary>
     public const string IncidentList = "IncidentList";
