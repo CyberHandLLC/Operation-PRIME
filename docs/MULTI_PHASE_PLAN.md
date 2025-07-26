@@ -110,7 +110,7 @@ Logs should be verbose in debug builds and minimal in release builds. Persist lo
 - [x] Migration files present in `/Migrations` (initial migration created).
 - [x] Data persistence fully verified (EF Core migrations ran successfully, 2025-07-25).
 - [ ] Expand unit tests and architecture checks in `tests/` *(deferred until tooling is available)*.
-- [ ] Implement `PriorityMatrix` value object (still missing; currently handled as a private matrix in `PriorityService`).
+- [x] Implement `PriorityMatrix` value object to replace matrix in `PriorityService`.
 - [ ] Scaffold wizard/navigation logic and views (e.g., `IncidentWizardView`, `IncidentDetailView`) for incident workflows.
 
 This consolidated plan streamlines the documentation and clarifies next actions for continuing Operation Prime development.
