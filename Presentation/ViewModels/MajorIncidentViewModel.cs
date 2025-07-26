@@ -68,6 +68,7 @@ public partial class MajorIncidentViewModel : IncidentViewModel
     }
 
     [RelayCommand]
+    private string GenerateNoi(string templateType)
     private void GenerateNoi(string templateType)
     {
         _logger.LogInformation("Generating NOI using template {Template}", templateType);
@@ -90,6 +91,7 @@ public partial class MajorIncidentViewModel : IncidentViewModel
             BridgeDetails = BridgeDetails
         };
 
+        return _noiService.GenerateNOI(incident, templateType);
         var result = _noiService.GenerateNOI(incident, templateType);
         // If needed, assign result to a property here
     }

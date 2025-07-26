@@ -38,6 +38,7 @@ Presentation/
 - **BaseViewModel** (`Presentation/ViewModels`): Inherits from `ObservableValidator` and contains common properties (`IsBusy`, `Title`).
 - **BaseEntity** (`Domain/Entities`): Provides audit trail fields and `UpdateAuditFields` method.
 - **Validation**: Start with data annotations in ViewModels; later migrate to FluentValidation in the Application layer.
+- **Logging**: Inject `ILogger<T>` into all services, repositories and ViewModels. Use debug-level logs for workflow steps and information-level logs for important actions.
 - **Logging**: Inject `ILogger<T>` into all services, repositories, and ViewModels. Logging is now fully implemented and consistent across all core Application services, repositories, ViewModels, and infrastructure services. Use debug-level logs for workflow steps and information-level logs for important actions.
 
 ## 4. Database and Encryption Setup
@@ -87,6 +88,19 @@ Logs should be verbose in debug builds and minimal in release builds. Persist lo
 - Flesh out `INOIService` and workflow services.
 - Integrate Neurons HTTP calls via `TokenProvider` and `NeuronsService`.
 - Build WinUI pages and ViewModels that consume application services.
+
+### Phase 3 – Testing & Validation
+- Add xUnit tests for services and repositories.
+- Add NetArchTest rules to validate layer dependencies.
+- Verify logging output and error handling.
+- Prepare migration scripts and data seeding once .NET 9 SDK is available.
+
+## 8. Summary Checklist
+- [x] Add missing interfaces (`INOIService`, workflow services).
+- [x] Correct `OperationPrimeDbContextFactory` constructor usage.
+- [x] Ensure all services and ViewModels use `ILogger<T>`.
+- [x] Implement DI registration for new services.
+- [ ] Expand unit tests and architecture checks in `tests/` *(deferred until tooling is available)*.
 
 ## 8. Summary Checklist
 - [x] Add missing interfaces (`INOIService`, workflow services).

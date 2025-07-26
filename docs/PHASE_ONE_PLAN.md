@@ -130,6 +130,11 @@ OperationPrime/
 ### 3. DbContext & Persistence
 - [x] Implement `AppDbContext` with encryption
 - [x] Add `DbSet<>` properties for all models
+- [ ] Create and apply initial migration
+
+### 4. ViewModels & Views
+- [x] Implement `IncidentViewModel`, `PreIncidentViewModel`, `MajorIncidentViewModel` (inherit from `BaseViewModel : ObservableValidator`, use `[ObservableProperty]` partials)
+- [x] Scaffold `DashboardView`, `IncidentWizardView`, `IncidentDetailView`
 - [x] Create and apply initial migration (migration files exist in `/Migrations`)
 - [x] Data persistence fully verified (EF Core migrations ran successfully, 2025-07-25)
 
