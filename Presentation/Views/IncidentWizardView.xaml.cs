@@ -4,6 +4,10 @@ using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Presentation.ViewModels;
 using OperationPrime.Domain.Enums;
 using OperationPrime;
+using OperationPrime.Presentation.ViewModels;
+using OperationPrime;
+using Microsoft.Extensions.Logging.Abstractions;
+using OperationPrime.Presentation.ViewModels;
 
 namespace OperationPrime.Presentation.Views;
 
@@ -26,5 +30,10 @@ public sealed partial class IncidentWizardView : Page
         {
             ViewModel.Initialize(type);
         }
+    }
+        // Temporary ViewModel creation until DI is wired for pages
+        var logger = NullLogger<IncidentWizardViewModel>.Instance;
+        ViewModel = new IncidentWizardViewModel(logger);
+        DataContext = ViewModel;
     }
 }

@@ -16,6 +16,12 @@ public partial class IncidentViewModel<TViewModel> : BaseViewModel where TViewMo
     protected readonly ILogger<TViewModel> Logger;
 
     public IncidentViewModel(IIncidentService incidentService, ILogger<TViewModel> logger)
+public partial class IncidentViewModel : BaseViewModel
+{
+    protected readonly IIncidentService IncidentService;
+    protected readonly ILogger<IncidentViewModel> Logger;
+
+    public IncidentViewModel(IIncidentService incidentService, ILogger<IncidentViewModel> logger)
     {
         IncidentService = incidentService;
         Logger = logger;

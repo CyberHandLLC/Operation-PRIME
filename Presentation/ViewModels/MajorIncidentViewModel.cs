@@ -12,6 +12,7 @@ namespace OperationPrime.Presentation.ViewModels;
 /// ViewModel for creating and managing major incidents.
 /// </summary>
 public partial class MajorIncidentViewModel : IncidentViewModel<MajorIncidentViewModel>
+public partial class MajorIncidentViewModel : IncidentViewModel
 {
     private readonly INOIService _noiService;
     private readonly ILogger<MajorIncidentViewModel> _logger;
@@ -69,6 +70,7 @@ public partial class MajorIncidentViewModel : IncidentViewModel<MajorIncidentVie
 
     [RelayCommand]
     private string GenerateNoi(string templateType)
+    private void GenerateNoi(string templateType)
     {
         _logger.LogInformation("Generating NOI using template {Template}", templateType);
         var incident = new MajorIncident
@@ -91,6 +93,8 @@ public partial class MajorIncidentViewModel : IncidentViewModel<MajorIncidentVie
         };
 
         return _noiService.GenerateNOI(incident, templateType);
+        var result = _noiService.GenerateNOI(incident, templateType);
+        // If needed, assign result to a property here
     }
 }
 

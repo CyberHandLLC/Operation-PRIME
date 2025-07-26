@@ -17,6 +17,12 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
     {
         Logger = logger;
         Logger.LogDebug("{ViewModel} initialized", typeof(TViewModel).Name);
+    private readonly ILogger<TViewModel> _logger;
+
+    protected WizardViewModelBase(ILogger<TViewModel> logger)
+    {
+        _logger = logger;
+        _logger.LogDebug("{ViewModel} initialized", typeof(TViewModel).Name);
     }
 
     /// <summary>
@@ -33,6 +39,7 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
     {
         StepIndex++;
         Logger.LogDebug("Advanced to step {Step}", StepIndex);
+        _logger.LogDebug("Advanced to step {Step}", StepIndex);
     }
 
     /// <summary>
@@ -45,6 +52,7 @@ public abstract partial class WizardViewModelBase<TViewModel> : BaseViewModel
         {
             StepIndex--;
             Logger.LogDebug("Returned to step {Step}", StepIndex);
+            _logger.LogDebug("Returned to step {Step}", StepIndex);
         }
     }
 }
