@@ -1,4 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using OperationPrime.Presentation.ViewModels;
+using OperationPrime;
 
 namespace OperationPrime.Presentation.Views;
 
@@ -8,11 +11,13 @@ namespace OperationPrime.Presentation.Views;
 /// </summary>
 public sealed partial class DashboardView : Page
 {
+    public DashboardViewModel ViewModel { get; }
+
     public DashboardView()
     {
         this.InitializeComponent();
-        
-        // TODO: Bind to DashboardViewModel when implemented
-        // TODO: Load dashboard data through Application layer services
+
+        ViewModel = App.Current.GetService<DashboardViewModel>();
+        DataContext = ViewModel;
     }
 }

@@ -50,3 +50,55 @@
 ## 2025-07-25T22:10:15Z Update
 - Fixed Options ambiguity by fully qualifying Microsoft.Extensions.Options.Options.Create in design-time factory. Build verified locally.
 - Progress on Data Persistence now at 65%.
+
+## 2025-07-25T23:40:00Z Update
+- Commented out duplicate async GenerateNoiAsync method with note for future implementation
+- Restored fully qualified Options.Create usage in OperationPrimeDbContextFactory
+- Updated MULTI_PHASE_PLAN checklist and progress markers
+
+## 2025-07-26T00:00:21Z Update
+- Injected ILogger into NavigationService and logged navigation operations
+- Updated MainWindow to supply logger from DI when constructing NavigationService
+
+## 2025-07-26T00:22:33Z Update
+- Added DIRegistrationTests and CleanArchitectureTests placeholders
+- Cleaned up IMPLEMENTATION_STATUS entries and updated timestamp
+
+## 2025-07-26T00:27:15Z Update
+- Consolidated implementation plan and added workflow service interfaces
+- Registered new services in DI and updated navigation logging
+- Progress on Data Persistence remains at 70% (migrations blocked)
+
+## 2025-07-26T00:36:51Z Update
+- Cleaned up duplicate timestamps in implementation plan overview
+- Linked new Multi-Phase Plan from README
+- Updated status tracker timestamp
+
+## 2025-07-26T00:57:50Z Update
+- Removed test projects and updated documentation to defer unit tests
+- Marked test tasks as deferred in MULTI_PHASE_PLAN and PHASE_ONE_PLAN
+- Updated implementation timestamps
+
+
+## 2025-07-26T01:10:00Z Update
+- Added IncidentViewModel, PreIncidentViewModel, and MajorIncidentViewModel with logging and save commands
+- Registered new ViewModels in App.ConfigureServices
+- Updated PHASE_ONE_PLAN and status trackers to mark ViewModel tasks complete
+\n## 2025-07-26T02:29:08Z Update
+- Scaffolded IncidentWizardViewModel with logger and step commands
+- Added IncidentWizardView and IncidentDetailView pages with basic layout
+- Updated NavigationService to route to new pages
+- Registered IncidentWizardViewModel in dependency injection
+\n## 2025-07-26T05:14:36Z Update
+- Introduced WizardViewModelBase for common wizard logic
+- Added PreIncidentWizardViewModel and MajorIncidentWizardViewModel derived from the base
+- Registered new wizard ViewModels in DI
+- Updated IncidentWizardView and DashboardView to resolve ViewModels via DI
+- ViewModel progress increased in status tracker
+
+## 2025-07-26T05:30:00Z Update
+- Audited logger usage across services and ViewModels
+- Updated IncidentViewModel and WizardViewModelBase to generic forms so derived classes inject ILogger<T>
+- Removed unused IncidentViewModel registration from DI
+- Updated PHASE_ONE_PLAN checklist and Implementation Status progress
+

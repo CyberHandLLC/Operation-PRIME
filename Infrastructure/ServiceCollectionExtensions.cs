@@ -38,6 +38,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIncidentService, IncidentService>();
         services.AddScoped<IPriorityService, PriorityService>();
         services.AddScoped<IValidationService, ValidationService>();
+        services.AddScoped<INOIService, NOIService>();
+        services.AddScoped<IPreIncidentWorkflowService, PreIncidentWorkflowService>();
+        services.AddScoped<IMajorIncidentWorkflowService, MajorIncidentWorkflowService>();
         services.AddScoped<IAuditService, AuditService>();
 
         services.AddHttpClient<ITokenProvider, TokenProvider>();
