@@ -74,6 +74,12 @@ public class NavigationService : INavigationService
         {
             return NavigateTo(pageType, parameter);
         }
+        
+        // Handle missing pages gracefully - navigate to placeholder or show message
+        System.Diagnostics.Debug.WriteLine($"Navigation failed: Page '{pageKey}' not found in registry");
+        
+        // For now, return false to indicate navigation failure
+        // In the future, we could navigate to a "Page Not Found" or "Coming Soon" page
         return false;
     }
 
@@ -110,8 +116,16 @@ public class NavigationService : INavigationService
     /// </summary>
     private void RegisterPages()
     {
-        // TODO: Register pages as they are created
-        // Example: _pageRegistry["IncidentList"] = typeof(IncidentListPage);
-        // Example: _pageRegistry["Dashboard"] = typeof(DashboardPage);
+        // Register implemented pages
+        _pageRegistry["IncidentList"] = typeof(OperationPrime.Presentation.Views.IncidentListView);
+        
+        // Register placeholder page for unimplemented features
+        _pageRegistry["ComingSoon"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        
+        // Register placeholder pages for menu items that aren't implemented yet
+        _pageRegistry["Dashboard"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry["Reports"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry["NOI"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry["Settings"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
     }
 }

@@ -43,7 +43,8 @@ namespace OperationPrime
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            _window = new MainWindow();
+            // Use proper DI instead of direct instantiation
+            _window = GetService<MainWindow>();
             _window.Activate();
         }
 
@@ -68,6 +69,9 @@ namespace OperationPrime
             {
                 // Register infrastructure services
                 services.AddInfrastructure();
+                
+                // Register MainWindow with DI (proper constructor injection)
+                services.AddTransient<MainWindow>();
                 
                 // Register ViewModels as Transient (new instance each time)
                 services.AddTransient<ShellViewModel>();

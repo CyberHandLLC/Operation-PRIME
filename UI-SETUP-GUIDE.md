@@ -238,12 +238,13 @@ public sealed partial class IncidentListView : Page
 {
     public IncidentListViewModel ViewModel { get; }
     
-    public IncidentListView()
+    // Constructor injection - ViewModel provided by DI container
+    public IncidentListView(IncidentListViewModel viewModel)
     {
         this.InitializeComponent();
         
-        // Get ViewModel from dependency injection
-        ViewModel = App.GetService<IncidentListViewModel>();
+        // Assign injected ViewModel
+        ViewModel = viewModel;
         
         // Initialize data when page loads
         this.Loaded += async (s, e) => await ViewModel.LoadIncidentsAsync();
@@ -470,29 +471,56 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
-        
-        // Build dependency injection container
-        _host = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                services.AddInfrastructure();
-            })
-            .Build();
+        ConfigureServices();
     }
     
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        m_window = new MainWindow();
-        m_window.Activate();
+        // Use proper DI instead of direct instantiation
+        _window = GetService<MainWindow>();
+        _window.Activate();
     }
     
-    private Window? m_window;
+    private Window? _window;
+    private IHost? _host;
     
-    // Helper method to get services
-    public static T GetService<T>() where T : class
+    /// <summary>
+    /// Configures the dependency injection services following Microsoft guidelines.
+    /// </summary>
+    private void ConfigureServices()
     {
-        return _host?.Services.GetService<T>() ?? throw new ArgumentException($"Service {typeof(T)} not found");
+        var builder = Host.CreateDefaultBuilder();
+        
+        builder.ConfigureServices((context, services) =>
+        {
+            // Register infrastructure services
+            services.AddInfrastructure();
+            
+            // Register MainWindow with DI (enables constructor injection)
+            services.AddTransient<MainWindow>();
+            
+            // Register ViewModels as Transient (new instance each time)
+            services.AddTransient<ShellViewModel>();
+        });
+
+        _host = builder.Build();
     }
+    
+    /// <summary>
+    /// Gets a service of the specified type from the DI container.
+    /// Uses GetRequiredService for better error handling.
+    /// </summary>
+    /// <typeparam name="T">The type of service to get.</typeparam>
+    /// <returns>The service instance.</returns>
+    public T GetService<T>() where T : class
+    {
+        return Services.GetRequiredService<T>();
+    }
+    
+    /// <summary>
+    /// Gets the service provider for dependency injection.
+    /// </summary>
+    public IServiceProvider Services => _host?.Services ?? throw new InvalidOperationException("Services not initialized");
 }
 ```
 

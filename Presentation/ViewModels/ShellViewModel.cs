@@ -117,26 +117,38 @@ public partial class ShellViewModel : ObservableObject
     /// <param name="pageKey">The key of the page to navigate to</param>
     private void NavigateToPage(string pageKey)
     {
-        // For now, we'll just show placeholder content
-        // This will be expanded when we add actual pages
-        switch (pageKey)
+        // For placeholder pages, pass the page name as parameter to customize the message
+        object? parameter = null;
+        if (pageKey == "Dashboard" || pageKey == "Reports" || pageKey == "NOI" || pageKey == "Settings")
         {
-            case "Dashboard":
-                // TODO: Navigate to Dashboard page
-                break;
-            case "IncidentList":
-                // TODO: Navigate to Incident List page
-                break;
-            case "Reports":
-                // TODO: Navigate to Reports page
-                break;
-            case "NOI":
-                // TODO: Navigate to NOI Management page
-                break;
-            case "Settings":
-                // TODO: Navigate to Settings page
-                break;
+            parameter = GetFriendlyPageName(pageKey);
         }
+        
+        // Attempt navigation
+        bool navigationSucceeded = _navigationService.NavigateTo(pageKey, parameter);
+        
+        if (!navigationSucceeded)
+        {
+            // Log the failed navigation attempt
+            System.Diagnostics.Debug.WriteLine($"Navigation to '{pageKey}' failed - page not found in registry");
+        }
+    }
+    
+    /// <summary>
+    /// Get friendly display name for page keys
+    /// </summary>
+    /// <param name="pageKey">The page key</param>
+    /// <returns>Friendly display name</returns>
+    private string GetFriendlyPageName(string pageKey)
+    {
+        return pageKey switch
+        {
+            "Dashboard" => "Dashboard",
+            "Reports" => "Reports",
+            "NOI" => "NOI Management",
+            "Settings" => "Settings",
+            _ => pageKey
+        };
     }
 
     /// <summary>

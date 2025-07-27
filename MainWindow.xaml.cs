@@ -11,12 +11,12 @@ public sealed partial class MainWindow : Window
 {
     public ShellViewModel ViewModel { get; }
 
-    public MainWindow()
+    public MainWindow(ShellViewModel shellViewModel)
     {
         this.InitializeComponent();
         
-        // Get ViewModel from dependency injection
-        ViewModel = App.Current.GetService<ShellViewModel>();
+        // Use constructor injection instead of service locator anti-pattern
+        ViewModel = shellViewModel;
         
         // Set the navigation frame
         ViewModel.SetNavigationFrame(ContentFrame);
