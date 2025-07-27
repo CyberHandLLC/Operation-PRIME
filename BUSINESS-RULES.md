@@ -169,7 +169,7 @@ public class NOIBuilder : INOIBuilder
     private readonly ILogger<NOIBuilder> _logger;
     private readonly ITemplateService _templateService;
     private readonly IEmailService _emailService;
-    private IncidentViewModel _incident;
+    private Incident _incident;
     private string _templatePath;
     private Dictionary<string, string> _fieldMappings = new();
 
@@ -180,7 +180,7 @@ public class NOIBuilder : INOIBuilder
         _emailService = emailService;
     }
 
-    public INOIBuilder WithIncident(IncidentViewModel incident)
+    public INOIBuilder WithIncident(Incident incident)
     {
         _incident = incident ?? throw new ArgumentNullException(nameof(incident));
         return this;
@@ -490,37 +490,37 @@ public class IncidentWorkflowService : IIncidentWorkflowService
         return WorkflowResult.Success($"Status changed to {newStatus}");
     }
 
-    public async Task<ConversionResult> ConvertPreIncidentToMajorAsync(string incidentId, string userId)
+    public async Task<PromotionResult> PromoteToMajorIncidentAsync(string incidentId, string userId)
     {
         var incident = await _incidentRepository.GetByIdAsync(incidentId);
         if (incident == null)
         {
-            return ConversionResult.Failure("Incident not found");
+            return PromotionResult.Failure("Incident not found");
         }
 
         if (incident.Type != IncidentType.PreIncident)
         {
-            return ConversionResult.Failure("Only Pre-Incidents can be converted to Major Incidents");
+            return PromotionResult.Failure("Only Pre-Incidents can be promoted to Major Incidents");
         }
 
-        // Create conversion audit record
-        await _auditService.LogConversionAsync(incidentId, IncidentType.PreIncident, IncidentType.MajorIncident, userId);
+        // Create promotion audit record
+        await _auditService.LogPromotionAsync(incidentId, IncidentType.PreIncident, IncidentType.MajorIncident, userId);
 
         // Preserve existing data and add Major Incident requirements
         incident.Type = IncidentType.MajorIncident;
-        incident.ConvertedDate = DateTime.UtcNow;
-        incident.ConvertedBy = userId;
+        incident.PromotedDate = DateTime.UtcNow;
+        incident.PromotedBy = userId;
+        incident.LastModifiedBy = userId;
+        incident.LastModifiedAt = DateTime.UtcNow;
         
-        // Initialize Major Incident specific fields
-        incident.BusinessImpact ??= "Under assessment";
-        incident.NOIRecipients ??= new List<string>();
-        incident.ChecklistItems ??= GetDefaultChecklistItems();
+        // Major Incident fields become visible but retain existing values if present
+        // No need to initialize - UI will handle field visibility based on Type
 
         await _incidentRepository.UpdateAsync(incident);
 
-        _logger.LogInformation("Pre-Incident {IncidentId} converted to Major Incident by {UserId}", incidentId, userId);
+        _logger.LogInformation("Pre-Incident {IncidentId} promoted to Major Incident by {UserId}", incidentId, userId);
 
-        return ConversionResult.Success("Successfully converted to Major Incident");
+        return PromotionResult.Success("Successfully promoted to Major Incident");
     }
 
     private bool IsValidTransition(IncidentStatus currentStatus, IncidentStatus newStatus)
@@ -587,13 +587,13 @@ public class WorkflowResult
     public static WorkflowResult Failure(string message) => new() { IsSuccess = false, Message = message };
 }
 
-public class ConversionResult
+public class PromotionResult
 {
     public bool IsSuccess { get; set; }
     public string Message { get; set; }
     
-    public static ConversionResult Success(string message) => new() { IsSuccess = true, Message = message };
-    public static ConversionResult Failure(string message) => new() { IsSuccess = false, Message = message };
+    public static PromotionResult Success(string message) => new() { IsSuccess = true, Message = message };
+    public static PromotionResult Failure(string message) => new() { IsSuccess = false, Message = message };
 }
 
 public class BusinessRuleResult
@@ -618,7 +618,7 @@ public class IncidentValidationService : IIncidentValidationService
 {
     private readonly ILogger<IncidentValidationService> _logger;
 
-    public ValidationResult ValidateIncident(IncidentViewModel incident)
+    public ValidationResult ValidateIncident(Incident incident)
     {
         var errors = new List<ValidationError>();
 
@@ -637,7 +637,7 @@ public class IncidentValidationService : IIncidentValidationService
         return new ValidationResult(errors.Count == 0, errors);
     }
 
-    private void ValidateBasicFields(IncidentViewModel incident, List<ValidationError> errors)
+    private void ValidateBasicFields(Incident incident, List<ValidationError> errors)
     {
         if (string.IsNullOrWhiteSpace(incident.Title))
             errors.Add(new ValidationError("Title", "Title is required"));
@@ -654,7 +654,7 @@ public class IncidentValidationService : IIncidentValidationService
             errors.Add(new ValidationError("ImpactedUsers", "Impacted users must be between 1 and 5,000"));
     }
 
-    private void ValidateBusinessRules(IncidentViewModel incident, List<ValidationError> errors)
+    private void ValidateBusinessRules(Incident incident, List<ValidationError> errors)
     {
         // Rule: High priority incidents must have impacted users specified
         if (incident.Priority == "P1" && !incident.ImpactedUsers.HasValue)
@@ -669,7 +669,7 @@ public class IncidentValidationService : IIncidentValidationService
             errors.Add(new ValidationError("SMEName", "SME name required when SME contacted"));
     }
 
-    private void ValidateMajorIncidentFields(IncidentViewModel incident, List<ValidationError> errors)
+    private void ValidateMajorIncidentFields(Incident incident, List<ValidationError> errors)
     {
         if (string.IsNullOrWhiteSpace(incident.BusinessImpact))
             errors.Add(new ValidationError("BusinessImpact", "Business impact is required for Major Incidents"));

@@ -215,11 +215,11 @@ Every page in your app follows the same pattern:
         
         <!-- Action buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20">
-            <Button Content="New Pre-Incident" 
-                    Command="{x:Bind ViewModel.CreatePreIncidentCommand}"
+            <Button Content="New Incident" 
+                    Command="{x:Bind ViewModel.CreateIncidentCommand}"
                     Style="{StaticResource AccentButtonStyle}"/>
-            <Button Content="New Major Incident" 
-                    Command="{x:Bind ViewModel.CreateMajorIncidentCommand}"
+            <Button Content="View All Incidents" 
+                    Command="{x:Bind ViewModel.ViewIncidentsCommand}"
                     Margin="10,0,0,0"/>
         </StackPanel>
     </Grid>
@@ -309,17 +309,18 @@ public partial class IncidentListViewModel : ObservableObject
     
     // Commands that buttons bind to
     [RelayCommand]
-    private async Task CreatePreIncidentAsync()
+    private async Task CreateIncidentAsync()
     {
-        // Navigate to create page with Pre-Incident type
-        // Implementation depends on your navigation service
+        // Navigate to incident creation wizard
+        // User will choose Pre-Incident or Major Incident type in the wizard
+        await _navigationService.NavigateToAsync("IncidentWizard");
     }
     
     [RelayCommand]
-    private async Task CreateMajorIncidentAsync()
+    private async Task ViewIncidentsAsync()
     {
-        // Navigate to create page with Major Incident type
-        // Implementation depends on your navigation service
+        // Navigate to incident list view
+        await _navigationService.NavigateToAsync("IncidentList");
     }
     
     // Method to load data
@@ -438,6 +439,9 @@ public static class ServiceCollectionExtensions
         // Register services
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IIncidentService, IncidentService>();
+        
+        // Register shared ViewModel services
+        services.AddTransient<IViewModelStateService, ViewModelStateService>();
         
         // Register ViewModels (Transient = new instance each time)
         services.AddTransient<IncidentListViewModel>();
@@ -616,18 +620,23 @@ public async Task LoadDataAsync()
 <TextBlock Text="{x:Bind ViewModel.Title}"/>
 ```
 
-### 5. Error Handling Patterns
+### 5. Shared Functionality Patterns
 ```csharp
-// ✅ GOOD: Centralized error handling
-public class BaseViewModel : ObservableObject
+// ✅ GOOD: Composition-based shared functionality
+public interface IViewModelStateService
 {
-    [ObservableProperty]
-    private bool isLoading;
+    bool IsLoading { get; set; }
+    string? ErrorMessage { get; set; }
+    Task ExecuteAsync(Func<Task> operation);
+    void ClearError();
+}
+
+public class ViewModelStateService : IViewModelStateService
+{
+    public bool IsLoading { get; set; }
+    public string? ErrorMessage { get; set; }
     
-    [ObservableProperty]
-    private string? errorMessage;
-    
-    protected async Task ExecuteAsync(Func<Task> operation)
+    public async Task ExecuteAsync(Func<Task> operation)
     {
         try
         {
@@ -638,12 +647,40 @@ public class BaseViewModel : ObservableObject
         catch (Exception ex)
         {
             ErrorMessage = "An error occurred. Please try again.";
-            _logger.LogError(ex, "Operation failed");
+            // Log error here
         }
         finally
         {
             IsLoading = false;
         }
+    }
+    
+    public void ClearError() => ErrorMessage = null;
+}
+
+// ✅ GOOD: ViewModel using composition
+public partial class IncidentListViewModel : ObservableObject
+{
+    private readonly IViewModelStateService _stateService;
+    private readonly IIncidentService _incidentService;
+    
+    public IncidentListViewModel(IViewModelStateService stateService, IIncidentService incidentService)
+    {
+        _stateService = stateService;
+        _incidentService = incidentService;
+    }
+    
+    public bool IsLoading => _stateService.IsLoading;
+    public string? ErrorMessage => _stateService.ErrorMessage;
+    
+    [RelayCommand]
+    private async Task LoadIncidents()
+    {
+        await _stateService.ExecuteAsync(async () =>
+        {
+            var incidents = await _incidentService.GetAllAsync();
+            // Update UI
+        });
     }
 }
 ```

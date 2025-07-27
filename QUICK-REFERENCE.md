@@ -74,8 +74,17 @@ sqlite3 incidents.db "PRAGMA integrity_check;" # Database integrity
 
 ### ViewModel Pattern
 ```csharp
-public partial class ExampleViewModel : ObservableValidator
+public partial class ExampleViewModel : ObservableObject
 {
+    private readonly IViewModelStateService _stateService;
+    private readonly IExampleService _exampleService;
+    
+    public ExampleViewModel(IViewModelStateService stateService, IExampleService exampleService)
+    {
+        _stateService = stateService;
+        _exampleService = exampleService;
+    }
+    
     [ObservableProperty]
     private string? title;  // Always nullable for XAML
     
@@ -84,11 +93,17 @@ public partial class ExampleViewModel : ObservableValidator
     private ObservableCollection<Item>? items;
     
     public bool HasItems => Items?.Any() == true;
+    public bool IsLoading => _stateService.IsLoading;
+    public string? ErrorMessage => _stateService.ErrorMessage;
     
     [RelayCommand]
     private async Task SaveAsync()
     {
-        // Command implementation
+        await _stateService.ExecuteAsync(async () =>
+        {
+            // Save implementation
+            await _exampleService.SaveAsync(/* data */);
+        });
     }
 }
 ```
@@ -119,6 +134,9 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
     services.AddTransient<IncidentViewModel>();
     services.AddTransient<DashboardViewModel>();
     services.AddTransient<NOIViewModel>();
+    
+    // Shared ViewModel Services - Transient
+    services.AddTransient<IViewModelStateService, ViewModelStateService>();
     
     // Data Context - Scoped
     services.AddDbContext<OperationPrimeContext>(options =>

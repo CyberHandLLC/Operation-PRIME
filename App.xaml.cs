@@ -70,7 +70,6 @@ namespace OperationPrime
                 services.AddInfrastructure();
                 
                 // Register ViewModels as Transient (new instance each time)
-                services.AddTransient<BaseViewModel>();
                 services.AddTransient<ShellViewModel>();
             });
 

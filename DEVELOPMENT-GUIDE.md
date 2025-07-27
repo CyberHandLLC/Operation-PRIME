@@ -11,8 +11,17 @@
 **✅ Prevention Protocol**:
 ```csharp
 // ALWAYS use nullable properties for XAML binding
-public partial class IncidentListViewModel : ObservableValidator
+public partial class IncidentListViewModel : ObservableObject
 {
+    private readonly IViewModelStateService _stateService;
+    private readonly IIncidentService _incidentService;
+    
+    public IncidentListViewModel(IViewModelStateService stateService, IIncidentService incidentService)
+    {
+        _stateService = stateService;
+        _incidentService = incidentService;
+    }
+    
     [ObservableProperty]
     private string? searchText;  // Nullable prevents MSB3073
     
@@ -21,6 +30,8 @@ public partial class IncidentListViewModel : ObservableValidator
     
     // Safe property access
     public bool HasResults => Incidents?.Any() == true;
+    public bool IsLoading => _stateService.IsLoading;
+    public string? ErrorMessage => _stateService.ErrorMessage;
 }
 ```
 
@@ -42,6 +53,9 @@ public static IServiceCollection AddOperationPrimeServices(this IServiceCollecti
     // ViewModels - Transient (new instance per injection)
     services.AddTransient<IncidentListViewModel>();
     services.AddTransient<IncidentCreateViewModel>();
+    
+    // Shared ViewModel Services - Transient (per ViewModel instance)
+    services.AddTransient<IViewModelStateService, ViewModelStateService>();
     
     // Services - Scoped (per request/operation)
     services.AddScoped<IIncidentService, IncidentService>();
@@ -201,18 +215,29 @@ public class IncidentValidator : BaseValidator<Incident>
     }
 }
 
-public class MajorIncidentValidator : BaseValidator<MajorIncident>
+public class IncidentValidator : BaseValidator<Incident>
 {
-    public override ValidationResult Validate(MajorIncident majorIncident)
+    private readonly IIncidentFieldVisibilityService _visibilityService;
+    
+    public IncidentValidator(IIncidentFieldVisibilityService visibilityService)
     {
-        var errors = ValidateCommonFields(majorIncident);
+        _visibilityService = visibilityService;
+    }
+    
+    public override ValidationResult Validate(Incident incident)
+    {
+        var errors = ValidateCommonFields(incident);
+        var rules = _visibilityService.GetVisibilityRules(incident.Type);
         
-        // Major incident specific validation
-        if (string.IsNullOrWhiteSpace(majorIncident.BusinessImpact))
-            errors.Add(new ValidationError("BusinessImpact", "Business impact required for Major Incidents"));
-            
-        if (majorIncident.NOIRecipients?.Any() != true)
-            errors.Add(new ValidationError("NOIRecipients", "NOI recipients required for Major Incidents"));
+        // Type-specific validation based on field visibility rules
+        if (incident.Type == IncidentType.MajorIncident)
+        {
+            if (string.IsNullOrWhiteSpace(incident.BusinessImpact))
+                errors.Add(new ValidationError("BusinessImpact", "Business impact required for Major Incidents"));
+                
+            if (incident.NOIRecipients?.Any() != true)
+                errors.Add(new ValidationError("NOIRecipients", "NOI recipients required for Major Incidents"));
+        }
             
         return new ValidationResult(errors.Count == 0, errors);
     }

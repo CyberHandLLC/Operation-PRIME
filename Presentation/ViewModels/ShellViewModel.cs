@@ -9,7 +9,7 @@ namespace OperationPrime.Presentation.ViewModels;
 /// <summary>
 /// ViewModel for the main application shell with NavigationView
 /// </summary>
-public partial class ShellViewModel : BaseViewModel
+public partial class ShellViewModel : ObservableObject
 {
     private readonly INavigationService _navigationService;
 

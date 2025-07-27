@@ -54,6 +54,9 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
     services.AddTransient<DashboardViewModel>();
     services.AddTransient<NOIViewModel>();
     
+    // Shared ViewModel Services
+    services.AddTransient<IViewModelStateService, ViewModelStateService>();
+    
     // DbContext with proper lifetime
     services.AddDbContext<OperationPrimeContext>(options =>
         options.UseSqlite(configuration.GetConnectionString("Default")));
@@ -73,6 +76,7 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
 | **Repositories** | Scoped | DbContext lifetime | `IIncidentRepository`, `IAuditRepository` |
 | **DbContext** | Scoped | EF Core requirement | `OperationPrimeContext` |
 | **ViewModels** | Transient | UI-specific state | `IncidentViewModel`, `DashboardViewModel` |
+| **Shared ViewModel Services** | Transient | Per-ViewModel instance | `IViewModelStateService` |
 | **External Services** | Scoped | Connection pooling | `INeuronsIntegrationService` |
 
 ### Constructor Injection Best Practices
@@ -125,9 +129,18 @@ public class IncidentService
 
 ### MVVM Pattern
 ```csharp
-// ✅ ViewModel Pattern (prevents XAML compilation errors)
-public partial class IncidentViewModel : ObservableValidator
+// ✅ ViewModel Pattern (composition-based shared functionality)
+public partial class IncidentViewModel : ObservableObject
 {
+    private readonly IViewModelStateService _stateService;
+    private readonly IIncidentService _incidentService;
+    
+    public IncidentViewModel(IViewModelStateService stateService, IIncidentService incidentService)
+    {
+        _stateService = stateService;
+        _incidentService = incidentService;
+    }
+    
     [ObservableProperty]
     private string? title;  // Nullable for XAML binding
     
@@ -136,11 +149,17 @@ public partial class IncidentViewModel : ObservableValidator
     private ObservableCollection<Incident>? incidents;
     
     public bool HasIncidents => Incidents?.Any() == true;
+    public bool IsLoading => _stateService.IsLoading;
+    public string? ErrorMessage => _stateService.ErrorMessage;
     
     [RelayCommand]
     private async Task SaveAsync()
     {
-        // Command implementation
+        await _stateService.ExecuteAsync(async () =>
+        {
+            // Save logic here
+            await _incidentService.UpdateAsync(/* incident data */);
+        });
     }
 }
 ```
@@ -357,6 +376,146 @@ public class CircuitBreakerService<T>
 - **Database Connections**: Connection pooling with configurable timeout (30s default)
 - **UI Responsiveness**: Background threads for all I/O operations
 - **Error Recovery**: Circuit breaker pattern for external services, graceful degradation
+
+## Unified Incident Entity Design
+
+### Architecture Decision: Single Entity with Dynamic Field Visibility
+
+Operation Prime uses a **unified Incident entity** that supports both Pre-Incident and Major Incident workflows through dynamic field visibility and service-layer business rules.
+
+#### Entity Structure
+```csharp
+public class Incident
+{
+    // Core fields (always visible)
+    public string IncidentNumber { get; set; }
+    public string Title { get; set; }
+    public IncidentType Type { get; set; } // Pre-Incident | Major Incident
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; }
+    
+    // Shared workflow fields
+    public string DetailedDescription { get; set; }
+    public DateTime? IncidentStartTime { get; set; }
+    public int? ImpactedUsers { get; set; }
+    public int Urgency { get; set; }
+    public string BusinessImpact { get; set; }
+    public string ApplicationsAffected { get; set; }
+    public string Locations { get; set; }
+    public string Workaround { get; set; }
+    
+    // Priority and Status (visibility controlled by Type)
+    public string Priority { get; set; } // Auto-calculated for Pre, manual for Major
+    public IncidentStatus Status { get; set; }
+    public string Category { get; set; } // Hidden for Pre-Incident creation
+    
+    // Promotion tracking
+    public DateTime? PromotedDate { get; set; }
+    public string PromotedBy { get; set; }
+    
+    // Major Incident specific fields (visible when Type = MajorIncident)
+    public List<string> NOIRecipients { get; set; }
+    public List<ChecklistItem> ChecklistItems { get; set; }
+    public string SMEName { get; set; }
+    public bool SMEContacted { get; set; }
+}
+```
+
+#### Field Visibility Service
+```csharp
+public interface IIncidentFieldVisibilityService
+{
+    FieldVisibilityRules GetVisibilityRules(IncidentType type);
+    bool IsPriorityEditable(IncidentType type);
+    bool IsStatusEditable(IncidentType type);
+    bool IsCategoryVisible(IncidentType type);
+}
+
+public class IncidentFieldVisibilityService : IIncidentFieldVisibilityService
+{
+    public FieldVisibilityRules GetVisibilityRules(IncidentType type)
+    {
+        return type switch
+        {
+            IncidentType.PreIncident => new FieldVisibilityRules
+            {
+                PriorityEditable = false, // Auto-calculated
+                StatusEditable = false,   // System-managed
+                CategoryVisible = false,  // Hidden during creation
+                NOIFieldsVisible = false,
+                ChecklistVisible = false
+            },
+            IncidentType.MajorIncident => new FieldVisibilityRules
+            {
+                PriorityEditable = true,  // User controls
+                StatusEditable = true,    // User manages transitions
+                CategoryVisible = true,   // Available for input
+                NOIFieldsVisible = true,
+                ChecklistVisible = true
+            },
+            _ => throw new ArgumentException($"Unknown incident type: {type}")
+        };
+    }
+}
+```
+
+#### Promotion Workflow (State Change)
+```csharp
+public class IncidentService
+{
+    public async Task<PromotionResult> PromoteToMajorIncidentAsync(string incidentId, string userId)
+    {
+        var incident = await _repository.GetByIdAsync(incidentId);
+        
+        // Validate current state
+        if (incident.Type != IncidentType.PreIncident)
+            return PromotionResult.Failure("Only Pre-Incidents can be promoted");
+        
+        // Simple state change - same entity, different workflow
+        incident.Type = IncidentType.MajorIncident;
+        incident.PromotedDate = DateTime.UtcNow;
+        incident.PromotedBy = userId;
+        incident.LastModifiedBy = userId;
+        incident.LastModifiedAt = DateTime.UtcNow;
+        
+        await _repository.UpdateAsync(incident);
+        await _auditService.LogPromotionAsync(incidentId, userId);
+        
+        return PromotionResult.Success("Successfully promoted to Major Incident");
+    }
+}
+```
+
+#### Benefits of Unified Approach
+- **Simple Database Structure**: Single table, no complex joins
+- **Data Preservation**: No entity conversion, all data retained
+- **Easy Reporting**: Query across all incident types seamlessly
+- **Maintainable Business Rules**: Centralized field visibility logic
+- **Dynamic UI**: Form fields adapt automatically to incident type
+- **Audit Trail**: Simple state changes, not entity transformations
+
+#### UI Integration Pattern
+```csharp
+public class IncidentFormViewModel : ObservableObject
+{
+    private readonly IIncidentFieldVisibilityService _visibilityService;
+    
+    [ObservableProperty]
+    private Incident _incident;
+    
+    public bool IsPriorityVisible => _visibilityService.IsPriorityEditable(Incident.Type);
+    public bool IsStatusVisible => _visibilityService.IsStatusEditable(Incident.Type);
+    public bool IsCategoryVisible => _visibilityService.IsCategoryVisible(Incident.Type);
+    
+    // UI automatically updates when Incident.Type changes
+    partial void OnIncidentChanged(Incident value)
+    {
+        OnPropertyChanged(nameof(IsPriorityVisible));
+        OnPropertyChanged(nameof(IsStatusVisible));
+        OnPropertyChanged(nameof(IsCategoryVisible));
+    }
+}
+```
 
 ## Technology Stack
 

@@ -140,12 +140,23 @@ private string? title;  // Generates public Title property
 
 **Solution**:
 ```csharp
-public partial class IncidentViewModel : ObservableValidator, IDisposable
+public partial class IncidentViewModel : ObservableObject, IDisposable
 {
+    private readonly IViewModelStateService _stateService;
+    
+    public IncidentViewModel(IViewModelStateService stateService)
+    {
+        _stateService = stateService;
+    }
+    
     public void Dispose()
     {
         // Unsubscribe from events
         SomeService.SomeEvent -= OnSomeEvent;
+        
+        // Dispose of injected services if needed
+        if (_stateService is IDisposable disposableState)
+            disposableState.Dispose();
     }
 }
 ```

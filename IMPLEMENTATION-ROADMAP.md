@@ -11,8 +11,8 @@
 | 🏗️ **Clean Architecture** | ✅ Complete | 4-layer separation implemented |
 | 📁 **Project Structure** | ✅ Complete | Domain/Application/Infrastructure/Presentation |
 | 🔧 **Dependency Injection** | ✅ Complete | All services registered with correct lifetimes |
-| 📊 **Domain Models** | ✅ Complete | Incident, PreIncident, MajorIncident entities |
-| 🎨 **MVVM Foundation** | ✅ Complete | ViewModels with ObservableValidator base |
+| 📊 **Domain Models** | ✅ Complete | Unified Incident entity with dynamic field visibility |
+| 🎨 **MVVM Foundation** | ✅ Complete | ViewModels with ObservableObject + composition services |
 | 💾 **Data Persistence** | ✅ Complete | EF Core with SQLCipher encryption |
 | 🌐 **External Integration** | ✅ Complete | Neurons service and token provider |
 | 🔍 **Validation & Audit** | ✅ Complete | FluentValidation and audit trail |
@@ -61,18 +61,18 @@
 ### ✅ Completed Components
 
 #### Domain Layer
-- **Entities**: `Incident`, `PreIncident`, `MajorIncident` with proper inheritance
+- **Entities**: Single `Incident` entity with `IncidentType` enum (Pre-Incident | Major Incident)
 - **Value Objects**: `Priority`, `Status`, `IncidentNumber`
 - **Domain Services**: Priority calculation, workflow state management
 - **Repository Interfaces**: `IIncidentRepository`, `IAuditRepository`, `ITeamMemberRepository`
 - **Business Rules**: Priority matrix, status transitions, validation rules
 
 #### Application Layer
-- **Use Cases**: `CreateIncidentUseCase`, `UpdateIncidentUseCase`, `ConvertIncidentUseCase`
+- **Use Cases**: `CreateIncidentUseCase`, `UpdateIncidentUseCase`, `PromoteIncidentUseCase`
 - **DTOs**: Request/Response objects for all operations
 - **Validation**: FluentValidation with business rule enforcement
 - **Interfaces**: Service contracts for NOI, email, priority calculation
-- **Workflow Services**: State transition management, conversion logic
+- **Workflow Services**: State transition management, promotion logic
 
 #### Infrastructure Layer
 - **Database**: EF Core context with SQLCipher encryption
@@ -82,7 +82,7 @@
 - **External Services**: Neurons API integration with circuit breaker
 
 #### Presentation Layer
-- **ViewModels**: ObservableValidator pattern with [ObservableProperty]
+- **ViewModels**: ObservableObject + composition services with [ObservableProperty]
 - **Views**: NavigationView shell, Dashboard, Incident wizards
 - **Validation**: Real-time validation with error display
 - **Navigation**: Proper MVVM navigation patterns
@@ -272,34 +272,32 @@
 - **Status Transition**: Draft → Open with NOI sent flag
 - **Audit Trail**: Complete workflow completion logging
 
-### Conversion Workflow (Pre-Incident → Major Incident)
-**Data Preservation & Enhancement**:
+### Promotion Workflow (Pre-Incident → Major Incident)
+**State Change & Field Visibility Update**:
 
 ```csharp
-public async Task<ConversionResult> ConvertPreIncidentToMajorAsync(string incidentId, string userId)
+public async Task<PromotionResult> PromoteToMajorIncidentAsync(string incidentId, string userId)
 {
     var incident = await _incidentRepository.GetByIdAsync(incidentId);
     
-    // Preserve all existing data
-    var majorIncident = new MajorIncident
-    {
-        // Copy all Pre-Incident fields
-        Title = incident.Title,
-        Description = incident.Description,
-        StartTime = incident.StartTime,
-        Priority = incident.Priority,
-        // ... all other fields
-        
-        // Add Major Incident specific fields
-        BusinessImpact = "Under assessment",
-        NOIRecipients = new List<string>(),
-        ChecklistItems = GetDefaultChecklistItems(),
-        ConvertedDate = DateTime.UtcNow,
-        ConvertedBy = userId
-    };
+    // Validate current state
+    if (incident.Type != IncidentType.PreIncident)
+        return PromotionResult.Failure("Only Pre-Incidents can be promoted to Major Incidents");
     
-    await _auditService.LogConversionAsync(incidentId, IncidentType.PreIncident, IncidentType.MajorIncident, userId);
-    return ConversionResult.Success("Successfully converted to Major Incident");
+    // Simple state change - same entity, different workflow
+    incident.Type = IncidentType.MajorIncident;
+    incident.LastModifiedBy = userId;
+    incident.LastModifiedAt = DateTime.UtcNow;
+    
+    // Update repository with state change
+    await _incidentRepository.UpdateAsync(incident);
+    
+    // Log the promotion in audit trail
+    await _auditService.LogPromotionAsync(incidentId, IncidentType.PreIncident, IncidentType.MajorIncident, userId);
+    
+    _logger.LogInformation("Pre-Incident {IncidentId} promoted to Major Incident by {UserId}", incidentId, userId);
+    
+    return PromotionResult.Success("Successfully promoted to Major Incident");
 }
 ```
 
