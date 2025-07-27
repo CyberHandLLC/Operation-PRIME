@@ -28,7 +28,7 @@
 ## Core Technical Patterns
 
 ### Dependency Injection Patterns
-**DEFINITIVE REFERENCE** - *Cross-referenced in [Development](./02-development.md) and [Reference](./05-reference.md)*
+**DEFINITIVE REFERENCE** - *Cross-referenced in [Development](./DEVELOPMENT-GUIDE.md) and [Reference](./QUICK-REFERENCE.md)*
 
 ### Service Registration Strategy
 ```csharp
@@ -116,7 +116,7 @@ public class IncidentService
 ```
 
 ### DI Troubleshooting
-**See [Troubleshooting Guide](./04-troubleshooting.md#dependency-injection-failures) for detailed resolution steps**
+**See [Troubleshooting Guide](./TROUBLESHOOTING-GUIDE.md#dependency-injection-failures) for detailed resolution steps**
 
 - **Service not registered**: Check service registration in `Program.cs`
 - **Circular dependencies**: Review constructor dependencies

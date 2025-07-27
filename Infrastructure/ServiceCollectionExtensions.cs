@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using OperationPrime.Application.Interfaces;
-using OperationPrime.Application.Services;
+using OperationPrime.Infrastructure.Services;
 
 namespace OperationPrime.Infrastructure;
 
@@ -16,10 +16,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        // Register the simple in-memory incident service
-        services.AddSingleton<IIncidentService, IncidentService>();
-
-
+        // Register navigation service as singleton (shared across app)
+        services.AddSingleton<INavigationService, NavigationService>();
 
         return services;
     }

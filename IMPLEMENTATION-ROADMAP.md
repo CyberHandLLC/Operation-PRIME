@@ -160,7 +160,7 @@
 
 **Critical Path**: Incident workflows → Priority calculation → NOI generation  
 **Risk Factors**: UI complexity, validation integration  
-**Mitigation**: See [Troubleshooting Guide](./04-troubleshooting.md#xaml-compilation-failures)
+**Mitigation**: See [Troubleshooting Guide](./TROUBLESHOOTING-GUIDE.md#xaml-compilation-failures)
 
 ### Phase 2: Advanced Features (Week 3-4)
 **Target Completion: End of Week 4**
@@ -174,7 +174,7 @@
 
 **Critical Path**: Neurons integration → Email system → NOI templates  
 **Risk Factors**: External API reliability, .docx complexity  
-**Mitigation**: See [Business Logic Guide](./06-business-logic.md#integration-patterns)
+**Mitigation**: See [Business Logic Guide](./BUSINESS-RULES.md#integration-patterns)
 
 ### Phase 3: Polish & Deployment (Week 5-6)
 **Target Completion: End of Week 6**
@@ -223,7 +223,7 @@
 - [ ] User training materials
 
 ## Detailed Workflow Specifications
-**Cross-Reference**: [Business Logic](./06-business-logic.md#workflow-processing) | [Troubleshooting](./04-troubleshooting.md#business-logic-errors)
+**Cross-Reference**: [Business Logic](./BUSINESS-RULES.md#workflow-processing) | [Troubleshooting](./TROUBLESHOOTING-GUIDE.md#business-logic-errors)
 
 ### Pre-Incident Workflow
 **3-Step Wizard Process**:

@@ -3,21 +3,31 @@ namespace OperationPrime.Domain.Enums;
 /// <summary>
 /// Represents the priority level of an incident.
 /// Used in priority matrix calculations along with urgency and impact.
+/// Follows P1 (highest) to P4 (lowest) priority scale.
 /// </summary>
 public enum Priority
 {
     /// <summary>
-    /// Low priority - can be addressed during normal business hours.
+    /// P1 - Critical priority, requires immediate attention.
+    /// Typically for security incidents, data center outages, or high-impact issues.
     /// </summary>
-    Low = 0,
+    P1 = 1,
 
     /// <summary>
-    /// Medium priority - should be addressed soon but not immediately.
+    /// P2 - High priority, should be addressed quickly.
+    /// Significant business impact but not critical.
     /// </summary>
-    Medium = 1,
+    P2 = 2,
 
     /// <summary>
-    /// High priority - requires immediate attention and resources.
+    /// P3 - Medium priority, normal response time.
+    /// Moderate business impact, can be scheduled.
     /// </summary>
-    High = 2
+    P3 = 3,
+
+    /// <summary>
+    /// P4 - Low priority, can be addressed during normal business hours.
+    /// Minimal business impact, low urgency.
+    /// </summary>
+    P4 = 4
 }

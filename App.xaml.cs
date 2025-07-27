@@ -2,8 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
-using OperationPrime.Presentation.ViewModels;
 using OperationPrime.Infrastructure;
+using OperationPrime.Presentation.ViewModels;
 using System.IO;
 
 namespace OperationPrime
@@ -66,12 +66,11 @@ namespace OperationPrime
             
             builder.ConfigureServices((context, services) =>
             {
-                // Register ViewModels as Transient (new instance each time)
-                services.AddTransient<MainPageViewModel>();
-                services.AddTransient<BaseViewModel>();
-
                 // Register infrastructure services
                 services.AddInfrastructure();
+                
+                // Register ViewModels as Transient (new instance each time)
+                services.AddTransient<ShellViewModel>();
             });
 
             _host = builder.Build();

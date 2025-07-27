@@ -216,7 +216,7 @@ services.AddLogging(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace
 - Architecture refactoring if needed
 
 ## Error Handling & Logging Patterns
-**DEFINITIVE REFERENCE** - *Referenced by [Development](./02-development.md) and [Business Logic](./06-business-logic.md)*
+**DEFINITIVE REFERENCE** - *Referenced by [Development](./DEVELOPMENT-GUIDE.md) and [Business Logic](./BUSINESS-RULES.md)*
 
 ### Structured Logging Standards
 ```csharp
@@ -309,7 +309,7 @@ public class IncidentNotFoundException : OperationPrimeException
 ```
 
 ## Business Logic Error Debugging
-**Cross-Reference**: [Business Logic](./06-business-logic.md) | [Implementation](./03-implementation.md#workflow-specifications)
+**Cross-Reference**: [Business Logic](./BUSINESS-RULES.md) | [Implementation](./IMPLEMENTATION-ROADMAP.md#workflow-specifications)
 
 ### Priority Calculation Failures
 ```csharp

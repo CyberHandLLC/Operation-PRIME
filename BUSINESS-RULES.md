@@ -1,6 +1,6 @@
 # 06 - Business Logic & Complex Systems
 
-**Navigation**: [← Reference](./05-reference.md) | [↑ Home](./README.md)
+**Navigation**: [← Reference](./QUICK-REFERENCE.md) | [↑ Home](./README-DOCS.md)
 
 ## Overview
 
@@ -838,4 +838,4 @@ This business logic documentation provides the essential implementation details 
 
 These implementations ensure robust, maintainable, and auditable business logic that supports the incident management workflow requirements.
 
-**Next**: Return to [README](./README.md) for navigation or see [Reference](./05-reference.md) for quick lookups.
+**Next**: Return to [README](./README-DOCS.md) for navigation or see [Reference](./QUICK-REFERENCE.md) for quick lookups.

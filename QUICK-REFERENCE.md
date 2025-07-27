@@ -1,13 +1,13 @@
 # 05 - Quick Reference & Glossary
 
-**Navigation**: [← Troubleshooting](./04-troubleshooting.md) | [↑ Home](./README.md) | [→ Business Logic](./06-business-logic.md)
+**Navigation**: [← Troubleshooting](./TROUBLESHOOTING-GUIDE.md) | [↑ Home](./README-DOCS.md) | [→ Business Logic](./BUSINESS-RULES.md)
 
 ## 🎯 **AI-Vectorization Optimized Reference**
 
 **Purpose**: Fast lookup and pattern matching for daily development  
-**Cross-References**: Consolidates patterns from [Architecture](./01-architecture.md), [Development](./02-development.md), [Implementation](./03-implementation.md)  
-**Error Handling**: See [Troubleshooting](./04-troubleshooting.md) for detailed error resolution  
-**Complex Logic**: See [Business Logic](./06-business-logic.md) for full implementations
+**Cross-References**: Consolidates patterns from [Architecture](./ARCHITECTURE.md), [Development](./DEVELOPMENT-GUIDE.md), [Implementation](./IMPLEMENTATION-ROADMAP.md)  
+**Error Handling**: See [Troubleshooting](./TROUBLESHOOTING-GUIDE.md) for detailed error resolution  
+**Complex Logic**: See [Business Logic](./BUSINESS-RULES.md) for full implementations
 
 ### 📚 **Quick Navigation Index**
 
@@ -23,7 +23,7 @@
 | **Troubleshooting** | [Common Errors](#common-error-codes) | Quick error resolution |
 
 ## Essential Commands
-**Cross-Reference**: [Development Workflow](./02-development.md#quality-gates) | [Troubleshooting](./04-troubleshooting.md#build-system-failures)
+**Cross-Reference**: [Development Workflow](./DEVELOPMENT-GUIDE.md#quality-gates) | [Troubleshooting](./TROUBLESHOOTING-GUIDE.md#build-system-failures)
 
 ### Development Commands
 ```bash
@@ -94,7 +94,7 @@ public partial class ExampleViewModel : ObservableValidator
 ```
 
 ### Service Registration Patterns
-**Definitive Reference**: [Architecture](./01-architecture.md#dependency-injection-patterns) | **Troubleshooting**: [DI Failures](./04-troubleshooting.md#dependency-injection-failures)
+**Definitive Reference**: [Architecture](./ARCHITECTURE.md#dependency-injection-patterns) | **Troubleshooting**: [DI Failures](./TROUBLESHOOTING-GUIDE.md#dependency-injection-failures)
 
 ### Complete Registration Template
 ```csharp

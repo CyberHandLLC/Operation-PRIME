@@ -1,4 +1,6 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using OperationPrime.Presentation.ViewModels;
 
 namespace OperationPrime;
 
@@ -7,13 +9,29 @@ namespace OperationPrime;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+    public ShellViewModel ViewModel { get; }
+
     public MainWindow()
     {
         this.InitializeComponent();
+        
+        // Get ViewModel from dependency injection
+        ViewModel = App.Current.GetService<ShellViewModel>();
+        
+        // Set the navigation frame
+        ViewModel.SetNavigationFrame(ContentFrame);
         
         // Set window title
         this.Title = "Operation Prime - Incident Management";
     }
 
+    private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    {
+        ViewModel.ItemInvokedCommand.Execute(args);
+    }
 
+    private void NavigationView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+    {
+        ViewModel.BackRequestedCommand.Execute(null);
+    }
 }
