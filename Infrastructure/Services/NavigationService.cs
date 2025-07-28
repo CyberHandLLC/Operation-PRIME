@@ -56,8 +56,10 @@ public class NavigationService : INavigationService
             }
             return result;
         }
-        catch
+        catch (Exception ex)
         {
+            // Log the exception for debugging instead of silently failing
+            System.Diagnostics.Debug.WriteLine($"Navigation to {pageType.Name} failed: {ex.Message}");
             return false;
         }
     }

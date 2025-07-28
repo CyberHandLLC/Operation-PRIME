@@ -119,8 +119,8 @@ services.AddScoped<IYourService, YourService>();
 [ObservableProperty]
 private ObservableCollection<Incident> incidents = new();
 
-// ✅ Use null-conditional operators
-public bool HasIncidents => Incidents?.Any() == true;
+// ✅ Direct access since collection is initialized
+public bool HasIncidents => Incidents.Any();
 ```
 
 ### Issue: "The name 'X' does not exist in the current context"

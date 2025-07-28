@@ -217,7 +217,7 @@ public class NOIBuilder : INOIBuilder
             filePath, _incident.IncidentNumber);
     }
 
-    public async Task<EmailResult> SendEmailAsync(string[] recipients, string subject = null)
+    public async Task<EmailResult> SendEmailAsync(string[] recipients, string subject = "")
     {
         ValidateBuilder();
         
@@ -452,7 +452,7 @@ public class IncidentWorkflowService : IIncidentWorkflowService
         [IncidentStatus.Closed] = new() { IncidentStatus.InProgress } // Reopening
     };
 
-    public async Task<WorkflowResult> TransitionStatusAsync(string incidentId, IncidentStatus newStatus, string userId, string reason = null)
+    public async Task<WorkflowResult> TransitionStatusAsync(string incidentId, IncidentStatus newStatus, string userId, string reason = "")
     {
         var incident = await _incidentRepository.GetByIdAsync(incidentId);
         if (incident == null)
@@ -674,11 +674,11 @@ public class IncidentValidationService : IIncidentValidationService
         if (string.IsNullOrWhiteSpace(incident.BusinessImpact))
             errors.Add(new ValidationError("BusinessImpact", "Business impact is required for Major Incidents"));
 
-        if (incident.NOIRecipients == null || !incident.NOIRecipients.Any())
+        if (incident.NOIRecipients?.Any() != true)
             errors.Add(new ValidationError("NOIRecipients", "NOI recipients are required for Major Incidents"));
 
         // Validate email addresses
-        if (incident.NOIRecipients != null)
+        if (incident.NOIRecipients?.Any() == true)
         {
             foreach (var email in incident.NOIRecipients)
             {
@@ -775,7 +775,7 @@ public class NeuronsIntegrationService : INeuronsIntegrationService
             {
                 _logger.LogWarning("Failed to fetch incident data for {IncidentNumber}: {StatusCode}", 
                     incidentNumber, response.StatusCode);
-                return null;
+                throw new ExternalServiceException($"Failed to fetch incident data: {response.StatusCode}");
             }
         }
         catch (Exception ex)

@@ -18,7 +18,7 @@ public sealed partial class ComingSoonView : Page
         base.OnNavigatedTo(e);
         
         // If a parameter was passed, use it to customize the message
-        if (e.Parameter is string pageName)
+        if (e.Parameter is string pageName && PageNameTextBlock != null)
         {
             PageNameTextBlock.Text = $"{pageName} is under development";
         }

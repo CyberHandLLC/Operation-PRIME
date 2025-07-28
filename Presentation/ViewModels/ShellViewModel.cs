@@ -17,7 +17,7 @@ public partial class ShellViewModel : ObservableObject
     private bool _isBackEnabled;
 
     [ObservableProperty]
-    private object? _selected;
+    private NavigationViewItem? _selected;
 
     /// <summary>
     /// Collection of navigation menu items

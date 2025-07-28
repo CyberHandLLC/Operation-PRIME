@@ -146,9 +146,9 @@ public partial class IncidentViewModel : ObservableObject
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasIncidents))]
-    private ObservableCollection<Incident>? incidents;
+    private ObservableCollection<Incident> incidents = new();
     
-    public bool HasIncidents => Incidents?.Any() == true;
+    public bool HasIncidents => Incidents.Any();
     public bool IsLoading => _stateService.IsLoading;
     public string? ErrorMessage => _stateService.ErrorMessage;
     

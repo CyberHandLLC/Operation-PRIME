@@ -23,15 +23,20 @@ public partial class IncidentListViewModel : ObservableObject
     }
     
     [ObservableProperty]
-    private string? searchText;  // Nullable prevents MSB3073
+    private string? searchText;  // Nullable for user input
     
     [ObservableProperty]
-    private ObservableCollection<Incident>? incidents;
+    private ObservableCollection<Incident> incidents = new();  // Non-nullable, initialized
+    
+    [ObservableProperty]
+    private bool isLoading;
+    
+    [ObservableProperty]
+    private string? errorMessage;
     
     // Safe property access
-    public bool HasResults => Incidents?.Any() == true;
-    public bool IsLoading => _stateService.IsLoading;
-    public string? ErrorMessage => _stateService.ErrorMessage;
+    public bool HasResults => Incidents.Any();
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 }
 ```
 

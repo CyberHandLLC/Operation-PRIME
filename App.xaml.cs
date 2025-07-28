@@ -75,6 +75,7 @@ namespace OperationPrime
                 
                 // Register ViewModels as Transient (new instance each time)
                 services.AddTransient<ShellViewModel>();
+                services.AddTransient<IncidentListViewModel>();
             });
 
             _host = builder.Build();

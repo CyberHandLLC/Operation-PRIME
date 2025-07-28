@@ -281,7 +281,7 @@ public partial class IncidentListViewModel : ObservableObject
     private string? selectedIncidentType = "All";
     
     [ObservableProperty]
-    private ObservableCollection<Incident> incidents;
+    private ObservableCollection<Incident> incidents = new();
     
     // Computed property for filtered results
     public IEnumerable<Incident> FilteredIncidents
@@ -610,7 +610,7 @@ private bool CanSave() => !string.IsNullOrEmpty(Title) && !IsLoading;
 public async Task LoadDataAsync()
 {
     IsLoading = true;
-    ErrorMessage = null;
+    ErrorMessage = string.Empty;
     
     try
     {
@@ -669,7 +669,7 @@ public class ViewModelStateService : IViewModelStateService
         try
         {
             IsLoading = true;
-            ErrorMessage = null;
+            ErrorMessage = string.Empty;
             await operation();
         }
         catch (Exception ex)
@@ -683,7 +683,7 @@ public class ViewModelStateService : IViewModelStateService
         }
     }
     
-    public void ClearError() => ErrorMessage = null;
+    public void ClearError() => ErrorMessage = string.Empty;
 }
 
 // ✅ GOOD: ViewModel using composition

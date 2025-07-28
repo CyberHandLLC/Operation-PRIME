@@ -90,9 +90,9 @@ public partial class ExampleViewModel : ObservableObject
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasItems))]
-    private ObservableCollection<Item>? items;
+    private ObservableCollection<Item> items = new();
     
-    public bool HasItems => Items?.Any() == true;
+    public bool HasItems => Items.Any();
     public bool IsLoading => _stateService.IsLoading;
     public string? ErrorMessage => _stateService.ErrorMessage;
     
