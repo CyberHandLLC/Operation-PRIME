@@ -120,6 +120,7 @@ public class NavigationService : INavigationService
     {
         // Register implemented pages
         _pageRegistry["IncidentList"] = typeof(OperationPrime.Presentation.Views.IncidentListView);
+        _pageRegistry["IncidentCreate"] = typeof(OperationPrime.Presentation.Views.IncidentCreateView);
         
         // Register placeholder page for unimplemented features
         _pageRegistry["ComingSoon"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);

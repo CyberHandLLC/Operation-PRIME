@@ -38,6 +38,7 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
     // Domain Services (Business Logic)
     services.AddScoped<IPriorityMatrixService, PriorityMatrixService>();
     services.AddScoped<IIncidentWorkflowService, IncidentWorkflowService>();
+    services.AddScoped<IEnumService, EnumService>();  // ✅ IMPLEMENTED: Clean Architecture enum collections
     
     // Application Services (Use Cases)
     services.AddScoped<IIncidentService, IncidentService>();
@@ -118,6 +119,60 @@ public class IncidentService
     }
 }
 ```
+
+### Clean Architecture Enum Service Pattern ✅ **IMPLEMENTED**
+
+**Achievement**: Successfully refactored enum collections from ViewModels to Domain Service following Microsoft Clean Architecture principles.
+
+```csharp
+// Application/Interfaces/IEnumService.cs
+public interface IEnumService
+{
+    IEnumerable<IncidentType> GetIncidentTypes();
+    IEnumerable<Priority> GetPriorities();
+    IEnumerable<Status> GetStatuses();
+}
+
+// Infrastructure/Services/EnumService.cs
+public class EnumService : IEnumService
+{
+    public IEnumerable<IncidentType> GetIncidentTypes() => Enum.GetValues<IncidentType>();
+    public IEnumerable<Priority> GetPriorities() => Enum.GetValues<Priority>();
+    public IEnumerable<Status> GetStatuses() => Enum.GetValues<Status>();
+}
+
+// Presentation/ViewModels/IncidentCreateViewModel.cs
+public partial class IncidentCreateViewModel : ObservableObject
+{
+    private readonly IEnumService _enumService;
+    
+    public ObservableCollection<IncidentType> AvailableIncidentTypes { get; private set; } = new();
+    public ObservableCollection<Priority> AvailablePriorities { get; private set; } = new();
+    public ObservableCollection<Status> AvailableStatuses { get; private set; } = new();
+    
+    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService)
+    {
+        _incidentService = incidentService;
+        _enumService = enumService;
+        LoadEnumCollections();
+    }
+    
+    private void LoadEnumCollections()
+    {
+        // Populate from domain service - Clean Architecture compliance
+        foreach (var type in _enumService.GetIncidentTypes())
+            AvailableIncidentTypes.Add(type);
+        // ... similar for other enums
+    }
+}
+```
+
+**Benefits Achieved**:
+- ✅ **Clean Architecture Compliance**: Business logic moved to Domain Service
+- ✅ **Testability**: Enum service can be easily mocked for unit tests
+- ✅ **Maintainability**: Single source of truth for enum collections
+- ✅ **Extensibility**: Easy to add database-driven enums in future
+- ✅ **Microsoft Patterns**: Follows official Clean Architecture guidance
 
 ### DI Troubleshooting
 **See [Troubleshooting Guide](./TROUBLESHOOTING-GUIDE.md#dependency-injection-failures) for detailed resolution steps**

@@ -27,7 +27,8 @@
             </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0" Spacing="20">
-                <TextBlock Text="Incident Management" 
+                <TextBlock Text="Incident Management 2" 
+                           
                            Style="{StaticResource TitleTextBlockStyle}"/>
                 
                 <!-- Error Message -->
@@ -39,6 +40,15 @@
             
             <!-- Action Buttons -->
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Top">
+                <Button Command="{x:Bind ViewModel.CreateIncidentCommand}"
+                        ToolTipService.ToolTip="Create new incident"
+                        Style="{StaticResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Add"/>
+                        <TextBlock Text="Create Incident"/>
+                    </StackPanel>
+                </Button>
+                
                 <Button Command="{x:Bind ViewModel.RefreshCommand}"
                         ToolTipService.ToolTip="Refresh incidents">
                     <SymbolIcon Symbol="Refresh"/>

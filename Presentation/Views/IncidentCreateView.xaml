@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page x:Class="OperationPrime.Presentation.Views.IncidentCreateView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="using:OperationPrime.Presentation.Converters"
+      xmlns:enums="using:OperationPrime.Domain.Enums"
+      xmlns:controls="using:Microsoft.UI.Xaml.Controls">
+
+    <Page.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <Grid Grid.Row="0" Margin="20,20,20,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Spacing="20">
+                <TextBlock Text="Create New Incident" 
+                           Style="{StaticResource TitleTextBlockStyle}"/>
+                
+                <!-- Error Message -->
+                <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
+                         Severity="Error"
+                         Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                         Visibility="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
+                
+                <!-- Success Message -->
+                <InfoBar IsOpen="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
+                         Severity="Success"
+                         Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}"
+                         Visibility="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
+            </StackPanel>
+            
+            <!-- Action Buttons -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Top">
+                <Button Command="{x:Bind ViewModel.ResetFormCommand}"
+                        ToolTipService.ToolTip="Reset form">
+                    <SymbolIcon Symbol="Clear"/>
+                </Button>
+                
+                <ProgressRing IsActive="{x:Bind ViewModel.IsSubmitting, Mode=OneWay}"
+                              Width="20" Height="20"
+                              Visibility="{x:Bind ViewModel.IsSubmitting, Mode=OneWay}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Form Section -->
+        <ScrollViewer Grid.Row="1" Margin="20,10,20,20">
+            <StackPanel Spacing="20" MaxWidth="600" HorizontalAlignment="Left">
+                
+                <!-- Title Field -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Title *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay}"
+                             PlaceholderText="Enter incident title"
+                             MaxLength="200"/>
+                </StackPanel>
+
+                <!-- Description Field -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Description *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
+                             PlaceholderText="Enter detailed description of the incident"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="100"
+                             MaxHeight="200"
+                             MaxLength="1000"/>
+                </StackPanel>
+
+                <!-- Incident Type Field -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Incident Type" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableIncidentTypes}"
+                              SelectedItem="{x:Bind ViewModel.IncidentType, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <!-- Business Impact Field (Major Incident Only) -->
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsMajorIncident, Mode=OneWay}">
+                    <TextBlock Text="Business Impact *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <TextBlock Text="What is it that users cannot do?" 
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,4"/>
+                    <TextBox Text="{x:Bind ViewModel.BusinessImpact, Mode=TwoWay}"
+                             PlaceholderText="Describe what users cannot do due to this incident"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="80"
+                             MaxHeight="150"
+                             MaxLength="500"/>
+                </StackPanel>
+
+                <!-- Priority Field -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Priority" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailablePriorities}"
+                              SelectedItem="{x:Bind ViewModel.Priority, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <!-- Status Field -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Status" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableStatuses}"
+                              SelectedItem="{x:Bind ViewModel.Status, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Action Buttons Section -->
+        <Grid Grid.Row="2" Margin="20,10,20,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Required Fields Note -->
+            <TextBlock Grid.Column="0" 
+                       Text="* Required fields" 
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       VerticalAlignment="Center"/>
+            
+            <!-- Action Buttons -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                <Button Content="Reset"
+                        Command="{x:Bind ViewModel.ResetFormCommand}"
+                        Style="{StaticResource DefaultButtonStyle}"/>
+                
+                <Button Content="Create Incident"
+                        Command="{x:Bind ViewModel.CreateIncidentCommand}"
+                        Style="{StaticResource AccentButtonStyle}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

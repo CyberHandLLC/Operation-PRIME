@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
 
         // Register application services as scoped (per request/operation)
         services.AddScoped<IIncidentService, IncidentService>();
+        services.AddScoped<IEnumService, EnumService>();
 
         return services;
     }

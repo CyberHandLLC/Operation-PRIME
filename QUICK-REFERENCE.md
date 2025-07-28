@@ -108,6 +108,38 @@ public partial class ExampleViewModel : ObservableObject
 }
 ```
 
+### Clean Architecture Enum Service Pattern 
+```csharp
+// Domain Service for enum collections
+public interface IEnumService
+{
+    IEnumerable<IncidentType> GetIncidentTypes();
+    IEnumerable<Priority> GetPriorities();
+    IEnumerable<Status> GetStatuses();
+}
+
+// ViewModel consuming domain service
+public partial class IncidentCreateViewModel : ObservableObject
+{
+    private readonly IEnumService _enumService;
+    
+    public ObservableCollection<IncidentType> AvailableIncidentTypes { get; private set; } = new();
+    
+    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService)
+    {
+        _incidentService = incidentService;
+        _enumService = enumService;
+        LoadEnumCollections();
+    }
+    
+    private void LoadEnumCollections()
+    {
+        foreach (var type in _enumService.GetIncidentTypes())
+            AvailableIncidentTypes.Add(type);
+    }
+}
+```
+
 ### Service Registration Patterns
 **Definitive Reference**: [Architecture](./ARCHITECTURE.md#dependency-injection-patterns) | **Troubleshooting**: [DI Failures](./TROUBLESHOOTING-GUIDE.md#dependency-injection-failures)
 
@@ -119,6 +151,7 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
     // Domain Services (Business Logic) - Scoped
     services.AddScoped<IPriorityMatrixService, PriorityMatrixService>();
     services.AddScoped<IIncidentWorkflowService, IncidentWorkflowService>();
+    services.AddScoped<IEnumService, EnumService>();  // ✅ IMPLEMENTED: Clean Architecture enum collections
     
     // Application Services (Use Cases) - Scoped
     services.AddScoped<IIncidentService, IncidentService>();

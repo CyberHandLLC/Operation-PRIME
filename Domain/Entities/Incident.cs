@@ -24,6 +24,53 @@ public class Incident
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
+    /// Business impact description for Major Incidents.
+    /// Describes what users cannot do due to the incident.
+    /// Optional for Pre-Incidents, required for Major Incidents.
+    /// </summary>
+    public string? BusinessImpact { get; set; }
+
+    /// <summary>
+    /// Date and time when the issue started.
+    /// </summary>
+    public DateTime? TimeIssueStarted { get; set; }
+
+    /// <summary>
+    /// Date and time when the incident was reported.
+    /// </summary>
+    public DateTime? TimeReported { get; set; }
+
+    /// <summary>
+    /// Description of users impacted by the incident.
+    /// </summary>
+    public string? ImpactedUsers { get; set; }
+
+    /// <summary>
+    /// Application(s) affected by the incident.
+    /// </summary>
+    public string? ApplicationAffected { get; set; }
+
+    /// <summary>
+    /// Location(s) affected by the incident.
+    /// </summary>
+    public string? LocationsAffected { get; set; }
+
+    /// <summary>
+    /// Available workaround for the incident (optional).
+    /// </summary>
+    public string? Workaround { get; set; }
+
+    /// <summary>
+    /// Unique incident number for tracking.
+    /// </summary>
+    public string? IncidentNumber { get; set; }
+
+    /// <summary>
+    /// Urgency level of the incident (1=High, 2=Medium, 3=Low).
+    /// </summary>
+    public int Urgency { get; set; } = 3;
+
+    /// <summary>
     /// Type of incident (Pre-Incident or Major Incident).
     /// </summary>
     public IncidentType IncidentType { get; set; }

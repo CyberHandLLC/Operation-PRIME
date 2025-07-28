@@ -14,6 +14,7 @@ namespace OperationPrime.Presentation.ViewModels;
 public partial class IncidentListViewModel : ObservableObject
 {
     private readonly IIncidentService _incidentService;
+    private readonly INavigationService _navigationService;
 
     /// <summary>
     /// Collection of incidents to display in the UI.
@@ -37,9 +38,11 @@ public partial class IncidentListViewModel : ObservableObject
     /// Initializes a new instance of the IncidentListViewModel.
     /// </summary>
     /// <param name="incidentService">Service for incident data operations.</param>
-    public IncidentListViewModel(IIncidentService incidentService)
+    /// <param name="navigationService">Service for navigation operations.</param>
+    public IncidentListViewModel(IIncidentService incidentService, INavigationService navigationService)
     {
         _incidentService = incidentService;
+        _navigationService = navigationService;
     }
 
     /// <summary>
@@ -80,5 +83,14 @@ public partial class IncidentListViewModel : ObservableObject
     private async Task RefreshAsync()
     {
         await LoadIncidentsAsync();
+    }
+
+    /// <summary>
+    /// Navigates to the incident creation page.
+    /// </summary>
+    [RelayCommand]
+    private void CreateIncident()
+    {
+        _navigationService.NavigateTo("IncidentCreate");
     }
 }

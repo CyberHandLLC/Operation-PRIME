@@ -50,6 +50,12 @@ public class OperationPrimeDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.BusinessImpact).HasMaxLength(500);
+            entity.Property(e => e.ImpactedUsers).HasMaxLength(300);
+            entity.Property(e => e.ApplicationAffected).HasMaxLength(200);
+            entity.Property(e => e.LocationsAffected).HasMaxLength(300);
+            entity.Property(e => e.Workaround).HasMaxLength(500);
+            entity.Property(e => e.IncidentNumber).HasMaxLength(50);
             entity.Property(e => e.CreatedDate).IsRequired();
         });
     }

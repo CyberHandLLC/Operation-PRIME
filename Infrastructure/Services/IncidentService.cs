@@ -39,5 +39,22 @@ public class IncidentService : IIncidentService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Creates a new incident in the database.
+    /// </summary>
+    /// <param name="incident">The incident to create.</param>
+    /// <returns>The created incident with assigned ID.</returns>
+    public async Task<Incident> CreateAsync(Incident incident)
+    {
+        // Ensure database is created
+        await _context.Database.EnsureCreatedAsync();
 
+        // Add the incident to the context
+        _context.Incidents.Add(incident);
+        
+        // Save changes to get the assigned ID
+        await _context.SaveChangesAsync();
+        
+        return incident;
+    }
 }
