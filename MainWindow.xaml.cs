@@ -15,6 +15,7 @@ public sealed partial class MainWindow : Window
 {
     public ShellViewModel ViewModel { get; }
     private IncidentCreateViewModel? _currentIncidentViewModel;
+    private bool _disposed = false;
 
     public MainWindow(ShellViewModel shellViewModel)
     {
@@ -31,6 +32,9 @@ public sealed partial class MainWindow : Window
         
         // Subscribe to frame navigation events for breadcrumb updates
         ContentFrame.Navigated += ContentFrame_Navigated;
+        
+        // Subscribe to window closed event for cleanup
+        this.Closed += MainWindow_Closed;
     }
 
     private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -162,6 +166,51 @@ public sealed partial class MainWindow : Window
         catch (Exception ex)
         {
             Debug.WriteLine($"Error handling ViewModel property change: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handles window closed event to perform cleanup and prevent memory leaks.
+    /// </summary>
+    private void MainWindow_Closed(object sender, WindowEventArgs e)
+    {
+        DisposeResources();
+    }
+
+    /// <summary>
+    /// Disposes of resources and unsubscribes from events to prevent memory leaks.
+    /// </summary>
+    private void DisposeResources()
+    {
+        if (_disposed)
+            return;
+
+        try
+        {
+            // Unsubscribe from frame navigation events
+            ContentFrame.Navigated -= ContentFrame_Navigated;
+            
+            // Unsubscribe from window events
+            this.Closed -= MainWindow_Closed;
+            
+            // Unsubscribe from current incident ViewModel if exists
+            if (_currentIncidentViewModel != null)
+            {
+                _currentIncidentViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+                _currentIncidentViewModel = null;
+            }
+            
+            // Dispose ViewModel if it implements IDisposable
+            if (ViewModel is IDisposable disposableViewModel)
+            {
+                disposableViewModel.Dispose();
+            }
+            
+            _disposed = true;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during MainWindow disposal: {ex.Message}");
         }
     }
 }

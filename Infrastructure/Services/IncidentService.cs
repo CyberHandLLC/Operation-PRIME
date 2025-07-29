@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Domain.Enums;
@@ -13,48 +14,79 @@ namespace OperationPrime.Infrastructure.Services;
 public class IncidentService : IIncidentService
 {
     private readonly OperationPrimeDbContext _context;
+    private readonly ILogger<IncidentService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the IncidentService.
     /// </summary>
     /// <param name="context">Database context for data operations.</param>
-    public IncidentService(OperationPrimeDbContext context)
+    /// <param name="logger">Logger for structured logging.</param>
+    public IncidentService(OperationPrimeDbContext context, ILogger<IncidentService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     /// <summary>
     /// Retrieves all incidents from the database.
     /// Ensures database is created before querying.
     /// </summary>
+    /// <param name="cancellationToken">Cancellation token for async operation.</param>
     /// <returns>A collection of all incidents.</returns>
-    public async Task<IEnumerable<Incident>> GetAllAsync()
+    public async Task<IEnumerable<Incident>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        // Ensure database is created
-        await _context.Database.EnsureCreatedAsync();
+        try
+        {
+            _logger.LogDebug("Retrieving all incidents from database");
+            
+            // Ensure database is created
+            await _context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
-        // Return all incidents ordered by creation date (newest first)
-        return await _context.Incidents
-            .OrderByDescending(i => i.CreatedDate)
-            .ToListAsync();
+            // Return all incidents ordered by creation date (newest first)
+            var incidents = await _context.Incidents
+                .OrderByDescending(i => i.CreatedDate)
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
+                
+            _logger.LogInformation("Retrieved {IncidentCount} incidents from database", incidents.Count);
+            return incidents;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve incidents from database");
+            throw;
+        }
     }
 
     /// <summary>
     /// Creates a new incident in the database.
     /// </summary>
     /// <param name="incident">The incident to create.</param>
+    /// <param name="cancellationToken">Cancellation token for async operation.</param>
     /// <returns>The created incident with assigned ID.</returns>
-    public async Task<Incident> CreateAsync(Incident incident)
+    public async Task<Incident> CreateAsync(Incident incident, CancellationToken cancellationToken = default)
     {
-        // Ensure database is created
-        await _context.Database.EnsureCreatedAsync();
+        try
+        {
+            _logger.LogDebug("Creating new incident: {IncidentTitle}", incident.Title);
+            
+            // Ensure database is created
+            await _context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
-        // Add the incident to the context
-        _context.Incidents.Add(incident);
-        
-        // Save changes to get the assigned ID
-        await _context.SaveChangesAsync();
-        
-        return incident;
+            // Add the incident to the context
+            _context.Incidents.Add(incident);
+            
+            // Save changes to get the assigned ID
+            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            
+            _logger.LogInformation("Successfully created incident with ID {IncidentId}: {IncidentTitle}", 
+                incident.Id, incident.Title);
+            
+            return incident;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create incident: {IncidentTitle}", incident.Title);
+            throw;
+        }
     }
 }

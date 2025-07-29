@@ -46,25 +46,36 @@ public partial class IncidentListViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Loads incidents from the service asynchronously.
-    /// Follows Microsoft async/await patterns with proper error handling.
+    /// Loads incidents from the service asynchronously with cancellation support.
+    /// Follows .NET 9/WinUI 3 async patterns with enhanced user experience.
     /// </summary>
-    [RelayCommand]
-    private async Task LoadIncidentsAsync()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task LoadIncidentsAsync(CancellationToken cancellationToken)
     {
         try
         {
             IsLoading = true;
             ErrorMessage = null;
 
-            var incidentData = await _incidentService.GetAllAsync();
+            var incidentData = await _incidentService.GetAllAsync(cancellationToken);
+            
+            // Check for cancellation before UI updates
+            cancellationToken.ThrowIfCancellationRequested();
             
             // Clear existing data and add new incidents
             Incidents.Clear();
             foreach (var incident in incidentData)
             {
                 Incidents.Add(incident);
+                
+                // Allow cancellation during UI updates for large datasets
+                cancellationToken.ThrowIfCancellationRequested();
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Handle cancellation gracefully - don't show error for user-initiated cancellation
+            ErrorMessage = null;
         }
         catch (Exception ex)
         {
@@ -77,12 +88,12 @@ public partial class IncidentListViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Refreshes the incident data by reloading from the service.
+    /// Refreshes the incident data by reloading from the service with cancellation support.
     /// </summary>
-    [RelayCommand]
-    private async Task RefreshAsync()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task RefreshAsync(CancellationToken cancellationToken)
     {
-        await LoadIncidentsAsync();
+        await LoadIncidentsAsync(cancellationToken);
     }
 
     /// <summary>

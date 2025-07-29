@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using OperationPrime.Application.Interfaces;
+using OperationPrime.Presentation.Constants;
 using System.Collections.ObjectModel;
 
 namespace OperationPrime.Presentation.ViewModels;
@@ -9,7 +10,7 @@ namespace OperationPrime.Presentation.ViewModels;
 /// <summary>
 /// ViewModel for the main application shell with NavigationView
 /// </summary>
-public partial class ShellViewModel : ObservableObject
+public partial class ShellViewModel : ObservableObject, IDisposable
 {
     private readonly INavigationService _navigationService;
 
@@ -49,41 +50,41 @@ public partial class ShellViewModel : ObservableObject
     /// </summary>
     private void InitializeNavigationItems()
     {
-        // Main navigation items
+        // Main navigation items using NavigationKeys constants
         MenuItems.Add(new NavigationViewItem
         {
-            Content = "Dashboard",
+            Content = NavigationKeys.GetFriendlyName(NavigationKeys.Dashboard),
             Icon = new SymbolIcon(Symbol.Home),
-            Tag = "Dashboard"
+            Tag = NavigationKeys.Dashboard
         });
 
         MenuItems.Add(new NavigationViewItem
         {
-            Content = "Incidents",
+            Content = NavigationKeys.GetFriendlyName(NavigationKeys.Incidents),
             Icon = new SymbolIcon(Symbol.Important),
-            Tag = "IncidentList"
+            Tag = NavigationKeys.Incidents
         });
 
         MenuItems.Add(new NavigationViewItem
         {
-            Content = "Reports",
+            Content = NavigationKeys.GetFriendlyName(NavigationKeys.Reports),
             Icon = new SymbolIcon(Symbol.Document),
-            Tag = "Reports"
+            Tag = NavigationKeys.Reports
         });
 
         MenuItems.Add(new NavigationViewItem
         {
-            Content = "NOI Management",
+            Content = NavigationKeys.GetFriendlyName(NavigationKeys.NOI),
             Icon = new SymbolIcon(Symbol.Mail),
-            Tag = "NOI"
+            Tag = NavigationKeys.NOI
         });
 
         // Footer items
         FooterMenuItems.Add(new NavigationViewItem
         {
-            Content = "Settings",
+            Content = NavigationKeys.GetFriendlyName(NavigationKeys.Settings),
             Icon = new SymbolIcon(Symbol.Setting),
-            Tag = "Settings"
+            Tag = NavigationKeys.Settings
         });
     }
 
@@ -119,9 +120,10 @@ public partial class ShellViewModel : ObservableObject
     {
         // For placeholder pages, pass the page name as parameter to customize the message
         object? parameter = null;
-        if (pageKey == "Dashboard" || pageKey == "Reports" || pageKey == "NOI" || pageKey == "Settings")
+        if (pageKey == NavigationKeys.Dashboard || pageKey == NavigationKeys.Reports || 
+            pageKey == NavigationKeys.NOI || pageKey == NavigationKeys.Settings)
         {
-            parameter = GetFriendlyPageName(pageKey);
+            parameter = NavigationKeys.GetFriendlyName(pageKey);
         }
         
         // Attempt navigation
@@ -129,27 +131,11 @@ public partial class ShellViewModel : ObservableObject
         
         if (!navigationSucceeded)
         {
-            // Log the failed navigation attempt
-            System.Diagnostics.Debug.WriteLine($"Navigation to '{pageKey}' failed - page not found in registry");
+            // Navigation failure is now logged in NavigationService with structured logging
         }
     }
     
-    /// <summary>
-    /// Get friendly display name for page keys
-    /// </summary>
-    /// <param name="pageKey">The page key</param>
-    /// <returns>Friendly display name</returns>
-    private string GetFriendlyPageName(string pageKey)
-    {
-        return pageKey switch
-        {
-            "Dashboard" => "Dashboard",
-            "Reports" => "Reports",
-            "NOI" => "NOI Management",
-            "Settings" => "Settings",
-            _ => pageKey
-        };
-    }
+
 
     /// <summary>
     /// Handle navigation changes
@@ -183,6 +169,34 @@ public partial class ShellViewModel : ObservableObject
     public void SetNavigationFrame(Frame frame)
     {
         _navigationService.SetFrame(frame);
-        IsBackEnabled = _navigationService.CanGoBack;
     }
+
+    #region IDisposable Implementation
+
+    private bool _disposed = false;
+
+    /// <summary>
+    /// Dispose of resources and unsubscribe from events to prevent memory leaks.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Protected dispose method following the standard dispose pattern.
+    /// </summary>
+    /// <param name="disposing">True if disposing managed resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed && disposing)
+        {
+            // Unsubscribe from navigation service events to prevent memory leaks
+            _navigationService.NavigationChanged -= OnNavigationChanged;
+            _disposed = true;
+        }
+    }
+
+    #endregion
 }

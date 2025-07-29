@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using OperationPrime.Application.Interfaces;
+using OperationPrime.Presentation.Constants;
 
 namespace OperationPrime.Infrastructure.Services;
 
@@ -8,8 +10,18 @@ namespace OperationPrime.Infrastructure.Services;
 /// </summary>
 public class NavigationService : INavigationService
 {
+    private readonly ILogger<NavigationService> _logger;
     private Frame? _frame;
     private readonly Dictionary<string, Type> _pageRegistry = new();
+
+    /// <summary>
+    /// Initializes a new instance of the NavigationService.
+    /// </summary>
+    /// <param name="logger">Logger for structured logging.</param>
+    public NavigationService(ILogger<NavigationService> logger)
+    {
+        _logger = logger;
+    }
 
     /// <summary>
     /// Gets the current navigation frame
@@ -58,8 +70,8 @@ public class NavigationService : INavigationService
         }
         catch (Exception ex)
         {
-            // Log the exception for debugging instead of silently failing
-            System.Diagnostics.Debug.WriteLine($"Navigation to {pageType.Name} failed: {ex.Message}");
+            // Use structured logging instead of Debug.WriteLine
+            _logger.LogError(ex, "Navigation to {PageType} failed", pageType.Name);
             return false;
         }
     }
@@ -78,7 +90,7 @@ public class NavigationService : INavigationService
         }
         
         // Handle missing pages gracefully - navigate to placeholder or show message
-        System.Diagnostics.Debug.WriteLine($"Navigation failed: Page '{pageKey}' not found in registry");
+        _logger.LogWarning("Navigation failed: Page '{PageKey}' not found in registry", pageKey);
         
         // For now, return false to indicate navigation failure
         // In the future, we could navigate to a "Page Not Found" or "Coming Soon" page
@@ -118,17 +130,19 @@ public class NavigationService : INavigationService
     /// </summary>
     private void RegisterPages()
     {
-        // Register implemented pages
-        _pageRegistry["IncidentList"] = typeof(OperationPrime.Presentation.Views.IncidentListView);
-        _pageRegistry["IncidentCreate"] = typeof(OperationPrime.Presentation.Views.IncidentCreateView);
+        // Register implemented pages using NavigationKeys constants
+        _pageRegistry[NavigationKeys.Incidents] = typeof(OperationPrime.Presentation.Views.IncidentListView);
+        _pageRegistry[NavigationKeys.IncidentCreate] = typeof(OperationPrime.Presentation.Views.IncidentCreateView);
         
         // Register placeholder page for unimplemented features
-        _pageRegistry["ComingSoon"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry[NavigationKeys.ComingSoon] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
         
         // Register placeholder pages for menu items that aren't implemented yet
-        _pageRegistry["Dashboard"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
-        _pageRegistry["Reports"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
-        _pageRegistry["NOI"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
-        _pageRegistry["Settings"] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry[NavigationKeys.Dashboard] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry[NavigationKeys.Reports] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry[NavigationKeys.NOI] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        _pageRegistry[NavigationKeys.Settings] = typeof(OperationPrime.Presentation.Views.ComingSoonView);
+        
+        _logger.LogDebug("Registered {PageCount} navigation pages", _pageRegistry.Count);
     }
 }

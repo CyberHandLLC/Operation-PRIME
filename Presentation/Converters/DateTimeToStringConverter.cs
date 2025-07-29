@@ -9,18 +9,42 @@ namespace OperationPrime.Presentation.Converters;
 public class DateTimeToStringConverter : IValueConverter
 {
     /// <summary>
-    /// Converts a DateTime value to a formatted string.
+    /// Converts a DateTime or DateTimeOffset value to a formatted string.
+    /// Supports both types for backward compatibility with existing entities.
     /// </summary>
-    /// <param name="value">The DateTime value to convert.</param>
+    /// <param name="value">The DateTime or DateTimeOffset value to convert.</param>
     /// <param name="targetType">The target type (not used).</param>
     /// <param name="parameter">Optional format parameter (e.g., "short", "long").</param>
     /// <param name="language">The language for conversion (not used).</param>
-    /// <returns>Formatted string representation of the DateTime.</returns>
+    /// <returns>Formatted string representation of the date/time.</returns>
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is not DateTime dateTime)
-            return string.Empty;
-
+        // Handle both DateTime and DateTimeOffset for compatibility
+        string dateTimeString;
+        
+        switch (value)
+        {
+            case DateTimeOffset dateTimeOffset:
+                dateTimeString = FormatDateTime(dateTimeOffset.DateTime, parameter);
+                break;
+            case DateTime dateTime:
+                dateTimeString = FormatDateTime(dateTime, parameter);
+                break;
+            default:
+                return string.Empty;
+        }
+        
+        return dateTimeString;
+    }
+    
+    /// <summary>
+    /// Formats a DateTime value according to the specified parameter.
+    /// </summary>
+    /// <param name="dateTime">The DateTime to format.</param>
+    /// <param name="parameter">Format parameter.</param>
+    /// <returns>Formatted string.</returns>
+    private static string FormatDateTime(DateTime dateTime, object? parameter)
+    {
         // Use parameter to determine format, default to short date/time
         string format = parameter?.ToString()?.ToLower() ?? "short";
 

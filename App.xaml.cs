@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Infrastructure;
@@ -65,6 +66,21 @@ namespace OperationPrime
         {
             var builder = Host.CreateDefaultBuilder();
             
+            // Configure structured logging per Microsoft.Extensions.Logging documentation
+            builder.ConfigureLogging((context, logging) =>
+            {
+                logging.ClearProviders();
+                logging.AddConsole();
+                logging.AddDebug();
+                
+                // Set minimum log level based on environment
+                logging.SetMinimumLevel(LogLevel.Information);
+                
+#if DEBUG
+                logging.SetMinimumLevel(LogLevel.Debug);
+#endif
+            });
+            
             builder.ConfigureServices((context, services) =>
             {
                 // Register infrastructure services
@@ -90,6 +106,25 @@ namespace OperationPrime
         public T GetService<T>() where T : class
         {
             return Services.GetRequiredService<T>();
+        }
+
+        /// <summary>
+        /// Handles application shutdown and ensures proper disposal of resources.
+        /// WinUI 3 doesn't have OnExit like WPF, so we implement IDisposable pattern.
+        /// The host will be disposed when the application terminates.
+        /// </summary>
+        ~App()
+        {
+            try
+            {
+                // Dispose of the host to properly shut down all services
+                _host?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                // Log disposal errors but don't prevent application shutdown
+                System.Diagnostics.Debug.WriteLine($"Error during application shutdown: {ex.Message}");
+            }
         }
     }
 }

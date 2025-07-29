@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OperationPrime.Application.Interfaces;
@@ -11,7 +12,7 @@ namespace OperationPrime.Presentation.ViewModels;
 /// ViewModel for creating new incidents.
 /// Matches the database schema: Title, Description, IncidentType, Priority, Status, CreatedDate.
 /// </summary>
-public partial class IncidentCreateViewModel : ObservableObject
+public partial class IncidentCreateViewModel : ObservableValidator
 {
     private readonly IIncidentService _incidentService;
     private readonly IEnumService _enumService;
@@ -41,6 +42,9 @@ public partial class IncidentCreateViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanGoNext))]
     [NotifyPropertyChangedFor(nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Incident title is required")]
+    [StringLength(200, ErrorMessage = "Title cannot exceed 200 characters")]
     private string title = string.Empty;
 
     /// <summary>
@@ -50,6 +54,9 @@ public partial class IncidentCreateViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanGoNext))]
     [NotifyPropertyChangedFor(nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Incident description is required")]
+    [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters")]
     private string description = string.Empty;
 
     /// <summary>
@@ -113,6 +120,8 @@ public partial class IncidentCreateViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanGoNext))]
     [NotifyPropertyChangedFor(nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    [NotifyDataErrorInfo]
+    [StringLength(1000, ErrorMessage = "Business impact description cannot exceed 1000 characters")]
     private string businessImpact = string.Empty;
 
     // Step Navigation Properties
@@ -328,10 +337,11 @@ public partial class IncidentCreateViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Creates a new incident with the current form data.
+    /// Creates a new incident with the current form data with cancellation support.
+    /// Follows .NET 9/WinUI 3 enhanced async command patterns.
     /// </summary>
-    [RelayCommand(CanExecute = nameof(CanCreateIncident))]
-    private async Task CreateIncidentAsync()
+    [RelayCommand(CanExecute = nameof(CanCreateIncident), IncludeCancelCommand = true)]
+    private async Task CreateIncidentAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -385,13 +395,25 @@ public partial class IncidentCreateViewModel : ObservableObject
                 CreatedDate = DateTime.UtcNow
             };
 
+            // Check for cancellation before saving
+            cancellationToken.ThrowIfCancellationRequested();
+        
             // Save the incident
-            await _incidentService.CreateAsync(incident);
+            await _incidentService.CreateAsync(incident, cancellationToken);
+        
+            // Check for cancellation before UI updates
+            cancellationToken.ThrowIfCancellationRequested();
 
             SuccessMessage = "Incident created successfully!";
-            
+        
             // Reset form for next incident
             ResetForm();
+        }
+        catch (OperationCanceledException)
+        {
+            // Handle cancellation gracefully - don't show error for user-initiated cancellation
+            ErrorMessage = null;
+            SuccessMessage = null;
         }
         catch (Exception ex)
         {
