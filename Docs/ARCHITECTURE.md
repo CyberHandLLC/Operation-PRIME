@@ -392,7 +392,7 @@ public class CircuitBreakerService<T>
 {
     private CircuitBreakerState _state = CircuitBreakerState.Closed;
     private int _failureCount = 0;
-    private DateTime _lastFailureTime = DateTime.MinValue;
+    private DateTimeOffset _lastFailureTime = DateTimeOffset.MinValue;
     private readonly int _failureThreshold;
     private readonly TimeSpan _timeout;
     
@@ -400,7 +400,7 @@ public class CircuitBreakerService<T>
     {
         if (_state == CircuitBreakerState.Open)
         {
-            if (DateTime.UtcNow - _lastFailureTime < _timeout)
+            if (DateTimeOffset.UtcNow - _lastFailureTime < _timeout)
                 throw new CircuitBreakerOpenException();
             
             _state = CircuitBreakerState.HalfOpen;
@@ -447,12 +447,12 @@ public class Incident
     public string IncidentNumber { get; set; }
     public string Title { get; set; }
     public IncidentType Type { get; set; } // Pre-Incident | Major Incident
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; }
     
     // Shared workflow fields
     public string DetailedDescription { get; set; }
-    public DateTime? IncidentStartTime { get; set; }
+    public DateTimeOffset? IncidentStartTime { get; set; }
     public int? ImpactedUsers { get; set; }
     public int Urgency { get; set; }
     public string BusinessImpact { get; set; }
@@ -466,7 +466,7 @@ public class Incident
     public string Category { get; set; } // Hidden for Pre-Incident creation
     
     // Promotion tracking
-    public DateTime? PromotedDate { get; set; }
+    public DateTimeOffset? PromotedDate { get; set; }
     public string PromotedBy { get; set; }
     
     // Major Incident specific fields (visible when Type = MajorIncident)
@@ -529,10 +529,10 @@ public class IncidentService
         
         // Simple state change - same entity, different workflow
         incident.Type = IncidentType.MajorIncident;
-        incident.PromotedDate = DateTime.UtcNow;
+        incident.PromotedDate = DateTimeOffset.UtcNow;
         incident.PromotedBy = userId;
         incident.LastModifiedBy = userId;
-        incident.LastModifiedAt = DateTime.UtcNow;
+        incident.LastModifiedAt = DateTimeOffset.UtcNow;
         
         await _repository.UpdateAsync(incident);
         await _auditService.LogPromotionAsync(incidentId, userId);

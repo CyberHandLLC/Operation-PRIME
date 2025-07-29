@@ -26,4 +26,10 @@ public interface IEnumService
     /// </summary>
     /// <returns>Collection of status values.</returns>
     IEnumerable<Status> GetStatuses();
+    
+    /// <summary>
+    /// Gets all available impacted users count values.
+    /// </summary>
+    /// <returns>Collection of impacted users count values.</returns>
+    IEnumerable<ImpactedUsersCount> GetImpactedUsersCounts();
 }

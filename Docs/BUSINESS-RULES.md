@@ -269,7 +269,7 @@ public class NOIBuilder : INOIBuilder
             ["{{AFFECTED_SYSTEMS}}", string.Join(", ", _incident.AffectedSystems ?? new List<string>())],
             ["{{IMPACTED_USERS}}", _incident.ImpactedUsers?.ToString() ?? "0"],
             ["{{CREATED_BY}}", _incident.CreatedBy],
-            ["{{CREATED_DATE}}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")],
+            ["{{CREATED_DATE}}", DateTimeOffset.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")],
             ["{{STATUS}}", _incident.Status],
             ["{{DESCRIPTION}}", _incident.Description ?? "Investigation in progress"]
         };
@@ -477,7 +477,7 @@ public class IncidentWorkflowService : IIncidentWorkflowService
         var oldStatus = incident.Status;
         incident.Status = newStatus;
         incident.LastModifiedBy = userId;
-        incident.LastModifiedDate = DateTime.UtcNow;
+        incident.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _incidentRepository.UpdateAsync(incident);
 
@@ -508,10 +508,10 @@ public class IncidentWorkflowService : IIncidentWorkflowService
 
         // Preserve existing data and add Major Incident requirements
         incident.Type = IncidentType.MajorIncident;
-        incident.PromotedDate = DateTime.UtcNow;
+        incident.PromotedDate = DateTimeOffset.UtcNow;
         incident.PromotedBy = userId;
         incident.LastModifiedBy = userId;
-        incident.LastModifiedAt = DateTime.UtcNow;
+        incident.LastModifiedAt = DateTimeOffset.UtcNow;
         
         // Major Incident fields become visible but retain existing values if present
         // No need to initialize - UI will handle field visibility based on Type

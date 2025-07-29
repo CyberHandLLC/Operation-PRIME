@@ -5,12 +5,7 @@
       xmlns:converters="using:OperationPrime.Presentation.Converters"
       xmlns:domain="using:OperationPrime.Domain.Entities">
 
-    <Page.Resources>
-        <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
-        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
-    </Page.Resources>
+    <!-- Converters are registered globally in App.xaml -->
 
     <Grid>
         <Grid.RowDefinitions>

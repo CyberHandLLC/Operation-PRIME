@@ -46,6 +46,22 @@ namespace OperationPrime
         {
             // Use proper DI instead of direct instantiation
             _window = GetService<MainWindow>();
+            
+            // Seed applications database on startup (runs only if empty)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var applicationService = GetService<IApplicationService>();
+                    await applicationService.SeedApplicationsAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't prevent app startup
+                    System.Diagnostics.Debug.WriteLine($"Failed to seed applications: {ex.Message}");
+                }
+            });
+            
             _window.Activate();
         }
 

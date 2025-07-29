@@ -10,9 +10,15 @@ namespace OperationPrime.Infrastructure.Data;
 public class OperationPrimeDbContext : DbContext
 {
     /// <summary>
-    /// Incidents table for storing all incident data.
+    /// Gets or sets the incidents in the database.
     /// </summary>
     public DbSet<Incident> Incidents { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the applications in the database.
+    /// Used for auto-suggestion in incident creation.
+    /// </summary>
+    public DbSet<ApplicationInfo> Applications { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the OperationPrimeDbContext.
@@ -49,14 +55,28 @@ public class OperationPrimeDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.BusinessImpact).HasMaxLength(500);
-            entity.Property(e => e.ImpactedUsers).HasMaxLength(300);
+            // ImpactedUsers is now an integer, no MaxLength needed
             entity.Property(e => e.ApplicationAffected).HasMaxLength(200);
             entity.Property(e => e.LocationsAffected).HasMaxLength(300);
             entity.Property(e => e.Workaround).HasMaxLength(500);
             entity.Property(e => e.IncidentNumber).HasMaxLength(50);
             entity.Property(e => e.CreatedDate).IsRequired();
+        });
+        
+        // Configure ApplicationInfo entity
+        modelBuilder.Entity<ApplicationInfo>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedDate).IsRequired();
+            
+            // Create index for faster searches during auto-suggestion
+            entity.HasIndex(e => e.Name);
+            entity.HasIndex(e => e.IsActive);
         });
     }
 }

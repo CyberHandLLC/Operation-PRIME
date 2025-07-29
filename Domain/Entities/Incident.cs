@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using OperationPrime.Domain.Enums;
 
 namespace OperationPrime.Domain.Entities;
@@ -16,11 +17,15 @@ public class Incident
     /// <summary>
     /// Brief title describing the incident.
     /// </summary>
+    [Required(ErrorMessage = "Incident title is required.")]
+    [StringLength(200, ErrorMessage = "Title cannot exceed 200 characters.")]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// Detailed description of the incident.
     /// </summary>
+    [Required(ErrorMessage = "Incident description is required.")]
+    [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters.")]
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
@@ -28,46 +33,54 @@ public class Incident
     /// Describes what users cannot do due to the incident.
     /// Optional for Pre-Incidents, required for Major Incidents.
     /// </summary>
+    [StringLength(500, ErrorMessage = "Business impact cannot exceed 500 characters.")]
     public string? BusinessImpact { get; set; }
 
     /// <summary>
     /// Date and time when the issue started.
     /// </summary>
-    public DateTimeOffset? TimeIssueStarted { get; set; }
+    public DateTimeOffset? TimeIssueStarted { get; set; } 
 
     /// <summary>
     /// Date and time when the incident was reported.
     /// </summary>
-    public DateTimeOffset? TimeReported { get; set; }
+    public DateTimeOffset? TimeReported { get; set; } // Using a ? means that the field can be empty, why would this field be empty?
 
     /// <summary>
-    /// Description of users impacted by the incident.
+    /// Number of users impacted by the incident.
+    /// Selected from predefined values: 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 500, 600, 800, 1000, 2000, 5000.
     /// </summary>
-    public string? ImpactedUsers { get; set; }
+    [Range(1, 5000, ErrorMessage = "Impacted users must be between 1 and 5000.")]
+    public int? ImpactedUsers { get; set; }
 
     /// <summary>
     /// Application(s) affected by the incident.
     /// </summary>
+    [StringLength(200, ErrorMessage = "Application affected cannot exceed 200 characters.")]
     public string? ApplicationAffected { get; set; }
 
     /// <summary>
     /// Location(s) affected by the incident.
     /// </summary>
+    [StringLength(300, ErrorMessage = "Locations affected cannot exceed 300 characters.")]
     public string? LocationsAffected { get; set; }
 
     /// <summary>
     /// Available workaround for the incident (optional).
     /// </summary>
+    [StringLength(500, ErrorMessage = "Workaround cannot exceed 500 characters.")]
     public string? Workaround { get; set; }
 
     /// <summary>
     /// Unique incident number for tracking.
     /// </summary>
+    [StringLength(50, ErrorMessage = "Incident number cannot exceed 50 characters.")]
     public string? IncidentNumber { get; set; }
 
     /// <summary>
     /// Urgency level of the incident (1=High, 2=Medium, 3=Low).
     /// </summary>
+    [Range(1, 3, ErrorMessage = "Urgency must be between 1 (High) and 3 (Low).")]
     public int Urgency { get; set; } = 3;
 
     /// <summary>
@@ -88,5 +101,5 @@ public class Incident
     /// <summary>
     /// Date and time when the incident was created.
     /// </summary>
-    public DateTime CreatedDate { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
 }

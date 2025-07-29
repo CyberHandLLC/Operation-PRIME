@@ -14,15 +14,12 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Converters -->
+            <!-- Converters (Essential Only) -->
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
-            <converters:BoolToAccentBackgroundConverter x:Key="BoolToAccentBackgroundConverter"/>
-            <converters:BoolToAccentBorderConverter x:Key="BoolToAccentBorderConverter"/>
-            <converters:BoolToAccentForegroundConverter x:Key="BoolToAccentForegroundConverter"/>
             <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
+            <converters:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter"/>
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
             
             <!-- Other app resources here -->

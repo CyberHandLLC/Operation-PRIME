@@ -16,16 +16,19 @@ public partial class IncidentCreateViewModel : ObservableValidator
 {
     private readonly IIncidentService _incidentService;
     private readonly IEnumService _enumService;
+    private readonly IApplicationService _applicationService;
 
     /// <summary>
     /// Initializes a new instance of the IncidentCreateViewModel.
     /// </summary>
     /// <param name="incidentService">Service for incident operations.</param>
     /// <param name="enumService">Service for enum collections.</param>
-    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService)
+    /// <param name="applicationService">Service for application auto-suggestion.</param>
+    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService, IApplicationService applicationService)
     {
         _incidentService = incidentService;
         _enumService = enumService;
+        _applicationService = applicationService;
         
         // Load enum collections first (required for proper validation)
         LoadEnumCollections();
@@ -39,8 +42,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Title of the incident.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     [NotifyDataErrorInfo]
     [Required(ErrorMessage = "Incident title is required")]
@@ -51,8 +53,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Detailed description of the incident.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     [NotifyDataErrorInfo]
     [Required(ErrorMessage = "Incident description is required")]
@@ -63,11 +64,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Type of incident being created.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsMajorIncident))]
-    [NotifyPropertyChangedFor(nameof(IsPreIncidentSelected))]
-    [NotifyPropertyChangedFor(nameof(IsMajorIncidentSelected))]
-    [NotifyPropertyChangedFor(nameof(TotalSteps))]
-    [NotifyPropertyChangedFor(nameof(IsStep4))]
+    [NotifyPropertyChangedFor(nameof(IsMajorIncident), nameof(IsPreIncidentSelected), nameof(IsMajorIncidentSelected), nameof(TotalSteps), nameof(IsStep4))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private IncidentType incidentType = IncidentType.PreIncident;
 
@@ -117,8 +114,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Describes what users cannot do due to the incident.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     [NotifyDataErrorInfo]
     [StringLength(1000, ErrorMessage = "Business impact description cannot exceed 1000 characters")]
@@ -129,16 +125,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Current step in the incident creation workflow (1-4).
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsStep1))]
-    [NotifyPropertyChangedFor(nameof(IsStep2))]
-    [NotifyPropertyChangedFor(nameof(IsStep3))]
-    [NotifyPropertyChangedFor(nameof(IsStep4))]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(CanGoPrevious))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
-    [NotifyPropertyChangedFor(nameof(TotalSteps))]
-    [NotifyPropertyChangedFor(nameof(CurrentBreadcrumbIndex))]
-    [NotifyPropertyChangedFor(nameof(ShowNextButton))]
+    [NotifyPropertyChangedFor(nameof(IsStep1), nameof(IsStep2), nameof(IsStep3), nameof(IsStep4), nameof(CanGoNext), nameof(CanGoPrevious), nameof(IsLastStep), nameof(TotalSteps), nameof(CurrentBreadcrumbIndex), nameof(ShowNextButton))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private int currentStep = 1;
 
@@ -147,35 +134,64 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Date and time when the issue started.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    private DateTimeOffset? timeIssueStarted = DateTimeOffset.Now;
+    private DateTimeOffset? timeIssueStarted = DateTimeOffset.UtcNow;
 
     /// <summary>
     /// Date and time when the incident was reported.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    private DateTimeOffset? timeReported = DateTimeOffset.Now;
+    private DateTimeOffset? timeReported = DateTimeOffset.UtcNow;
 
     /// <summary>
-    /// Description of users impacted by the incident.
+    /// Number of users impacted by the incident.
+    /// Selected from predefined values for consistent reporting.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    private string impactedUsers = string.Empty;
+    private int? impactedUsers;
+    
+    /// <summary>
+    /// Selected impacted users count enum for ComboBox binding.
+    /// Automatically syncs with ImpactedUsers integer value.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    private ImpactedUsersCount? selectedImpactedUsersCount;
+    
+    /// <summary>
+    /// Handles changes to SelectedImpactedUsersCount and syncs with ImpactedUsers.
+    /// </summary>
+    partial void OnSelectedImpactedUsersCountChanged(ImpactedUsersCount? value)
+    {
+        ImpactedUsers = value.HasValue ? (int)value.Value : null;
+    }
+    
+    /// <summary>
+    /// Handles changes to ImpactedUsers and syncs with SelectedImpactedUsersCount.
+    /// </summary>
+    partial void OnImpactedUsersChanged(int? value)
+    {
+        if (value.HasValue && Enum.IsDefined(typeof(ImpactedUsersCount), value.Value))
+        {
+            SelectedImpactedUsersCount = (ImpactedUsersCount)value.Value;
+        }
+        else
+        {
+            SelectedImpactedUsersCount = null;
+        }
+    }
 
     /// <summary>
     /// Application or system affected by the incident.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string applicationAffected = string.Empty;
 
@@ -183,8 +199,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Physical or logical locations affected by the incident.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string locationsAffected = string.Empty;
 
@@ -192,8 +207,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Available workaround for the incident (optional).
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string workaround = string.Empty;
 
@@ -207,9 +221,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Urgency level of the incident (1=High, 2=Medium, 3=Low).
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(UrgencyIndex))]
-    [NotifyPropertyChangedFor(nameof(CanGoNext))]
-    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(UrgencyIndex), nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private int urgency = 3;
 
@@ -307,6 +319,18 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// Populated from Domain Service following Clean Architecture principles.
     /// </summary>
     public ObservableCollection<Status> AvailableStatuses { get; private set; } = new();
+    
+    /// <summary>
+    /// Collection of available impacted users count values for the ComboBox.
+    /// Populated from Domain Service following Clean Architecture principles.
+    /// </summary>
+    public ObservableCollection<ImpactedUsersCount> AvailableImpactedUsersCounts { get; private set; } = new();
+    
+    /// <summary>
+    /// Collection of available applications for auto-suggestion.
+    /// Populated from Application Service.
+    /// </summary>
+    public ObservableCollection<ApplicationInfo> AvailableApplications { get; private set; } = new();
 
     /// <summary>
     /// Loads enum collections from the domain service.
@@ -318,6 +342,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
         AvailableIncidentTypes.Clear();
         AvailablePriorities.Clear();
         AvailableStatuses.Clear();
+        AvailableImpactedUsersCounts.Clear();
         
         // Populate from domain service
         foreach (var type in _enumService.GetIncidentTypes())
@@ -334,6 +359,36 @@ public partial class IncidentCreateViewModel : ObservableValidator
         {
             AvailableStatuses.Add(status);
         }
+        
+        foreach (var count in _enumService.GetImpactedUsersCounts())
+        {
+            AvailableImpactedUsersCounts.Add(count);
+        }
+        
+        // Load applications asynchronously
+        _ = LoadApplicationsAsync();
+    }
+    
+    /// <summary>
+    /// Loads applications for auto-suggestion from the application service.
+    /// </summary>
+    private async Task LoadApplicationsAsync()
+    {
+        try
+        {
+            var applications = await _applicationService.GetActiveApplicationsAsync();
+            
+            AvailableApplications.Clear();
+            foreach (var app in applications)
+            {
+                AvailableApplications.Add(app);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't fail the entire ViewModel initialization
+            ErrorMessage = $"Failed to load applications: {ex.Message}";
+        }
     }
 
     /// <summary>
@@ -349,20 +404,19 @@ public partial class IncidentCreateViewModel : ObservableValidator
             ErrorMessage = null;
             SuccessMessage = null;
 
-            // Basic validation
-            if (string.IsNullOrWhiteSpace(Title))
+            // Comprehensive validation using data annotations
+            ValidateAllProperties();
+        
+            // Check for validation errors and provide specific feedback
+            if (HasErrors)
             {
-                ErrorMessage = "Title is required.";
+                // Get the first validation error to display to user
+                var firstError = GetErrors().FirstOrDefault();
+                ErrorMessage = firstError?.ErrorMessage ?? "Please correct the validation errors and try again.";
                 return;
             }
-
-            if (string.IsNullOrWhiteSpace(Description))
-            {
-                ErrorMessage = "Description is required.";
-                return;
-            }
-
-            // Major Incident specific validation
+        
+            // Major Incident specific validation (business rule)
             if (IncidentType == IncidentType.MajorIncident && string.IsNullOrWhiteSpace(BusinessImpact))
             {
                 ErrorMessage = "Business Impact is required for Major Incidents.";
@@ -372,7 +426,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
             // Generate incident number if not provided
             if (string.IsNullOrWhiteSpace(IncidentNumber))
             {
-                IncidentNumber = $"INC-{DateTime.UtcNow:yyyyMMdd}-{DateTime.UtcNow.Ticks % 10000:D4}";
+                IncidentNumber = $"INC-{DateTimeOffset.UtcNow:yyyyMMdd}-{DateTimeOffset.UtcNow.Ticks % 10000:D4}";
             }
 
             // Create the incident entity - matching database schema exactly
@@ -392,7 +446,7 @@ public partial class IncidentCreateViewModel : ObservableValidator
                 IncidentType = IncidentType,
                 Priority = Priority,
                 Status = Status,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTimeOffset.UtcNow
             };
 
             // Check for cancellation before saving
@@ -512,17 +566,26 @@ public partial class IncidentCreateViewModel : ObservableValidator
 
     /// <summary>
     /// Validates the current step to determine if user can proceed.
+    /// Uses automatic validation from data annotations for robust validation.
     /// </summary>
     private bool ValidateCurrentStep()
     {
         return CurrentStep switch
         {
-            1 => IncidentType != default, // Step 1: Incident Type selected
+            1 => ValidateStep1(), // Step 1: Incident Type selected
             2 => ValidateStep2(), // Step 2: Basic Information
             3 => ValidateStep3(), // Step 3: Incident Details
             4 => ValidateStep4(), // Step 4: Master Checklist (Major Incidents only)
             _ => false
         };
+    }
+    
+    /// <summary>
+    /// Validates Step 1 (Incident Type Selection).
+    /// </summary>
+    private bool ValidateStep1()
+    {
+        return IncidentType != default;
     }
 
     /// <summary>
@@ -530,12 +593,8 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// </summary>
     private bool ValidateStep2()
     {
-        return TimeIssueStarted.HasValue &&
-               TimeReported.HasValue &&
-               !string.IsNullOrWhiteSpace(ImpactedUsers) &&
-               !string.IsNullOrWhiteSpace(ApplicationAffected) &&
-               !string.IsNullOrWhiteSpace(LocationsAffected);
-        // Workaround is optional
+        ValidateProperties(nameof(ImpactedUsers), nameof(ApplicationAffected), nameof(LocationsAffected));
+        return ValidateCommonRequiredFields();
     }
 
     /// <summary>
@@ -543,10 +602,16 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// </summary>
     private bool ValidateStep3()
     {
-        return !string.IsNullOrWhiteSpace(Title) &&
-               !string.IsNullOrWhiteSpace(Description) &&
-               Urgency >= 1 && Urgency <= 3;
-        // IncidentNumber can be auto-generated
+        ValidateProperties(nameof(Title), nameof(Description), nameof(Urgency), 
+                          nameof(ApplicationAffected), nameof(LocationsAffected));
+        
+        // Validate IncidentNumber if provided
+        if (!string.IsNullOrWhiteSpace(IncidentNumber))
+        {
+            ValidateProperty(IncidentNumber, nameof(IncidentNumber));
+        }
+        
+        return ValidateCommonRequiredFields();
     }
 
     /// <summary>
@@ -554,24 +619,53 @@ public partial class IncidentCreateViewModel : ObservableValidator
     /// </summary>
     private bool ValidateStep4()
     {
-        // Only required for Major Incidents
-        return !IsMajorIncident || !string.IsNullOrWhiteSpace(BusinessImpact);
+        if (!IsMajorIncident) return true;
+        
+        ValidateProperties(nameof(BusinessImpact));
+        return !string.IsNullOrWhiteSpace(BusinessImpact) && !HasErrors;
+    }
+
+    /// <summary>
+    /// Helper method to validate multiple properties and clear their errors.
+    /// </summary>
+    private void ValidateProperties(params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            ClearErrors(propertyName);
+            var value = GetType().GetProperty(propertyName)?.GetValue(this);
+            ValidateProperty(value, propertyName);
+        }
+    }
+
+    /// <summary>
+    /// Validates common required fields across multiple steps.
+    /// </summary>
+    private bool ValidateCommonRequiredFields()
+    {
+        return TimeIssueStarted.HasValue &&
+               TimeReported.HasValue &&
+               ImpactedUsers.HasValue &&
+               !string.IsNullOrWhiteSpace(ApplicationAffected) &&
+               !string.IsNullOrWhiteSpace(LocationsAffected) &&
+               !HasErrors;
     }
 
     /// <summary>
     /// Determines if the incident can be created (all required fields are valid).
+    /// Uses consistent validation methods for all steps.
     /// </summary>
     private bool CanCreateIncident()
     {
         // Must complete all steps for the current incident type
         if (!IsLastStep) return false;
         
-        // Validate all steps
+        // Validate all steps using consistent validation methods
         for (int step = 1; step <= TotalSteps; step++)
         {
             var isValid = step switch
             {
-                1 => IncidentType != default, // Step 1: Incident Type selected
+                1 => ValidateStep1(), // Step 1: Incident Type selected
                 2 => ValidateStep2(), // Step 2: Basic Information
                 3 => ValidateStep3(), // Step 3: Incident Details
                 4 => ValidateStep4(), // Step 4: Master Checklist (Major Incidents only)
@@ -602,37 +696,31 @@ public partial class IncidentCreateViewModel : ObservableValidator
 
     /// <summary>
     /// Resets the form to default values and returns to Step 1.
-    /// Clears all data for a fresh start.
     /// </summary>
     [RelayCommand]
     private void ResetForm()
     {
-        // Reset basic incident fields
-        Title = string.Empty;
-        Description = string.Empty;
-        BusinessImpact = string.Empty;
-        IncidentType = IncidentType.PreIncident; // Default to Pre-Incident
+        // Reset text fields
+        Title = Description = BusinessImpact = ApplicationAffected = 
+        LocationsAffected = Workaround = IncidentNumber = string.Empty;
+        
+        // Reset enums to defaults
+        IncidentType = IncidentType.PreIncident;
         Priority = Priority.P3;
         Status = Status.New;
+        Urgency = 3;
         
-        // Reset step-specific fields (use current date/time as defaults)
-        TimeIssueStarted = DateTimeOffset.Now;
-        TimeReported = DateTimeOffset.Now;
-        ImpactedUsers = string.Empty;
-        ApplicationAffected = string.Empty;
-        LocationsAffected = string.Empty;
-        Workaround = string.Empty;
-        IncidentNumber = string.Empty;
-        Urgency = 3; // Default to Low urgency
+        // Reset date/time fields to current time
+        TimeIssueStarted = TimeReported = DateTimeOffset.UtcNow;
         
-        // Reset navigation state - return to Step 1
+        // Reset nullable fields
+        ImpactedUsers = null;
+        SelectedImpactedUsersCount = null;
+        ErrorMessage = SuccessMessage = null;
+        
+        // Reset navigation
         CurrentStep = 1;
         
-        // Clear any messages
-        ErrorMessage = null;
-        SuccessMessage = null;
-        
-        // Refresh validation state after reset
         RefreshValidationState();
     }
 }

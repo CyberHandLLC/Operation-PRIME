@@ -6,10 +6,7 @@
       xmlns:enums="using:OperationPrime.Domain.Enums"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls">
 
-    <Page.Resources>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
-    </Page.Resources>
+    <!-- Converters are registered globally in App.xaml -->
 
     <Grid>
         <Grid.RowDefinitions>
@@ -160,7 +157,7 @@
                                         SelectedDateChanged="TimeIssueStartedDatePicker_SelectedDateChanged"/>
                             <TimePicker x:Name="TimeIssueStartedTimePicker"
                                         Header="Time"
-                                        MinuteIncrement="15"
+                                        MinuteIncrement="5"
                                         SelectedTimeChanged="TimeIssueStartedTimePicker_SelectedTimeChanged"/>
                         </StackPanel>
                         
@@ -172,7 +169,7 @@
                                         SelectedDateChanged="TimeReportedDatePicker_SelectedDateChanged"/>
                             <TimePicker x:Name="TimeReportedTimePicker"
                                         Header="Time"
-                                        MinuteIncrement="15"
+                                        MinuteIncrement="5"
                                         SelectedTimeChanged="TimeReportedTimePicker_SelectedTimeChanged"/>
                         </StackPanel>
                     </Grid>
@@ -180,17 +177,31 @@
                     <!-- Impacted Users -->
                     <StackPanel Spacing="8">
                         <TextBlock Text="Impacted Users *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBox Text="{x:Bind ViewModel.ImpactedUsers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Describe affected user groups (e.g., All users, Finance team, External customers)"
-                                 MaxLength="300"/>
+                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableImpactedUsersCounts, Mode=OneWay}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedImpactedUsersCount, Mode=TwoWay}"
+                                  PlaceholderText="Select number of impacted users"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                     
                     <!-- Application Affected -->
                     <StackPanel Spacing="8">
                         <TextBlock Text="Application Affected *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBox Text="{x:Bind ViewModel.ApplicationAffected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Which systems or applications are impacted"
-                                 MaxLength="200"/>
+                        <AutoSuggestBox x:Name="ApplicationAutoSuggestBox"
+                                        Text="{x:Bind ViewModel.ApplicationAffected, Mode=TwoWay}"
+                                        ItemsSource="{x:Bind ViewModel.AvailableApplications, Mode=OneWay}"
+                                        DisplayMemberPath="Name"
+                                        TextMemberPath="Name"
+                                        PlaceholderText="Start typing to search applications..."
+                                        QueryIcon="Find"
+                                        MaxSuggestionListHeight="200"
+                                        TextChanged="ApplicationAutoSuggestBox_TextChanged"
+                                        SuggestionChosen="ApplicationAutoSuggestBox_SuggestionChosen"/>
                     </StackPanel>
                     
                     <!-- Locations Affected -->

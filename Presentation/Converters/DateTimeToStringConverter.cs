@@ -9,52 +9,63 @@ namespace OperationPrime.Presentation.Converters;
 public class DateTimeToStringConverter : IValueConverter
 {
     /// <summary>
-    /// Converts a DateTime or DateTimeOffset value to a formatted string.
+    /// Converts a DateTime or DateTimeOffset value to a formatted string in Eastern Time.
     /// Supports both types for backward compatibility with existing entities.
+    /// All times are displayed in Eastern Time (ET) - automatically handles EDT/EST.
     /// </summary>
     /// <param name="value">The DateTime or DateTimeOffset value to convert.</param>
     /// <param name="targetType">The target type (not used).</param>
     /// <param name="parameter">Optional format parameter (e.g., "short", "long").</param>
     /// <param name="language">The language for conversion (not used).</param>
-    /// <returns>Formatted string representation of the date/time.</returns>
+    /// <returns>Formatted string representation of the date/time in Eastern Time.</returns>
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        // Handle both DateTime and DateTimeOffset for compatibility
-        string dateTimeString;
+        // Get Eastern Time Zone (handles EDT/EST automatically)
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        
+        // Convert to Eastern Time based on input type
+        DateTime easternDateTime;
         
         switch (value)
         {
             case DateTimeOffset dateTimeOffset:
-                dateTimeString = FormatDateTime(dateTimeOffset.DateTime, parameter);
+                // Convert UTC DateTimeOffset to Eastern Time
+                easternDateTime = TimeZoneInfo.ConvertTime(dateTimeOffset, easternTimeZone).DateTime;
                 break;
             case DateTime dateTime:
-                dateTimeString = FormatDateTime(dateTime, parameter);
+                // Assume DateTime is UTC and convert to Eastern Time
+                var utcDateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                easternDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, easternTimeZone);
                 break;
             default:
                 return string.Empty;
         }
         
-        return dateTimeString;
+        return FormatDateTime(easternDateTime, parameter, easternTimeZone);
     }
     
     /// <summary>
-    /// Formats a DateTime value according to the specified parameter.
+    /// Formats a DateTime value according to the specified parameter with timezone indicator.
     /// </summary>
-    /// <param name="dateTime">The DateTime to format.</param>
+    /// <param name="dateTime">The DateTime to format (already converted to Eastern Time).</param>
     /// <param name="parameter">Format parameter.</param>
-    /// <returns>Formatted string.</returns>
-    private static string FormatDateTime(DateTime dateTime, object? parameter)
+    /// <param name="timeZone">The timezone for abbreviation display.</param>
+    /// <returns>Formatted string with timezone indicator.</returns>
+    private static string FormatDateTime(DateTime dateTime, object? parameter, TimeZoneInfo timeZone)
     {
         // Use parameter to determine format, default to short date/time
         string format = parameter?.ToString()?.ToLower() ?? "short";
+        
+        // Get timezone abbreviation (EDT or EST)
+        string tzAbbreviation = timeZone.IsDaylightSavingTime(dateTime) ? "EDT" : "EST";
 
         return format switch
         {
-            "short" => dateTime.ToString("MM/dd/yyyy HH:mm"),
+            "short" => $"{dateTime:MM/dd/yyyy HH:mm} {"ET"}",
             "date" => dateTime.ToString("MM/dd/yyyy"),
-            "time" => dateTime.ToString("HH:mm"),
-            "long" => dateTime.ToString("MMMM dd, yyyy HH:mm:ss"),
-            _ => dateTime.ToString("MM/dd/yyyy HH:mm")
+            "time" => $"{dateTime:HH:mm} {"ET"}",
+            "long" => $"{dateTime:MMMM dd, yyyy HH:mm:ss} {"ET"}",
+            _ => $"{dateTime:MM/dd/yyyy HH:mm} {"ET"}"
         };
     }
 

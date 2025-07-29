@@ -20,19 +20,19 @@ public partial class IncidentListViewModel : ObservableObject
     /// Collection of incidents to display in the UI.
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<Incident> incidents = new();
+    public partial ObservableCollection<Incident> Incidents { get; set; } = new();
 
     /// <summary>
     /// Indicates whether data is currently being loaded.
     /// </summary>
     [ObservableProperty]
-    private bool isLoading;
+    public partial bool IsLoading { get; set; }
 
     /// <summary>
     /// Error message to display if data loading fails.
     /// </summary>
     [ObservableProperty]
-    private string? errorMessage;
+    public partial string? ErrorMessage { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the IncidentListViewModel.

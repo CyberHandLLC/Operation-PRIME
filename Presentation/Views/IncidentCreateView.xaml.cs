@@ -1,7 +1,9 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Presentation.ViewModels;
+using OperationPrime.Domain.Entities;
 using System.Diagnostics;
+using System.Linq;
 
 namespace OperationPrime.Presentation.Views;
 
@@ -202,5 +204,69 @@ public sealed partial class IncidentCreateView : Page
     public void RefreshDateTimeControls()
     {
         InitializeDateTimeControls();
+    }
+    
+    /// <summary>
+    /// Handles text changes in the Application AutoSuggestBox to filter suggestions.
+    /// Follows Microsoft WinUI 3 AutoSuggestBox documentation patterns.
+    /// </summary>
+    /// <param name="sender">The AutoSuggestBox that triggered the event.</param>
+    /// <param name="args">Event arguments containing the query text.</param>
+    private void ApplicationAutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        try
+        {
+            // Only filter when the user is typing (not when programmatically setting text)
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                var query = sender.Text?.Trim();
+                
+                if (string.IsNullOrEmpty(query))
+                {
+                    // Show all applications when query is empty
+                    sender.ItemsSource = ViewModel.AvailableApplications;
+                }
+                else
+                {
+                    // Filter applications based on name (case-insensitive)
+                    var filteredApps = ViewModel.AvailableApplications
+                        .Where(app => app.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    
+                    sender.ItemsSource = filteredApps;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error filtering applications: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Handles suggestion selection in the Application AutoSuggestBox.
+    /// Updates the ViewModel property when user selects an application.
+    /// </summary>
+    /// <param name="sender">The AutoSuggestBox that triggered the event.</param>
+    /// <param name="args">Event arguments containing the selected item.</param>
+    private void ApplicationAutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        try
+        {
+            if (args.SelectedItem is ApplicationInfo selectedApp)
+            {
+                // Set the text to the selected application name
+                sender.Text = selectedApp.Name;
+                ViewModel.ApplicationAffected = selectedApp.Name;
+                
+                // Trigger validation refresh
+                ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
+                ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error handling application selection: {ex.Message}");
+        }
     }
 }

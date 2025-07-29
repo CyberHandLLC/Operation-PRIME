@@ -15,10 +15,10 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     private readonly INavigationService _navigationService;
 
     [ObservableProperty]
-    private bool _isBackEnabled;
+    public partial bool IsBackEnabled { get; set; }
 
     [ObservableProperty]
-    private NavigationViewItem? _selected;
+    public partial NavigationViewItem? Selected { get; set; }
 
     /// <summary>
     /// Collection of navigation menu items

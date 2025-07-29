@@ -36,4 +36,13 @@ public class EnumService : IEnumService
     {
         return Enum.GetValues<Status>();
     }
+    
+    /// <summary>
+    /// Gets all available impacted users count values.
+    /// </summary>
+    /// <returns>Collection of impacted users count values.</returns>
+    public IEnumerable<ImpactedUsersCount> GetImpactedUsersCounts()
+    {
+        return Enum.GetValues<ImpactedUsersCount>();
+    }
 }
