@@ -17,15 +17,39 @@ public partial class IncidentCreateViewModel : ObservableObject
     private readonly IEnumService _enumService;
 
     /// <summary>
+    /// Initializes a new instance of the IncidentCreateViewModel.
+    /// </summary>
+    /// <param name="incidentService">Service for incident operations.</param>
+    /// <param name="enumService">Service for enum collections.</param>
+    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService)
+    {
+        _incidentService = incidentService;
+        _enumService = enumService;
+        
+        // Load enum collections first (required for proper validation)
+        LoadEnumCollections();
+        
+        // Initialize validation state for all default values
+        // This ensures buttons are enabled/disabled correctly from the start
+        RefreshValidationState();
+    }
+
+    /// <summary>
     /// Title of the incident.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string title = string.Empty;
 
     /// <summary>
     /// Detailed description of the incident.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string description = string.Empty;
 
     /// <summary>
@@ -33,7 +57,22 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsMajorIncident))]
+    [NotifyPropertyChangedFor(nameof(IsPreIncidentSelected))]
+    [NotifyPropertyChangedFor(nameof(IsMajorIncidentSelected))]
+    [NotifyPropertyChangedFor(nameof(TotalSteps))]
+    [NotifyPropertyChangedFor(nameof(IsStep4))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private IncidentType incidentType = IncidentType.PreIncident;
+
+    /// <summary>
+    /// Indicates whether Pre-Incident type is selected.
+    /// </summary>
+    public bool IsPreIncidentSelected => IncidentType == IncidentType.PreIncident;
+
+    /// <summary>
+    /// Indicates whether Major Incident type is selected.
+    /// </summary>
+    public bool IsMajorIncidentSelected => IncidentType == IncidentType.MajorIncident;
 
     /// <summary>
     /// Priority level of the incident.
@@ -51,6 +90,7 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// Indicates whether the form is currently being submitted.
     /// </summary>
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private bool isSubmitting;
 
     /// <summary>
@@ -70,6 +110,9 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// Describes what users cannot do due to the incident.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string businessImpact = string.Empty;
 
     // Step Navigation Properties
@@ -86,6 +129,8 @@ public partial class IncidentCreateViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsLastStep))]
     [NotifyPropertyChangedFor(nameof(TotalSteps))]
     [NotifyPropertyChangedFor(nameof(CurrentBreadcrumbIndex))]
+    [NotifyPropertyChangedFor(nameof(ShowNextButton))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private int currentStep = 1;
 
     // New Fields for Step-by-Step Workflow
@@ -93,36 +138,54 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// Date and time when the issue started.
     /// </summary>
     [ObservableProperty]
-    private DateTime? timeIssueStarted;
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    private DateTimeOffset? timeIssueStarted = DateTimeOffset.Now;
 
     /// <summary>
     /// Date and time when the incident was reported.
     /// </summary>
     [ObservableProperty]
-    private DateTime? timeReported;
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    private DateTimeOffset? timeReported = DateTimeOffset.Now;
 
     /// <summary>
     /// Description of users impacted by the incident.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string impactedUsers = string.Empty;
 
     /// <summary>
-    /// Application(s) affected by the incident.
+    /// Application or system affected by the incident.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string applicationAffected = string.Empty;
 
     /// <summary>
-    /// Location(s) affected by the incident.
+    /// Physical or logical locations affected by the incident.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string locationsAffected = string.Empty;
 
     /// <summary>
     /// Available workaround for the incident (optional).
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private string workaround = string.Empty;
 
     /// <summary>
@@ -135,7 +198,20 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// Urgency level of the incident (1=High, 2=Medium, 3=Low).
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UrgencyIndex))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyPropertyChangedFor(nameof(IsLastStep))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     private int urgency = 3;
+
+    /// <summary>
+    /// Gets or sets the urgency index for ComboBox binding (0-based).
+    /// </summary>
+    public int UrgencyIndex
+    {
+        get => Urgency - 1; // Convert 1-based to 0-based
+        set => Urgency = value + 1; // Convert 0-based to 1-based
+    }
 
     // Computed Properties for Step Navigation
     /// <summary>
@@ -168,6 +244,11 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// Gets the total number of steps based on incident type.
     /// </summary>
     public int TotalSteps => IsMajorIncident ? 4 : 3;
+
+    /// <summary>
+    /// Gets whether the Next button should be shown (Steps 2-3 only, Step 1 auto-advances).
+    /// </summary>
+    public bool ShowNextButton => CurrentStep >= 2 && !IsLastStep;
 
     /// <summary>
     /// Gets whether the user can navigate to the next step.
@@ -219,20 +300,6 @@ public partial class IncidentCreateViewModel : ObservableObject
     public ObservableCollection<Status> AvailableStatuses { get; private set; } = new();
 
     /// <summary>
-    /// Initializes a new instance of the IncidentCreateViewModel.
-    /// </summary>
-    /// <param name="incidentService">Service for incident data operations.</param>
-    /// <param name="enumService">Service for enum collections following Clean Architecture.</param>
-    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService)
-    {
-        _incidentService = incidentService;
-        _enumService = enumService;
-        
-        // Populate enum collections from domain service
-        LoadEnumCollections();
-    }
-
-    /// <summary>
     /// Loads enum collections from the domain service.
     /// Follows Clean Architecture principles by delegating to domain layer.
     /// </summary>
@@ -263,7 +330,7 @@ public partial class IncidentCreateViewModel : ObservableObject
     /// <summary>
     /// Creates a new incident with the current form data.
     /// </summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCreateIncident))]
     private async Task CreateIncidentAsync()
     {
         try
@@ -377,6 +444,51 @@ public partial class IncidentCreateViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Selects Pre-Incident type and updates the workflow accordingly.
+    /// </summary>
+    [RelayCommand]
+    private void SelectPreIncident()
+    {
+        IncidentType = IncidentType.PreIncident;
+        ErrorMessage = null;
+        
+        // Clear Major Incident specific fields when switching to Pre-Incident
+        BusinessImpact = string.Empty;
+        
+        // If we're past step 3 and switching to Pre-Incident, 
+        // move to step 3 (final step for Pre-Incident)
+        if (CurrentStep > 3)
+        {
+            CurrentStep = 3;
+        }
+        
+        // Auto-advance to next step for better UX (only from step 1)
+        if (CurrentStep == 1)
+        {
+            GoToNextStep();
+        }
+    }
+
+    /// <summary>
+    /// Selects Major Incident type and updates the workflow accordingly.
+    /// </summary>
+    [RelayCommand]
+    private void SelectMajorIncident()
+    {
+        IncidentType = IncidentType.MajorIncident;
+        ErrorMessage = null;
+        
+        // No need to clear fields when switching to Major Incident
+        // (BusinessImpact field will be available in Step 4)
+        
+        // Auto-advance to next step for better UX (only from step 1)
+        if (CurrentStep == 1)
+        {
+            GoToNextStep();
+        }
+    }
+
+    /// <summary>
     /// Validates the current step to determine if user can proceed.
     /// </summary>
     private bool ValidateCurrentStep()
@@ -425,32 +537,80 @@ public partial class IncidentCreateViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Resets the form to default values.
+    /// Determines if the incident can be created (all required fields are valid).
+    /// </summary>
+    private bool CanCreateIncident()
+    {
+        // Must complete all steps for the current incident type
+        if (!IsLastStep) return false;
+        
+        // Validate all steps
+        for (int step = 1; step <= TotalSteps; step++)
+        {
+            var isValid = step switch
+            {
+                1 => IncidentType != default, // Step 1: Incident Type selected
+                2 => ValidateStep2(), // Step 2: Basic Information
+                3 => ValidateStep3(), // Step 3: Incident Details
+                4 => ValidateStep4(), // Step 4: Master Checklist (Major Incidents only)
+                _ => false
+            };
+            
+            if (!isValid) return false;
+        }
+        
+        return !IsSubmitting;
+    }
+
+    /// <summary>
+    /// Refreshes the validation state by triggering property change notifications.
+    /// This ensures buttons are properly enabled/disabled based on current form state.
+    /// </summary>
+    private void RefreshValidationState()
+    {
+        // Trigger property change notifications for validation-dependent properties
+        OnPropertyChanged(nameof(CanGoNext));
+        OnPropertyChanged(nameof(IsLastStep));
+        OnPropertyChanged(nameof(ShowNextButton));
+        
+        // Trigger command CanExecute refresh
+        GoToNextStepCommand.NotifyCanExecuteChanged();
+        CreateIncidentCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>
+    /// Resets the form to default values and returns to Step 1.
+    /// Clears all data for a fresh start.
     /// </summary>
     [RelayCommand]
     private void ResetForm()
     {
-        // Reset basic fields
+        // Reset basic incident fields
         Title = string.Empty;
         Description = string.Empty;
         BusinessImpact = string.Empty;
-        IncidentType = IncidentType.PreIncident;
+        IncidentType = IncidentType.PreIncident; // Default to Pre-Incident
         Priority = Priority.P3;
         Status = Status.New;
         
-        // Reset new step fields
-        TimeIssueStarted = null;
-        TimeReported = null;
+        // Reset step-specific fields (use current date/time as defaults)
+        TimeIssueStarted = DateTimeOffset.Now;
+        TimeReported = DateTimeOffset.Now;
         ImpactedUsers = string.Empty;
         ApplicationAffected = string.Empty;
         LocationsAffected = string.Empty;
         Workaround = string.Empty;
         IncidentNumber = string.Empty;
-        Urgency = 3;
+        Urgency = 3; // Default to Low urgency
         
-        // Reset step navigation
+        // Reset navigation state - return to Step 1
         CurrentStep = 1;
+        
+        // Clear any messages
         ErrorMessage = null;
         SuccessMessage = null;
+        
+        // Refresh validation state after reset
+        RefreshValidationState();
     }
 }

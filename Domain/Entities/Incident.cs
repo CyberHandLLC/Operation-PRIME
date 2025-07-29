@@ -33,12 +33,12 @@ public class Incident
     /// <summary>
     /// Date and time when the issue started.
     /// </summary>
-    public DateTime? TimeIssueStarted { get; set; }
+    public DateTimeOffset? TimeIssueStarted { get; set; }
 
     /// <summary>
     /// Date and time when the incident was reported.
     /// </summary>
-    public DateTime? TimeReported { get; set; }
+    public DateTimeOffset? TimeReported { get; set; }
 
     /// <summary>
     /// Description of users impacted by the incident.

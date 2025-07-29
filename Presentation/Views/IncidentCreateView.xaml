@@ -55,97 +55,342 @@
             </StackPanel>
         </Grid>
 
-        <!-- Form Section -->
+        <!-- Step-Based Form Section -->
         <ScrollViewer Grid.Row="1" Margin="20,10,20,20">
-            <StackPanel Spacing="20" MaxWidth="600" HorizontalAlignment="Left">
+            <StackPanel Spacing="24" MaxWidth="700" HorizontalAlignment="Left">
                 
-                <!-- Title Field -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Title *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay}"
-                             PlaceholderText="Enter incident title"
-                             MaxLength="200"/>
+                <!-- Step 1: Incident Type Selection -->
+                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsStep1, Mode=OneWay}">
+                    <TextBlock Text="Step 1: Incident Type Selection" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Margin="0,0,0,8"/>
+                    
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Incident Type *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Select the type of incident to determine the workflow" 
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        
+                        <!-- Incident Type Button Group -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Pre-Incident Button -->
+                            <Button Grid.Column="0"
+                                    Command="{x:Bind ViewModel.SelectPreIncidentCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    MinHeight="80"
+                                    Padding="16">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                                        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE7C3;" FontSize="24" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Pre-Incident" 
+                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Standard incident workflow" 
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               HorizontalAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Major Incident Button -->
+                            <Button Grid.Column="2"
+                                    Command="{x:Bind ViewModel.SelectMajorIncidentCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    MinHeight="80"
+                                    Padding="16">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                                        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE7BA;" FontSize="24" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Major Incident" 
+                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="High-impact incident with business impact assessment" 
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               HorizontalAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Description Field -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Description *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
-                             PlaceholderText="Enter detailed description of the incident"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             MinHeight="100"
-                             MaxHeight="200"
-                             MaxLength="1000"/>
+                <!-- Step 2: Basic Information -->
+                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsStep2, Mode=OneWay}">
+                    <TextBlock Text="Step 2: Basic Information" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Margin="0,0,0,8"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Time Issue Started -->
+                        <StackPanel Grid.Column="0" Spacing="8">
+                            <TextBlock Text="Time Issue Started *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <DatePicker x:Name="TimeIssueStartedDatePicker"
+                                        Header="Date"
+                                        SelectedDateChanged="TimeIssueStartedDatePicker_SelectedDateChanged"/>
+                            <TimePicker x:Name="TimeIssueStartedTimePicker"
+                                        Header="Time"
+                                        MinuteIncrement="15"
+                                        SelectedTimeChanged="TimeIssueStartedTimePicker_SelectedTimeChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Time Reported -->
+                        <StackPanel Grid.Column="2" Spacing="8">
+                            <TextBlock Text="Time Reported *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <DatePicker x:Name="TimeReportedDatePicker"
+                                        Header="Date"
+                                        SelectedDateChanged="TimeReportedDatePicker_SelectedDateChanged"/>
+                            <TimePicker x:Name="TimeReportedTimePicker"
+                                        Header="Time"
+                                        MinuteIncrement="15"
+                                        SelectedTimeChanged="TimeReportedTimePicker_SelectedTimeChanged"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Impacted Users -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Impacted Users *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.ImpactedUsers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Describe affected user groups (e.g., All users, Finance team, External customers)"
+                                 MaxLength="300"/>
+                    </StackPanel>
+                    
+                    <!-- Application Affected -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Application Affected *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.ApplicationAffected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Which systems or applications are impacted"
+                                 MaxLength="200"/>
+                    </StackPanel>
+                    
+                    <!-- Locations Affected -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Locations Affected *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.LocationsAffected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Geographic or organizational areas affected"
+                                 MaxLength="300"/>
+                    </StackPanel>
+                    
+                    <!-- Workaround (Optional) -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Workaround (Optional)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.Workaround, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Any temporary solutions or workarounds available"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="60"
+                                 MaxLength="500"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Incident Type Field -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Incident Type" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableIncidentTypes}"
-                              SelectedItem="{x:Bind ViewModel.IncidentType, Mode=TwoWay}"
-                              HorizontalAlignment="Stretch"/>
+                <!-- Step 3: Incident Details -->
+                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsStep3, Mode=OneWay}">
+                    <TextBlock Text="Step 3: Incident Details" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Margin="0,0,0,8"/>
+                    
+                    <!-- Incident Number -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Incident Number" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Auto-generated if left empty" 
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Margin="0,0,0,4"/>
+                        <TextBox Text="{x:Bind ViewModel.IncidentNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Leave empty for auto-generation"
+                                 MaxLength="50"/>
+                    </StackPanel>
+                    
+                    <!-- Title -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Title *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Clear, concise incident summary"
+                                 MaxLength="200"/>
+                    </StackPanel>
+                    
+                    <!-- Description -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Description *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Detailed explanation of the issue"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="120"
+                                 MaxHeight="200"
+                                 MaxLength="1000"/>
+                    </StackPanel>
+                    
+                    <!-- Urgency -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Urgency *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <ComboBox SelectedIndex="{x:Bind ViewModel.UrgencyIndex, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="1 - High"/>
+                            <ComboBoxItem Content="2 - Medium"/>
+                            <ComboBoxItem Content="3 - Low"/>
+                        </ComboBox>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Business Impact Field (Major Incident Only) -->
-                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsMajorIncident, Mode=OneWay}">
-                    <TextBlock Text="Business Impact *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    <TextBlock Text="What is it that users cannot do?" 
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               Margin="0,0,0,4"/>
-                    <TextBox Text="{x:Bind ViewModel.BusinessImpact, Mode=TwoWay}"
-                             PlaceholderText="Describe what users cannot do due to this incident"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             MinHeight="80"
-                             MaxHeight="150"
-                             MaxLength="500"/>
-                </StackPanel>
-
-                <!-- Priority Field -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Priority" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailablePriorities}"
-                              SelectedItem="{x:Bind ViewModel.Priority, Mode=TwoWay}"
-                              HorizontalAlignment="Stretch"/>
-                </StackPanel>
-
-                <!-- Status Field -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Status" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableStatuses}"
-                              SelectedItem="{x:Bind ViewModel.Status, Mode=TwoWay}"
-                              HorizontalAlignment="Stretch"/>
+                <!-- Step 4: Master Checklist (Major Incidents Only) -->
+                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsStep4, Mode=OneWay}">
+                    <TextBlock Text="Step 4: Master Checklist" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Margin="0,0,0,8"/>
+                    
+                    <InfoBar IsOpen="True" 
+                             Severity="Informational"
+                             Title="Major Incident Checklist"
+                             Message="This step is required for Major Incidents to assess business impact."
+                             IsClosable="False"/>
+                    
+                    <!-- Business Impact -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Business Impact *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="What is it that users cannot do?" 
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Margin="0,0,0,4"/>
+                        <TextBox Text="{x:Bind ViewModel.BusinessImpact, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Describe what users cannot do due to this incident"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="100"
+                                 MaxHeight="200"
+                                 MaxLength="500"/>
+                    </StackPanel>
                 </StackPanel>
 
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Action Buttons Section -->
+        <!-- Step Navigation Controls -->
         <Grid Grid.Row="2" Margin="20,10,20,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             
-            <!-- Required Fields Note -->
-            <TextBlock Grid.Column="0" 
-                       Text="* Required fields" 
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       VerticalAlignment="Center"/>
-            
-            <!-- Action Buttons -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                <Button Content="Reset"
-                        Command="{x:Bind ViewModel.ResetFormCommand}"
-                        Style="{StaticResource DefaultButtonStyle}"/>
+            <!-- Progress Indicator -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 
-                <Button Content="Create Incident"
-                        Command="{x:Bind ViewModel.CreateIncidentCommand}"
-                        Style="{StaticResource AccentButtonStyle}"/>
-            </StackPanel>
+                <!-- Step Progress -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Step" Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{x:Bind ViewModel.CurrentStep, Mode=OneWay}" 
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="of" Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalSteps, Mode=OneWay}" 
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+                
+                <!-- Required Fields Note -->
+                <TextBlock Grid.Column="1" 
+                           Text="* Required fields" 
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+            </Grid>
+            
+            <!-- Navigation Buttons -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Previous Button -->
+                <Button Grid.Column="0"
+                        Content="Previous"
+                        Command="{x:Bind ViewModel.GoToPreviousStepCommand}"
+                        IsEnabled="{x:Bind ViewModel.CanGoPrevious, Mode=OneWay}"
+                        Style="{StaticResource DefaultButtonStyle}"
+                        MinWidth="100"
+                        Visibility="{x:Bind ViewModel.CanGoPrevious, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="Left"/>
+                    </Button.KeyboardAccelerators>
+                </Button>
+                
+                <!-- Secondary Actions (Center) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Content="Reset Form"
+                            Command="{x:Bind ViewModel.ResetFormCommand}"
+                            Style="{StaticResource DefaultButtonStyle}"
+                            ToolTipService.ToolTip="Clear all fields and start over">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="R"/>
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+                
+                <!-- Next/Submit Button -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                    <!-- Next Button (Steps 2-3 only, Step 1 auto-advances) -->
+                    <Button Content="Next"
+                            Command="{x:Bind ViewModel.GoToNextStepCommand}"
+                            IsEnabled="{x:Bind ViewModel.CanGoNext, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            MinWidth="100"
+                            Visibility="{x:Bind ViewModel.ShowNextButton, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="Right"/>
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                    
+                    <!-- Submit Button (Final Step) -->
+                    <Button Content="Create Incident"
+                            Command="{x:Bind ViewModel.CreateIncidentCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            MinWidth="120"
+                            Visibility="{x:Bind ViewModel.IsLastStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="Enter"/>
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

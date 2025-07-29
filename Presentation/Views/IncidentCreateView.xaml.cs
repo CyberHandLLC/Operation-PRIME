@@ -47,6 +47,9 @@ public sealed partial class IncidentCreateView : Page
         {
             // Reset form when navigating to the page
             ViewModel.ResetFormCommand.Execute(null);
+            
+            // Initialize DatePicker and TimePicker controls with current values
+            InitializeDateTimeControls();
         }
         catch (Exception ex)
         {
@@ -54,4 +57,128 @@ public sealed partial class IncidentCreateView : Page
         }
     }
 
+    /// <summary>
+    /// Handles date selection changes for Time Issue Started.
+    /// </summary>
+    private void TimeIssueStartedDatePicker_SelectedDateChanged(DatePicker sender, DatePickerSelectedValueChangedEventArgs args)
+    {
+        UpdateTimeIssueStarted();
+    }
+
+    /// <summary>
+    /// Handles time selection changes for Time Issue Started.
+    /// </summary>
+    private void TimeIssueStartedTimePicker_SelectedTimeChanged(TimePicker sender, TimePickerSelectedValueChangedEventArgs args)
+    {
+        UpdateTimeIssueStarted();
+    }
+
+    /// <summary>
+    /// Combines date and time selections into a single DateTimeOffset for Time Issue Started.
+    /// </summary>
+    private void UpdateTimeIssueStarted()
+    {
+        if (TimeIssueStartedDatePicker.SelectedDate != null && TimeIssueStartedTimePicker.SelectedTime != null)
+        {
+            var date = TimeIssueStartedDatePicker.SelectedDate.Value;
+            var time = TimeIssueStartedTimePicker.SelectedTime.Value;
+            
+            ViewModel.TimeIssueStarted = new DateTimeOffset(
+                date.Year, date.Month, date.Day,
+                time.Hours, time.Minutes, time.Seconds,
+                date.Offset);
+        }
+        else if (TimeIssueStartedDatePicker.SelectedDate == null && TimeIssueStartedTimePicker.SelectedTime == null)
+        {
+            ViewModel.TimeIssueStarted = null;
+        }
+        
+        // Trigger validation refresh by notifying property changes
+        ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
+        ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>
+    /// Handles date selection changes for Time Reported.
+    /// </summary>
+    private void TimeReportedDatePicker_SelectedDateChanged(DatePicker sender, DatePickerSelectedValueChangedEventArgs args)
+    {
+        UpdateTimeReported();
+    }
+
+    /// <summary>
+    /// Handles time selection changes for Time Reported.
+    /// </summary>
+    private void TimeReportedTimePicker_SelectedTimeChanged(TimePicker sender, TimePickerSelectedValueChangedEventArgs args)
+    {
+        UpdateTimeReported();
+    }
+
+    /// <summary>
+    /// Combines date and time selections into a single DateTimeOffset for Time Reported.
+    /// </summary>
+    private void UpdateTimeReported()
+    {
+        if (TimeReportedDatePicker.SelectedDate != null && TimeReportedTimePicker.SelectedTime != null)
+        {
+            var date = TimeReportedDatePicker.SelectedDate.Value;
+            var time = TimeReportedTimePicker.SelectedTime.Value;
+            
+            ViewModel.TimeReported = new DateTimeOffset(
+                date.Year, date.Month, date.Day,
+                time.Hours, time.Minutes, time.Seconds,
+                date.Offset);
+        }
+        else if (TimeReportedDatePicker.SelectedDate == null && TimeReportedTimePicker.SelectedTime == null)
+        {
+            ViewModel.TimeReported = null;
+        }
+        
+        // Trigger validation refresh by notifying property changes
+        ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
+        ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>
+    /// Initializes DatePicker and TimePicker controls with current values from ViewModel.
+    /// This ensures the controls show the prefilled values and validation works correctly.
+    /// </summary>
+    private void InitializeDateTimeControls()
+    {
+        try
+        {
+            // Initialize TimeIssueStarted controls
+            if (ViewModel.TimeIssueStarted.HasValue)
+            {
+                var timeIssueStarted = ViewModel.TimeIssueStarted.Value;
+                TimeIssueStartedDatePicker.SelectedDate = timeIssueStarted;
+                TimeIssueStartedTimePicker.SelectedTime = timeIssueStarted.TimeOfDay;
+            }
+            
+            // Initialize TimeReported controls
+            if (ViewModel.TimeReported.HasValue)
+            {
+                var timeReported = ViewModel.TimeReported.Value;
+                TimeReportedDatePicker.SelectedDate = timeReported;
+                TimeReportedTimePicker.SelectedTime = timeReported.TimeOfDay;
+            }
+            
+            // Trigger validation refresh after initialization
+            ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
+            ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error initializing date/time controls: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Public method to refresh date/time controls after ViewModel changes.
+    /// Can be called when the form is reset or values are updated programmatically.
+    /// </summary>
+    public void RefreshDateTimeControls()
+    {
+        InitializeDateTimeControls();
+    }
 }

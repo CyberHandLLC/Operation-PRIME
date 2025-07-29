@@ -110,6 +110,58 @@ dotnet build -v detailed
 
 ## Common Issues & Solutions
 
+### Issue: XAML Compiler Error MSB3073 - Binding Type Mismatches
+
+**Root Cause**: Incorrect data binding between XAML controls and ViewModel properties
+
+**Common Scenarios**:
+
+1. **CalendarDatePicker.Date Binding Issue**
+   ```csharp
+   // ❌ INCORRECT - Wrong property type
+   [ObservableProperty]
+   private DateTime? timeIssueStarted;
+   ```
+   ```xml
+   <!-- ❌ INCORRECT - Type mismatch causes compilation failure -->
+   <CalendarDatePicker Date="{x:Bind ViewModel.TimeIssueStarted, Mode=TwoWay}"/>
+   ```
+   
+   ```csharp
+   // ✅ CORRECT - Use DateTimeOffset? for WinUI 3 date controls
+   [ObservableProperty]
+   private DateTimeOffset? timeIssueStarted;
+   
+   public DateTimeOffset? TimeIssueStarted { get; set; }  // In entity
+   ```
+   ```xml
+   <!-- ✅ CORRECT - Proper binding with correct type -->
+   <CalendarDatePicker Date="{x:Bind ViewModel.TimeIssueStarted, Mode=TwoWay}"
+                       PlaceholderText="Select date when issue started"/>
+   ```
+   **Reason**: CalendarDatePicker.Date expects `DateTimeOffset?`, not `DateTime?`. Microsoft documentation states "C# uses the System.DateTimeOffset structure" for WinUI 3 date controls. Using TextBox is a workaround that compromises UX, accessibility, and localization.
+
+2. **ComboBox SelectedValue Binding Issue**
+   ```xml
+   <!-- ❌ INCORRECT - Complex binding with Tag attributes -->
+   <ComboBox SelectedValue="{x:Bind ViewModel.Urgency, Mode=TwoWay}">
+       <ComboBoxItem Content="1 - High" Tag="1"/>
+   </ComboBox>
+   
+   <!-- ✅ CORRECT - Simple SelectedIndex binding -->
+   <ComboBox SelectedIndex="{x:Bind ViewModel.UrgencyIndex, Mode=TwoWay}">
+       <ComboBoxItem Content="1 - High"/>
+   </ComboBox>
+   ```
+   **Reason**: SelectedValue with Tag requires complex converters; SelectedIndex is simpler
+
+**Prevention Steps**:
+- Always verify property types match XAML control expectations
+- Use TextBox for DateTime? properties unless using proper converters
+- Use SelectedIndex for simple ComboBox scenarios
+- Test build after each XAML binding change
+- Clean build artifacts when encountering persistent XAML errors: `dotnet clean && dotnet build`
+
 ### Issue: "Cannot resolve service for type 'X'"
 
 **Root Cause**: Service not registered or wrong lifetime

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using OperationPrime.Presentation.ViewModels;
 using OperationPrime.Presentation.Views;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace OperationPrime;
@@ -13,6 +14,7 @@ namespace OperationPrime;
 public sealed partial class MainWindow : Window
 {
     public ShellViewModel ViewModel { get; }
+    private IncidentCreateViewModel? _currentIncidentViewModel;
 
     public MainWindow(ShellViewModel shellViewModel)
     {
@@ -59,6 +61,13 @@ public sealed partial class MainWindow : Window
             {
                 PageTitleText.Text = "Operation Prime";
                 MainBreadcrumbBar.Visibility = Visibility.Collapsed;
+                
+                // Unsubscribe from ViewModel when leaving incident creation page
+                if (_currentIncidentViewModel != null)
+                {
+                    _currentIncidentViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+                    _currentIncidentViewModel = null;
+                }
             }
         }
         catch (Exception ex)
@@ -69,20 +78,43 @@ public sealed partial class MainWindow : Window
 
     /// <summary>
     /// Sets up breadcrumb navigation for incident creation workflow.
+    /// Dynamically shows 3 steps for Pre-Incident, 4 steps for Major Incident.
     /// </summary>
     private void SetupIncidentCreateBreadcrumb()
     {
         try
         {
-            var breadcrumbItems = new ObservableCollection<string>
+            // Get the current incident creation view and its ViewModel
+            if (ContentFrame.Content is IncidentCreateView incidentCreateView)
             {
-                "Type",
-                "Basic Info",
-                "Details",
-                "Checklist"
-            };
-            
-            MainBreadcrumbBar.ItemsSource = breadcrumbItems;
+                var viewModel = incidentCreateView.ViewModel;
+                
+                // Create breadcrumb items based on incident type
+                var breadcrumbItems = new ObservableCollection<string>
+                {
+                    "Type",
+                    "Basic Info",
+                    "Details"
+                };
+                
+                // Add Checklist step only for Major Incidents
+                if (viewModel.IsMajorIncident)
+                {
+                    breadcrumbItems.Add("Checklist");
+                }
+                
+                MainBreadcrumbBar.ItemsSource = breadcrumbItems;
+                
+                // Unsubscribe from previous ViewModel if exists
+                if (_currentIncidentViewModel != null)
+                {
+                    _currentIncidentViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+                }
+                
+                // Subscribe to IncidentType changes to update breadcrumb dynamically
+                _currentIncidentViewModel = viewModel;
+                viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            }
         }
         catch (Exception ex)
         {
@@ -110,6 +142,26 @@ public sealed partial class MainWindow : Window
         catch (Exception ex)
         {
             Debug.WriteLine($"Error handling breadcrumb navigation: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handles ViewModel property changes to update breadcrumb dynamically.
+    /// </summary>
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        try
+        {
+            // Update breadcrumb when IncidentType changes
+            if (e.PropertyName == nameof(IncidentCreateViewModel.IncidentType) || 
+                e.PropertyName == nameof(IncidentCreateViewModel.IsMajorIncident))
+            {
+                SetupIncidentCreateBreadcrumb();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error handling ViewModel property change: {ex.Message}");
         }
     }
 }
