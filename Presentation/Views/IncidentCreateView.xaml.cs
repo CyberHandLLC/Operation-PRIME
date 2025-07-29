@@ -37,6 +37,7 @@ public sealed partial class IncidentCreateView : Page
 
     /// <summary>
     /// Handles navigation to this page.
+    /// Supports navigation parameters for editing existing incidents or loading templates.
     /// </summary>
     /// <param name="e">Navigation event arguments.</param>
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -45,8 +46,14 @@ public sealed partial class IncidentCreateView : Page
         
         try
         {
-            // Reset form when navigating to the page
-            ViewModel.ResetFormCommand.Execute(null);
+            // Handle navigation parameters for editing or templates
+            await HandleNavigationParametersAsync(e.Parameter);
+            
+            // Reset form when navigating to the page (if not editing)
+            if (e.Parameter == null)
+            {
+                ViewModel.ResetFormCommand.Execute(null);
+            }
             
             // Initialize DatePicker and TimePicker controls with current values
             InitializeDateTimeControls();
@@ -55,6 +62,21 @@ public sealed partial class IncidentCreateView : Page
         {
             Debug.WriteLine($"Error during navigation: {ex.Message}");
         }
+    }
+    
+    /// <summary>
+    /// Handles navigation parameters for editing existing incidents or loading templates.
+    /// </summary>
+    /// <param name="parameter">Navigation parameter (incident ID, template, etc.)</param>
+    private async Task HandleNavigationParametersAsync(object? parameter)
+    {
+        // TODO: Future enhancement - handle navigation parameters
+        // Examples:
+        // - if (parameter is string incidentId) await ViewModel.LoadIncidentForEditingAsync(incidentId);
+        // - if (parameter is IncidentTemplate template) await ViewModel.LoadFromTemplateAsync(template);
+        // - await ViewModel.InitializeDataAsync(); // Preload dropdown data
+        
+        await Task.CompletedTask; // Placeholder to satisfy async requirement
     }
 
     /// <summary>

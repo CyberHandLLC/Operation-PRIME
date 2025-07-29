@@ -22,8 +22,9 @@ public static class ServiceCollectionExtensions
         // Register navigation service as singleton (shared across app)
         services.AddSingleton<INavigationService, NavigationService>();
 
-        // Register DbContext as scoped (per unit-of-work)
-        services.AddDbContext<OperationPrimeDbContext>(options =>
+        // Register DbContextFactory for thread-safe DbContext creation (Microsoft best practice)
+        // Factory pattern enables proper disposal and thread safety in async UI applications
+        services.AddDbContextFactory<OperationPrimeDbContext>(options =>
             options.UseSqlite("Data Source=incidents.db"));
 
         // Register application services as scoped (per request/operation)

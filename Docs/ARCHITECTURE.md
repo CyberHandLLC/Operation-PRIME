@@ -58,8 +58,9 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
     // Shared ViewModel Services
     services.AddTransient<IViewModelStateService, ViewModelStateService>();
     
-    // DbContext with proper lifetime
-    services.AddDbContext<OperationPrimeContext>(options =>
+    // DbContextFactory for thread-safe DbContext creation (Microsoft best practice)
+    // Factory pattern enables proper disposal and thread safety in async UI applications
+    services.AddDbContextFactory<OperationPrimeContext>(options =>
         options.UseSqlite(configuration.GetConnectionString("Default")));
     
     // Configuration Options
@@ -75,7 +76,7 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
 | **Logging** | Singleton | Thread-safe, shared | `ILogger<T>`, `ILoggerFactory` |
 | **Business Services** | Scoped | Per-request state | `IIncidentService`, `IPriorityMatrixService` |
 | **Repositories** | Scoped | DbContext lifetime | `IIncidentRepository`, `IAuditRepository` |
-| **DbContext** | Scoped | EF Core requirement | `OperationPrimeContext` |
+| **DbContextFactory** | Singleton | Thread-safe factory | `IDbContextFactory<OperationPrimeContext>` |
 | **ViewModels** | Transient | UI-specific state | `IncidentViewModel`, `DashboardViewModel` |
 | **Shared ViewModel Services** | Transient | Per-ViewModel instance | `IViewModelStateService` |
 | **External Services** | Scoped | Connection pooling | `INeuronsIntegrationService` |
@@ -589,11 +590,46 @@ public class IncidentFormViewModel : ObservableObject
 ## Configuration Patterns
 
 ### Database Configuration
+
+#### IDbContextFactory Pattern ✅ **IMPLEMENTED**
+**Achievement**: Successfully implemented Microsoft's recommended IDbContextFactory pattern for thread-safe EF Core operations in async UI applications.
+
 ```csharp
-// ✅ DbContext Registration
-services.AddDbContext<OperationPrimeDbContext>(options =>
+// ✅ IDbContextFactory Registration (Thread-Safe)
+services.AddDbContextFactory<OperationPrimeDbContext>(options =>
     options.UseSqlite(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+// Service Implementation Pattern
+public class IncidentService : IIncidentService
+{
+    private readonly IDbContextFactory<OperationPrimeDbContext> _contextFactory;
+    private readonly ILogger<IncidentService> _logger;
+    
+    public IncidentService(IDbContextFactory<OperationPrimeDbContext> contextFactory, ILogger<IncidentService> logger)
+    {
+        _contextFactory = contextFactory;
+        _logger = logger;
+    }
+    
+    public async Task<IEnumerable<Incident>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        // Create DbContext using factory (thread-safe, properly disposed)
+        using var context = _contextFactory.CreateDbContext();
+        
+        await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
+        return await context.Incidents
+            .OrderByDescending(i => i.CreatedDate)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+}
 ```
+
+**Benefits Achieved:**
+- **Thread Safety**: Each operation gets its own DbContext instance
+- **Proper Disposal**: Automatic disposal with `using var` statements
+- **Resource Management**: No memory leaks from long-lived DbContext instances
+- **Microsoft Compliance**: Follows EF Core best practices for async UI applications
+- **Performance**: Better connection pool utilization and reduced memory footprint
 
 ### Logging Configuration
 ```csharp

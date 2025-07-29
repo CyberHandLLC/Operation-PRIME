@@ -171,8 +171,9 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
     // Shared ViewModel Services - Transient
     services.AddTransient<IViewModelStateService, ViewModelStateService>();
     
-    // Data Context - Scoped
-    services.AddDbContext<OperationPrimeContext>(options =>
+    // DbContextFactory for thread-safe DbContext creation - Singleton
+    // Factory pattern enables proper disposal and thread safety in async UI applications
+    services.AddDbContextFactory<OperationPrimeContext>(options =>
         options.UseSqlite(configuration.GetConnectionString("Default")));
     
     // Configuration Options - Singleton
@@ -189,7 +190,7 @@ public static void ConfigureServices(IServiceCollection services, IConfiguration
 | Lifetime | Use For | Examples |
 |----------|---------|----------|
 | **Singleton** | Stateless, thread-safe services | `IConfiguration`, `ILogger<T>` |
-| **Scoped** | Per-request services, DbContext | `IIncidentService`, `OperationPrimeContext` |
+| **Scoped** | Per-request/operation state | `IIncidentService`, `IRepository` |
 | **Transient** | Lightweight, stateful services | ViewModels, DTOs |
 
 ### Constructor Injection Pattern

@@ -13,17 +13,17 @@ namespace OperationPrime.Infrastructure.Services;
 /// </summary>
 public class IncidentService : IIncidentService
 {
-    private readonly OperationPrimeDbContext _context;
+    private readonly IDbContextFactory<OperationPrimeDbContext> _contextFactory;
     private readonly ILogger<IncidentService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the IncidentService.
     /// </summary>
-    /// <param name="context">Database context for data operations.</param>
+    /// <param name="contextFactory">Factory for creating DbContext instances (thread-safe).</param>
     /// <param name="logger">Logger for structured logging.</param>
-    public IncidentService(OperationPrimeDbContext context, ILogger<IncidentService> logger)
+    public IncidentService(IDbContextFactory<OperationPrimeDbContext> contextFactory, ILogger<IncidentService> logger)
     {
-        _context = context;
+        _contextFactory = contextFactory;
         _logger = logger;
     }
 
@@ -39,11 +39,14 @@ public class IncidentService : IIncidentService
         {
             _logger.LogDebug("Retrieving all incidents from database");
             
+            // Create DbContext using factory (thread-safe, properly disposed)
+            using var context = _contextFactory.CreateDbContext();
+            
             // Ensure database is created
-            await _context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
+            await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
             // Return all incidents ordered by creation date (newest first)
-            var incidents = await _context.Incidents
+            var incidents = await context.Incidents
                 .OrderByDescending(i => i.CreatedDate)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
                 
@@ -69,14 +72,17 @@ public class IncidentService : IIncidentService
         {
             _logger.LogDebug("Creating new incident: {IncidentTitle}", incident.Title);
             
+            // Create DbContext using factory (thread-safe, properly disposed)
+            using var context = _contextFactory.CreateDbContext();
+            
             // Ensure database is created
-            await _context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
+            await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
             // Add the incident to the context
-            _context.Incidents.Add(incident);
+            context.Incidents.Add(incident);
             
             // Save changes to get the assigned ID
-            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             
             _logger.LogInformation("Successfully created incident with ID {IncidentId}: {IncidentTitle}", 
                 incident.Id, incident.Title);
