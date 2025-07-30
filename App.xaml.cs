@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
+using OperationPrime.Application.Services;
 using OperationPrime.Infrastructure;
 using OperationPrime.Presentation.ViewModels;
 using System.IO;
@@ -109,6 +110,12 @@ namespace OperationPrime
                 services.AddTransient<ShellViewModel>();
                 services.AddTransient<IncidentListViewModel>();
                 services.AddTransient<IncidentCreateViewModel>();
+                
+                // Register refactored application services (Scoped for business logic)
+                // Following Microsoft's 2024 DI guidelines for service lifetimes
+                services.AddScoped<IIncidentValidationService, IncidentValidationService>();
+                services.AddScoped<IIncidentWorkflowService, IncidentWorkflowService>();
+                services.AddScoped<IIncidentDataMappingService, IncidentDataMappingService>();
             });
 
             _host = builder.Build();

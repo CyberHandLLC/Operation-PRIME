@@ -11,13 +11,15 @@ namespace OperationPrime.Presentation.ViewModels;
 
 /// <summary>
 /// ViewModel for creating new incidents.
-/// Matches the database schema: Title, Description, IncidentType, Priority, Status, CreatedDate.
+/// Refactored to follow Microsoft's 2024 MVVM Community Toolkit patterns with service extraction.
+/// Business logic delegated to dedicated services for improved testability and maintainability.
 /// </summary>
 public partial class IncidentCreateViewModel : BaseValidatingViewModel
 {
     private readonly IIncidentService _incidentService;
     private readonly IEnumService _enumService;
     private readonly IApplicationService _applicationService;
+    private readonly IIncidentValidationService _validationService;
 
     /// <summary>
     /// Initializes a new instance of the IncidentCreateViewModel.
@@ -25,11 +27,13 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     /// <param name="incidentService">Service for incident operations.</param>
     /// <param name="enumService">Service for enum collections.</param>
     /// <param name="applicationService">Service for application auto-suggestion.</param>
-    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService, IApplicationService applicationService)
+    /// <param name="validationService">Service for validation logic.</param>
+    public IncidentCreateViewModel(IIncidentService incidentService, IEnumService enumService, IApplicationService applicationService, IIncidentValidationService validationService)
     {
         _incidentService = incidentService;
         _enumService = enumService;
         _applicationService = applicationService;
+        _validationService = validationService;
         
         // Load enum collections first (required for proper validation)
         LoadEnumCollections();
@@ -556,99 +560,39 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     }
 
     /// <summary>
-    /// Validates the current step to determine if user can proceed.
-    /// Uses automatic validation from data annotations for robust validation.
+    /// Validates the current step using the refactored validation service.
+    /// Modern Microsoft 2024 MVVM Community Toolkit approach with service delegation.
     /// </summary>
     private bool ValidateCurrentStep()
     {
         return CurrentStep switch
         {
-            1 => ValidateStep1(), // Step 1: Incident Type selected
-            2 => ValidateStep2(), // Step 2: Basic Information
-            3 => ValidateStep3(), // Step 3: Incident Details
-            4 => ValidateStep4(), // Step 4: Master Checklist (Major Incidents only)
+            1 => _validationService.ValidateStep1(IncidentType),
+            2 => _validationService.ValidateStep2(ImpactedUsers, Urgency, BusinessImpact, 
+                    ApplicationAffected, LocationsAffected, Workaround),
+            3 => _validationService.ValidateStep3(IncidentNumber, Title, Description, 
+                    TimeIssueStarted, TimeReported),
+            4 => _validationService.ValidateStep4(IncidentType, Priority, Status),
             _ => false
         };
-    }
-    
-    /// <summary>
-    /// Validates Step 1 (Incident Type Selection).
-    /// </summary>
-    private bool ValidateStep1()
-    {
-        return IncidentType != default;
-    }
-
-    /// <summary>
-    /// Validates Step 2 (Basic Information) fields.
-    /// </summary>
-    private bool ValidateStep2()
-    {
-        // Simple validation without clearing errors during navigation
-        return ValidateCommonRequiredFields();
-    }
-
-    /// <summary>
-    /// Validates Step 3 (Incident Details) fields.
-    /// </summary>
-    private bool ValidateStep3()
-    {
-        // Simple validation without clearing errors during navigation
-        return !string.IsNullOrWhiteSpace(Title) &&
-               !string.IsNullOrWhiteSpace(Description) &&
-               ValidateCommonRequiredFields();
-    }
-
-    /// <summary>
-    /// Validates Step 4 (Master Checklist) fields for Major Incidents.
-    /// </summary>
-    private bool ValidateStep4()
-    {
-        if (!IsMajorIncident) return true;
-        
-        return !string.IsNullOrWhiteSpace(BusinessImpact);
-    }
-
-
-
-    /// <summary>
-    /// Validates common required fields across multiple steps.
-    /// </summary>
-    private bool ValidateCommonRequiredFields()
-    {
-        return TimeIssueStarted.HasValue &&
-               TimeReported.HasValue &&
-               ImpactedUsers.HasValue &&
-               !string.IsNullOrWhiteSpace(ApplicationAffected) &&
-               !string.IsNullOrWhiteSpace(LocationsAffected) &&
-               !HasErrors;
     }
 
     /// <summary>
     /// Determines if the incident can be created (all required fields are valid).
-    /// Uses consistent validation methods for all steps.
+    /// Modern Microsoft 2024 MVVM Community Toolkit approach using refactored validation service.
     /// </summary>
     private bool CanCreateIncident()
     {
-        // Must complete all steps for the current incident type
+        // Must be on the last step
         if (!IsLastStep) return false;
         
-        // Validate all steps using consistent validation methods
-        for (int step = 1; step <= TotalSteps; step++)
-        {
-            var isValid = step switch
-            {
-                1 => ValidateStep1(), // Step 1: Incident Type selected
-                2 => ValidateStep2(), // Step 2: Basic Information
-                3 => ValidateStep3(), // Step 3: Incident Details
-                4 => ValidateStep4(), // Step 4: Master Checklist (Major Incidents only)
-                _ => false
-            };
-            
-            if (!isValid) return false;
-        }
+        // Not submitting already
+        if (IsSubmitting) return false;
         
-        return !IsSubmitting;
+        // Use refactored validation service for comprehensive validation
+        return _validationService.ValidateAllProperties(IncidentType, IncidentNumber, Title, Description,
+            ImpactedUsers, Urgency, BusinessImpact, ApplicationAffected,
+            LocationsAffected, Workaround, TimeIssueStarted, TimeReported);
     }
 
     /// <summary>
