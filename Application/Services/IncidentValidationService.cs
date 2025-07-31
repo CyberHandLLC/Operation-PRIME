@@ -103,11 +103,11 @@ public class IncidentValidationService : IIncidentValidationService
         // Note: Pre-incidents don't require any additional fields beyond the basic ones
         // Workaround is optional for all incident types (marked as "Workaround (Optional)" in UI)
 
-        // Validate string lengths (matching original validation attributes)
+        // Validate string lengths (matching Domain entity validation attributes)
         if (title.Length > 200 ||
             description.Length > 2000 ||
-            applicationAffected.Length > 100 ||
-            locationsAffected.Length > 500)
+            applicationAffected.Length > 200 ||
+            locationsAffected.Length > 300)
         {
             return false;
         }

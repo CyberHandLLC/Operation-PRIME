@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Infrastructure.Data;
 using OperationPrime.Infrastructure.Services;
+using OperationPrime.Application.Services;
 
 namespace OperationPrime.Infrastructure;
 
@@ -31,6 +32,18 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIncidentService, IncidentService>();
         services.AddScoped<IEnumService, EnumService>();
         services.AddScoped<IApplicationService, ApplicationService>();
+        services.AddScoped<IIncidentDataMappingService, IncidentDataMappingService>();
+        
+        // Register refactored workflow and validation services as scoped
+        services.AddScoped<IIncidentWorkflowService, IncidentWorkflowService>();
+        services.AddScoped<IIncidentValidationService, IncidentValidationService>();
+        
+        // Register new Clean Architecture services
+        services.AddScoped<IDateTimeService, DateTimeService>();
+        services.AddScoped<IIncidentOrchestrationService, IncidentOrchestrationService>();
+        
+        // Register presentation helpers
+        services.AddScoped<OperationPrime.Presentation.Helpers.ViewModelCollectionsManager>();
 
         return services;
     }

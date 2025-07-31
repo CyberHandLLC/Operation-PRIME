@@ -4,7 +4,9 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:converters="using:OperationPrime.Presentation.Converters"
       xmlns:enums="using:OperationPrime.Domain.Enums"
-      xmlns:controls="using:Microsoft.UI.Xaml.Controls">
+      xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+      xmlns:viewmodels="using:OperationPrime.Presentation.ViewModels"
+      x:DataType="viewmodels:IncidentCreateViewModel">
 
     <!-- Converters are registered globally in App.xaml -->
 
@@ -182,8 +184,8 @@
                                   PlaceholderText="Select number of impacted users"
                                   HorizontalAlignment="Stretch">
                             <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}"/>
+                                <DataTemplate x:DataType="enums:ImpactedUsersCount">
+                                    <TextBlock Text="{x:Bind Converter={StaticResource EnumDisplayNameConverter}}"/>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -259,7 +261,7 @@
                                  TextWrapping="Wrap"
                                  MinHeight="120"
                                  MaxHeight="200"
-                                 MaxLength="1000"/>
+                                 MaxLength="2000"/>
                     </StackPanel>
                     
                     <!-- Urgency -->

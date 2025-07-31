@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
+using OperationPrime.Presentation.Constants;
 
 namespace OperationPrime.Presentation.ViewModels;
 
@@ -102,6 +103,6 @@ public partial class IncidentListViewModel : ObservableObject
     [RelayCommand]
     private void CreateIncident()
     {
-        _navigationService.NavigateTo("IncidentCreate");
+        _navigationService.NavigateTo(NavigationKeys.IncidentCreate);
     }
 }

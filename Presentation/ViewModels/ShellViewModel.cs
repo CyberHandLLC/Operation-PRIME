@@ -103,14 +103,16 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     /// <summary>
     /// Handle back navigation request
     /// </summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanGoBack))]
     private void BackRequested()
     {
-        if (_navigationService.CanGoBack)
-        {
-            _navigationService.GoBack();
-        }
+        _navigationService.GoBack();
     }
+
+    /// <summary>
+    /// Determines if the back navigation command can execute
+    /// </summary>
+    private bool CanGoBack => _navigationService.CanGoBack;
 
     /// <summary>
     /// Navigate to a specific page
@@ -143,6 +145,9 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     private void OnNavigationChanged(object? sender, string pageName)
     {
         IsBackEnabled = _navigationService.CanGoBack;
+        
+        // Refresh CanExecute for navigation commands
+        BackRequestedCommand.NotifyCanExecuteChanged();
         
         // Update selected item based on current page
         UpdateSelectedItem(pageName);

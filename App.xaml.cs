@@ -6,6 +6,7 @@ using OperationPrime.Application.Interfaces;
 using OperationPrime.Application.Services;
 using OperationPrime.Infrastructure;
 using OperationPrime.Presentation.ViewModels;
+using OperationPrime.Presentation.Views;
 using System.IO;
 
 namespace OperationPrime
@@ -35,6 +36,10 @@ namespace OperationPrime
         public App()
         {
             this.InitializeComponent();
+            
+            // Add global exception handling for .NET 9 / WinUI 3
+            this.UnhandledException += OnUnhandledException;
+            
             ConfigureServices();
         }
 
@@ -111,11 +116,11 @@ namespace OperationPrime
                 services.AddTransient<IncidentListViewModel>();
                 services.AddTransient<IncidentCreateViewModel>();
                 
-                // Register refactored application services (Scoped for business logic)
-                // Following Microsoft's 2024 DI guidelines for service lifetimes
-                services.AddScoped<IIncidentValidationService, IncidentValidationService>();
-                services.AddScoped<IIncidentWorkflowService, IncidentWorkflowService>();
-                services.AddScoped<IIncidentDataMappingService, IncidentDataMappingService>();
+                // Note: Views are not registered in DI as they use service locator pattern
+                // for ViewModel resolution due to WinUI 3 Frame navigation requirements
+                
+                // Note: Application services are registered in Infrastructure layer
+                // Following Microsoft's 2024 DI guidelines - services registered once
             });
 
             _host = builder.Build();
@@ -129,6 +134,39 @@ namespace OperationPrime
         public T GetService<T>() where T : class
         {
             return Services.GetRequiredService<T>();
+        }
+
+        /// <summary>
+        /// Handles unhandled exceptions globally for the application.
+        /// Provides comprehensive error logging and graceful failure handling.
+        /// </summary>
+        /// <param name="sender">The application instance.</param>
+        /// <param name="e">Exception event arguments.</param>
+        private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                // Log the exception (in a real app, you'd use a logging framework like Serilog)
+                System.Diagnostics.Debug.WriteLine(
+                    $"Unhandled exception: {e.Exception.GetType().Name} - {e.Exception.Message}");
+                
+                // Log full stack trace for debugging
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {e.Exception.StackTrace}");
+
+                // Mark as handled to prevent app crash (can be removed if you want crashes)
+                e.Handled = true;
+
+                // In production, you might want to:
+                // 1. Send telemetry/crash reports
+                // 2. Show user-friendly error dialog
+                // 3. Attempt graceful recovery
+                // 4. Save user data before potential shutdown
+            }
+            catch
+            {
+                // If exception handling itself fails, let the original exception bubble up
+                // This prevents infinite loops in error handling
+            }
         }
 
         /// <summary>

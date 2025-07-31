@@ -1,3 +1,4 @@
+using OperationPrime.Application.DTOs;
 using OperationPrime.Domain.Enums;
 
 namespace OperationPrime.Application.Interfaces;
@@ -69,4 +70,6 @@ public interface IIncidentWorkflowService
     /// <param name="incidentType">The incident type</param>
     /// <returns>True if Submit button should be visible</returns>
     bool ShowSubmitButton(int currentStep, IncidentType incidentType);
+
+
 }

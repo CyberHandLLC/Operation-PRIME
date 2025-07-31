@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Presentation.ViewModels;
@@ -16,25 +17,21 @@ public sealed partial class IncidentCreateView : Page
     /// <summary>
     /// Gets the ViewModel for this view.
     /// </summary>
-    public IncidentCreateViewModel ViewModel { get; private set; }
+    public IncidentCreateViewModel ViewModel { get; }
 
     /// <summary>
     /// Initializes a new instance of the IncidentCreateView.
+    /// Uses service locator pattern to resolve ViewModel from DI container.
+    /// This approach is necessary for WinUI 3 Frame navigation which uses reflection.
     /// </summary>
     public IncidentCreateView()
     {
-        this.InitializeComponent();
+        // Resolve ViewModel from DI container using service locator pattern
+        // This is the recommended approach for WinUI 3 pages with Frame navigation
+        ViewModel = App.Current.Services.GetRequiredService<IncidentCreateViewModel>();
         
-        try
-        {
-            // Get ViewModel from DI container
-            ViewModel = App.Current.GetService<IncidentCreateViewModel>();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Failed to resolve IncidentCreateViewModel: {ex.Message}");
-            throw;
-        }
+        this.InitializeComponent();
+        this.DataContext = ViewModel;
     }
 
     /// <summary>
@@ -98,28 +95,22 @@ public sealed partial class IncidentCreateView : Page
     }
 
     /// <summary>
-    /// Combines date and time selections into a single DateTimeOffset for Time Issue Started.
+    /// Notifies ViewModel of date/time changes for Time Issue Started.
+    /// UI layer only passes data - business logic handled by ViewModel/Services.
     /// </summary>
     private void UpdateTimeIssueStarted()
     {
         if (TimeIssueStartedDatePicker.SelectedDate != null && TimeIssueStartedTimePicker.SelectedTime != null)
         {
-            var date = TimeIssueStartedDatePicker.SelectedDate.Value;
-            var time = TimeIssueStartedTimePicker.SelectedTime.Value;
-            
-            ViewModel.TimeIssueStarted = new DateTimeOffset(
-                date.Year, date.Month, date.Day,
-                time.Hours, time.Minutes, time.Seconds,
-                date.Offset);
+            // ✅ CLEAN: UI only passes data, no business logic
+            ViewModel.UpdateTimeIssueStarted(
+                TimeIssueStartedDatePicker.SelectedDate.Value,
+                TimeIssueStartedTimePicker.SelectedTime.Value);
         }
         else if (TimeIssueStartedDatePicker.SelectedDate == null && TimeIssueStartedTimePicker.SelectedTime == null)
         {
-            ViewModel.TimeIssueStarted = null;
+            ViewModel.ClearTimeIssueStarted();
         }
-        
-        // Trigger validation refresh by notifying property changes
-        ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
-        ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>
@@ -139,28 +130,22 @@ public sealed partial class IncidentCreateView : Page
     }
 
     /// <summary>
-    /// Combines date and time selections into a single DateTimeOffset for Time Reported.
+    /// Notifies ViewModel of date/time changes for Time Reported.
+    /// UI layer only passes data - business logic handled by ViewModel/Services.
     /// </summary>
     private void UpdateTimeReported()
     {
         if (TimeReportedDatePicker.SelectedDate != null && TimeReportedTimePicker.SelectedTime != null)
         {
-            var date = TimeReportedDatePicker.SelectedDate.Value;
-            var time = TimeReportedTimePicker.SelectedTime.Value;
-            
-            ViewModel.TimeReported = new DateTimeOffset(
-                date.Year, date.Month, date.Day,
-                time.Hours, time.Minutes, time.Seconds,
-                date.Offset);
+            // ✅ CLEAN: UI only passes data, no business logic
+            ViewModel.UpdateTimeReported(
+                TimeReportedDatePicker.SelectedDate.Value,
+                TimeReportedTimePicker.SelectedTime.Value);
         }
         else if (TimeReportedDatePicker.SelectedDate == null && TimeReportedTimePicker.SelectedTime == null)
         {
-            ViewModel.TimeReported = null;
+            ViewModel.ClearTimeReported();
         }
-        
-        // Trigger validation refresh by notifying property changes
-        ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
-        ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>
@@ -187,9 +172,7 @@ public sealed partial class IncidentCreateView : Page
                 TimeReportedTimePicker.SelectedTime = timeReported.TimeOfDay;
             }
             
-            // Trigger validation refresh after initialization
-            ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
-            ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
+            // ✅ CLEAN: ViewModel handles validation automatically via property change notifications
         }
         catch (Exception ex)
         {
@@ -255,13 +238,9 @@ public sealed partial class IncidentCreateView : Page
         {
             if (args.SelectedItem is ApplicationInfo selectedApp)
             {
-                // Set the text to the selected application name
+                // ✅ CLEAN: UI only sets values, ViewModel handles validation
                 sender.Text = selectedApp.Name;
                 ViewModel.ApplicationAffected = selectedApp.Name;
-                
-                // Trigger validation refresh
-                ViewModel.GoToNextStepCommand.NotifyCanExecuteChanged();
-                ViewModel.CreateIncidentCommand.NotifyCanExecuteChanged();
             }
         }
         catch (Exception ex)

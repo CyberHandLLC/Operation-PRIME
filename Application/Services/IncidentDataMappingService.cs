@@ -25,7 +25,7 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             IncidentType = formData.IncidentType,
             Priority = formData.Priority,
             Status = formData.Status,
-            CreatedDate = DateTime.UtcNow,
+            CreatedDate = DateTimeOffset.UtcNow,
 
             // Impact Assessment
             ImpactedUsers = formData.ImpactedUsers,

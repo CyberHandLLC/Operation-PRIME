@@ -33,7 +33,7 @@ public class Incident
     /// Describes what users cannot do due to the incident.
     /// Optional for Pre-Incidents, required for Major Incidents.
     /// </summary>
-    [StringLength(500, ErrorMessage = "Business impact cannot exceed 500 characters.")]
+    [StringLength(1000, ErrorMessage = "Business impact cannot exceed 1000 characters.")]
     public string? BusinessImpact { get; set; }
 
     /// <summary>
