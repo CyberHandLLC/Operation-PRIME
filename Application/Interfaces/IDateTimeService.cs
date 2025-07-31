@@ -34,4 +34,5 @@ public interface IDateTimeService
     /// </summary>
     /// <returns>Current DateTimeOffset in UTC</returns>
     DateTimeOffset GetCurrentUtcTime();
+    DateTimeOffset GetCurrentEasternTime();
 } 

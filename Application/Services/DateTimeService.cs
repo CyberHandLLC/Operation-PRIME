@@ -34,7 +34,17 @@ public class DateTimeService : IDateTimeService
 
         // Allow some tolerance for clock differences (5 minutes)
         var maxAllowedTime = DateTimeOffset.UtcNow.AddMinutes(5);
-        return timeIssueStarted.Value <= maxAllowedTime;
+        
+        // Convert both times to UTC for comparison to avoid timezone issues
+        var issueStartUtc = timeIssueStarted.Value.ToUniversalTime();
+        var maxAllowedUtc = maxAllowedTime.ToUniversalTime();
+        
+        // Debug logging to understand the timezone issue
+        System.Diagnostics.Debug.WriteLine($"ValidateIssueStartTime: Issue={timeIssueStarted.Value:yyyy-MM-dd HH:mm:ss zzz} -> UTC={issueStartUtc:yyyy-MM-dd HH:mm:ss}");
+        System.Diagnostics.Debug.WriteLine($"ValidateIssueStartTime: MaxAllowed={maxAllowedTime:yyyy-MM-dd HH:mm:ss zzz} -> UTC={maxAllowedUtc:yyyy-MM-dd HH:mm:ss}");
+        System.Diagnostics.Debug.WriteLine($"ValidateIssueStartTime: Result={issueStartUtc <= maxAllowedUtc}");
+        
+        return issueStartUtc <= maxAllowedUtc;
     }
 
     /// <summary>
@@ -59,5 +69,17 @@ public class DateTimeService : IDateTimeService
     public DateTimeOffset GetCurrentUtcTime()
     {
         return DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Gets the current time in Eastern Time zone for UI initialization.
+    /// This ensures UI controls show the correct Eastern Time by default.
+    /// </summary>
+    /// <returns>Current DateTimeOffset in Eastern Time</returns>
+    public DateTimeOffset GetCurrentEasternTime()
+    {
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var utcNow = DateTimeOffset.UtcNow;
+        return TimeZoneInfo.ConvertTime(utcNow, easternTimeZone);
     }
 } 

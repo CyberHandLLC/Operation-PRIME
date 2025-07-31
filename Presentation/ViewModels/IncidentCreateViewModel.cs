@@ -49,6 +49,12 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         
         _logger.LogDebug("Initializing IncidentCreateViewModel");
         
+        // Initialize default time values with current UTC time
+        // UI will convert to Eastern Time for display via DateTimeToStringConverter
+        var currentTime = _dateTimeService.GetCurrentUtcTime();
+        TimeIssueStarted = currentTime;
+        TimeReported = currentTime;
+        
         // Load collections asynchronously
         _ = InitializeAsync();
     }
@@ -159,7 +165,7 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    public partial DateTimeOffset? TimeIssueStarted { get; set; } = DateTimeOffset.UtcNow;
+    public partial DateTimeOffset? TimeIssueStarted { get; set; }
 
     /// <summary>
     /// Date and time when the incident was reported.
@@ -167,7 +173,7 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    public partial DateTimeOffset? TimeReported { get; set; } = DateTimeOffset.UtcNow;
+    public partial DateTimeOffset? TimeReported { get; set; }
 
     /// <summary>
     /// Number of users impacted by the incident.
@@ -436,7 +442,8 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         Title = Description = BusinessImpact = string.Empty;
         ApplicationAffected = LocationsAffected = Workaround = IncidentNumber = string.Empty;
         
-        // Reset dates to current time
+        // Reset dates to current UTC time  
+        // UI will convert to Eastern Time for display via DateTimeToStringConverter
         var currentTime = _dateTimeService.GetCurrentUtcTime();
         TimeIssueStarted = TimeReported = currentTime;
         
