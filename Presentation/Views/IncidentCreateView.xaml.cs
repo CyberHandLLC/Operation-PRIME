@@ -156,20 +156,24 @@ public sealed partial class IncidentCreateView : Page
     {
         try
         {
-            // Initialize TimeIssueStarted controls
+            // Initialize TimeIssueStarted controls with ViewModel Eastern Time
             if (ViewModel.TimeIssueStarted.HasValue)
             {
-                var timeIssueStarted = ViewModel.TimeIssueStarted.Value;
-                TimeIssueStartedDatePicker.SelectedDate = timeIssueStarted;
-                TimeIssueStartedTimePicker.SelectedTime = timeIssueStarted.TimeOfDay;
+                var easternTime = ViewModel.TimeIssueStarted.Value;
+                TimeIssueStartedDatePicker.SelectedDate = easternTime;
+                TimeIssueStartedTimePicker.SelectedTime = easternTime.TimeOfDay;
+                
+                Debug.WriteLine($"UI: Set TimeIssueStarted to {easternTime} (offset: {easternTime.Offset})");
             }
             
-            // Initialize TimeReported controls
+            // Initialize TimeReported controls with ViewModel Eastern Time
             if (ViewModel.TimeReported.HasValue)
             {
-                var timeReported = ViewModel.TimeReported.Value;
-                TimeReportedDatePicker.SelectedDate = timeReported;
-                TimeReportedTimePicker.SelectedTime = timeReported.TimeOfDay;
+                var easternTime = ViewModel.TimeReported.Value;
+                TimeReportedDatePicker.SelectedDate = easternTime;
+                TimeReportedTimePicker.SelectedTime = easternTime.TimeOfDay;
+                
+                Debug.WriteLine($"UI: Set TimeReported to {easternTime} (offset: {easternTime.Offset})");
             }
             
             // ✅ CLEAN: ViewModel handles validation automatically via property change notifications
@@ -186,8 +190,12 @@ public sealed partial class IncidentCreateView : Page
     /// </summary>
     public void RefreshDateTimeControls()
     {
+        // Force reset the UI controls to current ViewModel values
+        // This is needed when ViewModel is reset or updated programmatically
         InitializeDateTimeControls();
     }
+    
+
     
     /// <summary>
     /// Handles text changes in the Application AutoSuggestBox to filter suggestions.

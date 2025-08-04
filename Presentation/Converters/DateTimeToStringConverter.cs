@@ -29,7 +29,7 @@ public class DateTimeToStringConverter : IValueConverter
         switch (value)
         {
             case DateTimeOffset dateTimeOffset:
-                // Convert UTC DateTimeOffset to Eastern Time
+                // Convert any DateTimeOffset (regardless of timezone) to Eastern Time
                 easternDateTime = TimeZoneInfo.ConvertTime(dateTimeOffset, easternTimeZone).DateTime;
                 break;
             case DateTime dateTime:

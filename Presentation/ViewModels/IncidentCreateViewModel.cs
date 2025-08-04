@@ -49,11 +49,10 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         
         _logger.LogDebug("Initializing IncidentCreateViewModel");
         
-        // Initialize default time values with current UTC time
-        // UI will convert to Eastern Time for display via DateTimeToStringConverter
-        var currentTime = _dateTimeService.GetCurrentUtcTime();
-        TimeIssueStarted = currentTime;
-        TimeReported = currentTime;
+        // Initialize with current Eastern Time (business timezone)
+        var easternTime = _dateTimeService.GetCurrentEasternTime();
+        TimeIssueStarted = easternTime;
+        TimeReported = easternTime;
         
         // Load collections asynchronously
         _ = InitializeAsync();
@@ -442,10 +441,12 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         Title = Description = BusinessImpact = string.Empty;
         ApplicationAffected = LocationsAffected = Workaround = IncidentNumber = string.Empty;
         
-        // Reset dates to current UTC time  
-        // UI will convert to Eastern Time for display via DateTimeToStringConverter
-        var currentTime = _dateTimeService.GetCurrentUtcTime();
-        TimeIssueStarted = TimeReported = currentTime;
+        // Reset dates to current Eastern Time
+        var easternTime = _dateTimeService.GetCurrentEasternTime();
+        TimeIssueStarted = TimeReported = easternTime;
+        
+        _logger.LogDebug("ViewModel Reset: TimeIssueStarted={TimeIssueStarted}, TimeReported={TimeReported}", 
+            TimeIssueStarted, TimeReported);
         
         // Clear user count
         ImpactedUsers = null;

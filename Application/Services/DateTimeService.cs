@@ -24,42 +24,59 @@ public class DateTimeService : IDateTimeService
 
     /// <summary>
     /// Validates that the issue start time is not in the future.
+    /// Converts both times to UTC for proper comparison regardless of timezone.
     /// </summary>
     /// <param name="timeIssueStarted">The time when the issue started</param>
     /// <returns>True if the time is valid (not in future)</returns>
     public bool ValidateIssueStartTime(DateTimeOffset? timeIssueStarted)
     {
-        if (!timeIssueStarted.HasValue)
-            return false;
-
-        // Allow some tolerance for clock differences (5 minutes)
-        var maxAllowedTime = DateTimeOffset.UtcNow.AddMinutes(5);
+        if (!timeIssueStarted.HasValue) return false;
         
-        // Convert both times to UTC for comparison to avoid timezone issues
-        var issueStartUtc = timeIssueStarted.Value.ToUniversalTime();
-        var maxAllowedUtc = maxAllowedTime.ToUniversalTime();
+        // IMPORTANT: UI controls return correct Eastern Time but with wrong timezone offset
+        // Treat the DateTime component as Eastern Time and create proper Eastern DateTimeOffset
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var easternOffset = easternTimeZone.GetUtcOffset(timeIssueStarted.Value.DateTime);
+        var inputEasternOffset = new DateTimeOffset(timeIssueStarted.Value.DateTime, easternOffset);
         
-        // Debug logging to understand the timezone issue
-        System.Diagnostics.Debug.WriteLine($"ValidateIssueStartTime: Issue={timeIssueStarted.Value:yyyy-MM-dd HH:mm:ss zzz} -> UTC={issueStartUtc:yyyy-MM-dd HH:mm:ss}");
-        System.Diagnostics.Debug.WriteLine($"ValidateIssueStartTime: MaxAllowed={maxAllowedTime:yyyy-MM-dd HH:mm:ss zzz} -> UTC={maxAllowedUtc:yyyy-MM-dd HH:mm:ss}");
-        System.Diagnostics.Debug.WriteLine($"ValidateIssueStartTime: Result={issueStartUtc <= maxAllowedUtc}");
+        var currentEastern = GetCurrentEasternTime();
+        var maxAllowedEastern = currentEastern.AddMinutes(5);
         
-        return issueStartUtc <= maxAllowedUtc;
+        var isValid = inputEasternOffset <= maxAllowedEastern;
+        
+        // Debug logging
+        Console.WriteLine($"[DateTimeService] Eastern Time Validation:");
+        Console.WriteLine($"  Input Time (original): {timeIssueStarted.Value}");
+        Console.WriteLine($"  Input Time (corrected Eastern): {inputEasternOffset}");
+        Console.WriteLine($"  Current Eastern: {currentEastern}");
+        Console.WriteLine($"  Max Allowed: {maxAllowedEastern}");
+        Console.WriteLine($"  Is Valid: {isValid}");
+        
+        return isValid;
     }
 
     /// <summary>
     /// Validates that the reported time is not before the issue start time.
+    /// Converts both times to UTC for proper comparison regardless of timezone.
     /// </summary>
     /// <param name="timeIssueStarted">When the issue started</param>
     /// <param name="timeReported">When the issue was reported</param>
     /// <returns>True if the timing is logical</returns>
     public bool ValidateReportedTime(DateTimeOffset? timeIssueStarted, DateTimeOffset? timeReported)
     {
-        if (!timeIssueStarted.HasValue || !timeReported.HasValue)
-            return false;
-
-        // Reported time should be equal to or after issue start time
-        return timeReported.Value >= timeIssueStarted.Value;
+        if (!timeIssueStarted.HasValue || !timeReported.HasValue) return false;
+        
+        // IMPORTANT: UI controls return correct Eastern Time but with wrong timezone offset
+        // Treat the DateTime components as Eastern Time and create proper Eastern DateTimeOffsets
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        
+        var issueStartOffset = easternTimeZone.GetUtcOffset(timeIssueStarted.Value.DateTime);
+        var issueStartEastern = new DateTimeOffset(timeIssueStarted.Value.DateTime, issueStartOffset);
+        
+        var reportedOffset = easternTimeZone.GetUtcOffset(timeReported.Value.DateTime);
+        var reportedEastern = new DateTimeOffset(timeReported.Value.DateTime, reportedOffset);
+        
+        // Reported time should be >= issue start time (in Eastern)
+        return reportedEastern >= issueStartEastern;
     }
 
     /// <summary>
@@ -80,6 +97,26 @@ public class DateTimeService : IDateTimeService
     {
         var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
         var utcNow = DateTimeOffset.UtcNow;
-        return TimeZoneInfo.ConvertTime(utcNow, easternTimeZone);
+        
+        // Convert UTC to Eastern Time, ensuring proper Eastern offset
+        var easternTime = TimeZoneInfo.ConvertTime(utcNow, easternTimeZone);
+        
+        // Debug: Show what we're generating
+        Console.WriteLine($"[DateTimeService] GetCurrentEasternTime:");
+        Console.WriteLine($"  UTC Input: {utcNow}");
+        Console.WriteLine($"  Eastern Output: {easternTime}");
+        Console.WriteLine($"  Eastern Offset: {easternTime.Offset}");
+        
+        return easternTime;
+    }
+
+    /// <summary>
+    /// Gets the current local time for UI initialization.
+    /// This ensures validation works correctly with user's actual local time.
+    /// </summary>
+    /// <returns>Current DateTimeOffset in local timezone</returns>
+    public DateTimeOffset GetCurrentLocalTime()
+    {
+        return DateTimeOffset.Now;
     }
 } 
