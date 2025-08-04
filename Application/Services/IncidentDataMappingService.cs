@@ -2,6 +2,7 @@ using OperationPrime.Application.DTOs;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Domain.Enums;
+using OperationPrime.Domain.Constants;
 
 namespace OperationPrime.Application.Services;
 
@@ -11,6 +12,12 @@ namespace OperationPrime.Application.Services;
 /// </summary>
 public class IncidentDataMappingService : IIncidentDataMappingService
 {
+    private readonly IDateTimeService _dateTimeService;
+
+    public IncidentDataMappingService(IDateTimeService dateTimeService)
+    {
+        _dateTimeService = dateTimeService;
+    }
     /// <summary>
     /// Maps form data to an Incident entity for creation
     /// </summary>
@@ -25,7 +32,7 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             IncidentType = formData.IncidentType,
             Priority = formData.Priority,
             Status = formData.Status,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = _dateTimeService.GetCurrentUtcTime(),
 
             // Impact Assessment
             ImpactedUsers = formData.ImpactedUsers,
@@ -67,13 +74,7 @@ public class IncidentDataMappingService : IIncidentDataMappingService
 
             // Timing
             TimeIssueStarted = incident.TimeIssueStarted?.ToUniversalTime(),
-            TimeReported = incident.TimeReported?.ToUniversalTime(),
-
-            // UI State
-            CurrentStep = 1,
-            IsSubmitting = false,
-            ErrorMessage = null,
-            SuccessMessage = null
+            TimeReported = incident.TimeReported?.ToUniversalTime()
         };
     }
 
@@ -87,11 +88,9 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             IncidentType = IncidentType.PreIncident,
             Priority = Priority.P3,
             Status = Status.New,
-            Urgency = 3,
-            TimeIssueStarted = DateTimeOffset.UtcNow,
-            TimeReported = DateTimeOffset.UtcNow,
-            CurrentStep = 1,
-            IsSubmitting = false
+            Urgency = UrgencyLevels.Default,
+            TimeIssueStarted = _dateTimeService.GetCurrentUtcTime(),
+            TimeReported = _dateTimeService.GetCurrentUtcTime()
         };
     }
 
@@ -113,21 +112,17 @@ public class IncidentDataMappingService : IIncidentDataMappingService
         formData.IncidentType = IncidentType.PreIncident;
         formData.Priority = Priority.P3;
         formData.Status = Status.New;
-        formData.Urgency = 3;
+        formData.Urgency = UrgencyLevels.Default;
 
         // Reset date/time fields to current time
-        formData.TimeIssueStarted = DateTimeOffset.UtcNow;
-        formData.TimeReported = DateTimeOffset.UtcNow;
+        formData.TimeIssueStarted = _dateTimeService.GetCurrentUtcTime();
+        formData.TimeReported = _dateTimeService.GetCurrentUtcTime();
 
         // Reset nullable fields
         formData.ImpactedUsers = null;
         formData.SelectedImpactedUsersCount = null;
 
-        // Reset UI state
-        formData.CurrentStep = 1;
-        formData.IsSubmitting = false;
-        formData.ErrorMessage = null;
-        formData.SuccessMessage = null;
+
     }
 
     /// <summary>
@@ -157,6 +152,64 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             <= 2000 => ImpactedUsersCount.TwoThousand,
             > 2000 => ImpactedUsersCount.FiveThousand,
             _ => null
+        };
+    }
+
+    /// <summary>
+    /// Maps ViewModel data to IncidentFormData DTO.
+    /// Handles the conversion from Presentation layer data to Application layer DTO.
+    /// Follows Clean Architecture by keeping DTO creation in Application layer.
+    /// </summary>
+    /// <param name="title">Incident title</param>
+    /// <param name="description">Incident description</param>
+    /// <param name="businessImpact">Business impact description</param>
+    /// <param name="timeIssueStarted">When the issue started</param>
+    /// <param name="timeReported">When the issue was reported</param>
+    /// <param name="impactedUsers">Number of impacted users</param>
+    /// <param name="applicationAffected">Affected application</param>
+    /// <param name="locationsAffected">Affected locations</param>
+    /// <param name="workaround">Available workaround</param>
+    /// <param name="incidentNumber">Incident tracking number</param>
+    /// <param name="urgency">Urgency level</param>
+    /// <param name="incidentType">Type of incident</param>
+    /// <param name="priority">Incident priority</param>
+    /// <param name="status">Current status</param>
+    /// <param name="selectedImpactedUsersCount">Selected users count enum</param>
+    /// <returns>IncidentFormData with all properties mapped</returns>
+    public IncidentFormData MapFromViewModel(
+        string? title,
+        string? description, 
+        string? businessImpact,
+        DateTimeOffset? timeIssueStarted,
+        DateTimeOffset? timeReported,
+        int? impactedUsers,
+        string? applicationAffected,
+        string? locationsAffected,
+        string? workaround,
+        string? incidentNumber,
+        int urgency,
+        IncidentType incidentType,
+        Priority priority,
+        Status status,
+        ImpactedUsersCount? selectedImpactedUsersCount)
+    {
+        return new IncidentFormData
+        {
+            Title = title ?? string.Empty,
+            Description = description ?? string.Empty,
+            BusinessImpact = businessImpact ?? string.Empty,
+            TimeIssueStarted = timeIssueStarted,
+            TimeReported = timeReported,
+            ImpactedUsers = impactedUsers,
+            ApplicationAffected = applicationAffected ?? string.Empty,
+            LocationsAffected = locationsAffected ?? string.Empty,
+            Workaround = workaround ?? string.Empty,
+            IncidentNumber = incidentNumber ?? string.Empty,
+            Urgency = urgency,
+            IncidentType = incidentType,
+            Priority = priority,
+            Status = status,
+            SelectedImpactedUsersCount = selectedImpactedUsersCount
         };
     }
 }

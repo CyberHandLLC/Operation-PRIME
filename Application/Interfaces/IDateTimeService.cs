@@ -34,6 +34,18 @@ public interface IDateTimeService
     /// </summary>
     /// <returns>Current DateTimeOffset in UTC</returns>
     DateTimeOffset GetCurrentUtcTime();
+
+    /// <summary>
+    /// Gets the current time in Eastern Time zone for UI initialization.
+    /// This ensures UI controls show the correct Eastern Time by default.
+    /// </summary>
+    /// <returns>Current DateTimeOffset in Eastern Time</returns>
     DateTimeOffset GetCurrentEasternTime();
+
+    /// <summary>
+    /// Gets the current local time for UI initialization.
+    /// This ensures validation works correctly with user's actual local time.
+    /// </summary>
+    /// <returns>Current DateTimeOffset in local timezone</returns>
     DateTimeOffset GetCurrentLocalTime();
 } 

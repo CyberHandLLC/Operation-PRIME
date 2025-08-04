@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OperationPrime.Application.Interfaces;
+using OperationPrime.Domain.Configuration;
 using OperationPrime.Infrastructure.Data;
 using OperationPrime.Infrastructure.Services;
 using OperationPrime.Application.Services;
@@ -17,16 +19,22 @@ public static class ServiceCollectionExtensions
     /// Follows Microsoft DI guidelines for service lifetimes and registration patterns.
     /// </summary>
     /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration instance.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register navigation service as singleton (shared across app)
-        services.AddSingleton<INavigationService, NavigationService>();
+        // Register configuration settings
+        services.Configure<ApplicationSettings>(configuration.GetSection("ApplicationSettings"));
+        services.Configure<SeedDataSettings>(configuration.GetSection("SeedData"));
+        
+        // Register navigation service as scoped (follows WinUI 3 best practices for MVVM lifecycle)
+        services.AddScoped<INavigationService, NavigationService>();
 
         // Register DbContextFactory for thread-safe DbContext creation (Microsoft best practice)
         // Factory pattern enables proper disposal and thread safety in async UI applications
+        var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=incidents.db";
         services.AddDbContextFactory<OperationPrimeDbContext>(options =>
-            options.UseSqlite("Data Source=incidents.db"));
+            options.UseSqlite(connectionString));
 
         // Register application services as scoped (per request/operation)
         services.AddScoped<IIncidentService, IncidentService>();

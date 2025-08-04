@@ -1,47 +1,13 @@
-using OperationPrime.Application.DTOs;
-using OperationPrime.Presentation.ViewModels;
+
 
 namespace OperationPrime.Presentation.Extensions;
 
 /// <summary>
-/// Extension methods for ViewModels to eliminate repetitive DTO mapping.
+/// Extension methods for ViewModels to eliminate repetitive collection operations.
 /// Follows DRY principles while maintaining Clean Architecture boundaries.
 /// </summary>
 public static class ViewModelExtensions
 {
-    /// <summary>
-    /// Converts IncidentCreateViewModel to IncidentFormData DTO.
-    /// Centralizes mapping logic to eliminate repetition across the ViewModel.
-    /// </summary>
-    /// <param name="viewModel">The ViewModel to convert</param>
-    /// <returns>IncidentFormData with all properties mapped</returns>
-    public static IncidentFormData ToFormData(this IncidentCreateViewModel viewModel)
-    {
-        return new IncidentFormData
-        {
-            Title = viewModel.Title,
-            Description = viewModel.Description,
-            BusinessImpact = viewModel.BusinessImpact,
-            TimeIssueStarted = viewModel.TimeIssueStarted,
-            TimeReported = viewModel.TimeReported,
-            ImpactedUsers = viewModel.ImpactedUsers,
-            ApplicationAffected = viewModel.ApplicationAffected,
-            LocationsAffected = viewModel.LocationsAffected,
-            Workaround = viewModel.Workaround,
-            IncidentNumber = viewModel.IncidentNumber,
-            Urgency = viewModel.Urgency,
-            IncidentType = viewModel.IncidentType,
-            Priority = viewModel.Priority,
-            Status = viewModel.Status,
-            SelectedImpactedUsersCount = viewModel.SelectedImpactedUsersCount,
-            CurrentStep = viewModel.CurrentStep,
-            IsSubmitting = viewModel.IsSubmitting,
-            ErrorMessage = viewModel.ErrorMessage,
-            SuccessMessage = viewModel.SuccessMessage
-        };
-    }
-
-
 
     /// <summary>
     /// Loads a collection using a generic pattern to eliminate repetitive foreach loops.
@@ -58,4 +24,6 @@ public static class ViewModelExtensions
             collection.Add(item);
         }
     }
+
+
 } 

@@ -46,14 +46,14 @@ public class IncidentService : IIncidentService
             await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
             // Return all incidents ordered by creation date (newest first)
-        // Use client-side evaluation for DateTimeOffset ordering (SQLite limitation)
-        var incidents = await context.Incidents
-            .ToListAsync(cancellationToken).ConfigureAwait(false);
+            // SQLite doesn't support DateTimeOffset in ORDER BY, so we fetch then sort client-side
+            var incidents = await context.Incidents
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
             
-        // Order on client side after data retrieval
-        var orderedIncidents = incidents
-            .OrderByDescending(i => i.CreatedDate)
-            .ToList();
+            // Order on client side after data retrieval (SQLite limitation with DateTimeOffset)
+            var orderedIncidents = incidents
+                .OrderByDescending(i => i.CreatedDate)
+                .ToList();
                 
             _logger.LogInformation("Retrieved {IncidentCount} incidents from database", orderedIncidents.Count);
             return orderedIncidents;

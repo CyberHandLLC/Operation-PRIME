@@ -234,13 +234,9 @@
                     
                     <!-- Incident Number -->
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Incident Number" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Auto-generated if left empty" 
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Incident Number *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBox Text="{x:Bind ViewModel.IncidentNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Leave empty for auto-generation"
+                                 PlaceholderText="Enter the incident number"
                                  MaxLength="50"/>
                     </StackPanel>
                     

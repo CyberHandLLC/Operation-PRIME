@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OperationPrime.Application.Interfaces;
+using OperationPrime.Domain.Configuration;
 
 namespace OperationPrime.Application.Services;
 
@@ -8,6 +11,15 @@ namespace OperationPrime.Application.Services;
 /// </summary>
 public class DateTimeService : IDateTimeService
 {
+    private readonly ILogger<DateTimeService> _logger;
+    private readonly ApplicationSettings _settings;
+
+    public DateTimeService(ILogger<DateTimeService> logger, IOptions<ApplicationSettings> settings)
+    {
+        _logger = logger;
+        _settings = settings.Value;
+    }
+
     /// <summary>
     /// Combines a date and time into a single DateTimeOffset.
     /// </summary>
@@ -34,7 +46,7 @@ public class DateTimeService : IDateTimeService
         
         // IMPORTANT: UI controls return correct Eastern Time but with wrong timezone offset
         // Treat the DateTime component as Eastern Time and create proper Eastern DateTimeOffset
-        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById(_settings.DefaultTimeZone);
         var easternOffset = easternTimeZone.GetUtcOffset(timeIssueStarted.Value.DateTime);
         var inputEasternOffset = new DateTimeOffset(timeIssueStarted.Value.DateTime, easternOffset);
         
@@ -44,12 +56,8 @@ public class DateTimeService : IDateTimeService
         var isValid = inputEasternOffset <= maxAllowedEastern;
         
         // Debug logging
-        Console.WriteLine($"[DateTimeService] Eastern Time Validation:");
-        Console.WriteLine($"  Input Time (original): {timeIssueStarted.Value}");
-        Console.WriteLine($"  Input Time (corrected Eastern): {inputEasternOffset}");
-        Console.WriteLine($"  Current Eastern: {currentEastern}");
-        Console.WriteLine($"  Max Allowed: {maxAllowedEastern}");
-        Console.WriteLine($"  Is Valid: {isValid}");
+        _logger.LogDebug("Eastern Time Validation: Input={OriginalTime}, Corrected={CorrectedTime}, Current={CurrentTime}, MaxAllowed={MaxTime}, IsValid={IsValid}", 
+            timeIssueStarted.Value, inputEasternOffset, currentEastern, maxAllowedEastern, isValid);
         
         return isValid;
     }
@@ -67,7 +75,7 @@ public class DateTimeService : IDateTimeService
         
         // IMPORTANT: UI controls return correct Eastern Time but with wrong timezone offset
         // Treat the DateTime components as Eastern Time and create proper Eastern DateTimeOffsets
-        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById(_settings.DefaultTimeZone);
         
         var issueStartOffset = easternTimeZone.GetUtcOffset(timeIssueStarted.Value.DateTime);
         var issueStartEastern = new DateTimeOffset(timeIssueStarted.Value.DateTime, issueStartOffset);
@@ -95,17 +103,15 @@ public class DateTimeService : IDateTimeService
     /// <returns>Current DateTimeOffset in Eastern Time</returns>
     public DateTimeOffset GetCurrentEasternTime()
     {
-        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById(_settings.DefaultTimeZone);
         var utcNow = DateTimeOffset.UtcNow;
         
         // Convert UTC to Eastern Time, ensuring proper Eastern offset
         var easternTime = TimeZoneInfo.ConvertTime(utcNow, easternTimeZone);
         
         // Debug: Show what we're generating
-        Console.WriteLine($"[DateTimeService] GetCurrentEasternTime:");
-        Console.WriteLine($"  UTC Input: {utcNow}");
-        Console.WriteLine($"  Eastern Output: {easternTime}");
-        Console.WriteLine($"  Eastern Offset: {easternTime.Offset}");
+        _logger.LogDebug("GetCurrentEasternTime: UTC={UtcInput}, Eastern={EasternOutput}, Offset={EasternOffset}", 
+            utcNow, easternTime, easternTime.Offset);
         
         return easternTime;
     }

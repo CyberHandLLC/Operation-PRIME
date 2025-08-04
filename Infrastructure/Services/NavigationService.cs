@@ -112,17 +112,7 @@ public class NavigationService : INavigationService
         return false;
     }
 
-    /// <summary>
-    /// Clears the navigation history
-    /// </summary>
-    public void ClearHistory()
-    {
-        // Clear back stack if frame exists
-        if (_frame != null)
-        {
-            _frame.BackStack.Clear();
-        }
-    }
+
 
     /// <summary>
     /// Register page types for string-based navigation

@@ -1,13 +1,11 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Application.Interfaces;
-using OperationPrime.Application.Services;
 using OperationPrime.Infrastructure;
 using OperationPrime.Presentation.ViewModels;
-using OperationPrime.Presentation.Views;
-using System.IO;
 
 namespace OperationPrime
 {
@@ -64,7 +62,8 @@ namespace OperationPrime
                 catch (Exception ex)
                 {
                     // Log error but don't prevent app startup
-                    System.Diagnostics.Debug.WriteLine($"Failed to seed applications: {ex.Message}");
+                    var logger = Services.GetService<ILogger<App>>();
+                    logger?.LogError(ex, "Failed to seed applications");
                 }
             });
             
@@ -78,7 +77,9 @@ namespace OperationPrime
         /// <param name="e">Details about the navigation failure</param>
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
+            var logger = Services.GetService<ILogger<App>>();
+            logger?.LogError("Navigation failed to page {PageType}", e.SourcePageType.FullName);
+            throw new InvalidOperationException($"Failed to load Page {e.SourcePageType.FullName}");
         }
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace OperationPrime
             builder.ConfigureServices((context, services) =>
             {
                 // Register infrastructure services
-                services.AddInfrastructure();
+                services.AddInfrastructure(context.Configuration);
                 
                 // Register MainWindow with DI (proper constructor injection)
                 services.AddTransient<MainWindow>();
@@ -146,12 +147,9 @@ namespace OperationPrime
         {
             try
             {
-                // Log the exception (in a real app, you'd use a logging framework like Serilog)
-                System.Diagnostics.Debug.WriteLine(
-                    $"Unhandled exception: {e.Exception.GetType().Name} - {e.Exception.Message}");
-                
-                // Log full stack trace for debugging
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {e.Exception.StackTrace}");
+                // Log the exception using the structured logging framework
+                var logger = Services.GetService<ILogger<App>>();
+                logger?.LogError(e.Exception, "Unhandled exception occurred: {ExceptionType}", e.Exception.GetType().Name);
 
                 // Mark as handled to prevent app crash (can be removed if you want crashes)
                 e.Handled = true;
@@ -184,7 +182,8 @@ namespace OperationPrime
             catch (Exception ex)
             {
                 // Log disposal errors but don't prevent application shutdown
-                System.Diagnostics.Debug.WriteLine($"Error during application shutdown: {ex.Message}");
+                var logger = Services.GetService<ILogger<App>>();
+            logger?.LogError(ex, "Error during application shutdown");
             }
         }
     }

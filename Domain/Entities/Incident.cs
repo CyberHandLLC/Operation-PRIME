@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using OperationPrime.Domain.Enums;
+using OperationPrime.Domain.Constants;
 
 namespace OperationPrime.Domain.Entities;
 
@@ -18,14 +19,14 @@ public class Incident
     /// Brief title describing the incident.
     /// </summary>
     [Required(ErrorMessage = "Incident title is required.")]
-    [StringLength(200, ErrorMessage = "Title cannot exceed 200 characters.")]
+    [StringLength(ValidationLengths.TitleMaxLength, ErrorMessage = "Title cannot exceed {1} characters.")]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// Detailed description of the incident.
     /// </summary>
     [Required(ErrorMessage = "Incident description is required.")]
-    [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters.")]
+    [StringLength(ValidationLengths.DescriptionMaxLength, ErrorMessage = "Description cannot exceed {1} characters.")]
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
@@ -33,7 +34,7 @@ public class Incident
     /// Describes what users cannot do due to the incident.
     /// Optional for Pre-Incidents, required for Major Incidents.
     /// </summary>
-    [StringLength(1000, ErrorMessage = "Business impact cannot exceed 1000 characters.")]
+    [StringLength(ValidationLengths.BusinessImpactMaxLength, ErrorMessage = "Business impact cannot exceed {1} characters.")]
     public string? BusinessImpact { get; set; }
 
     /// <summary>
@@ -44,7 +45,7 @@ public class Incident
     /// <summary>
     /// Date and time when the incident was reported.
     /// </summary>
-    public DateTimeOffset? TimeReported { get; set; } // Using a ? means that the field can be empty, why would this field be empty?
+    public DateTimeOffset? TimeReported { get; set; }
 
     /// <summary>
     /// Number of users impacted by the incident.
@@ -56,31 +57,32 @@ public class Incident
     /// <summary>
     /// Application(s) affected by the incident.
     /// </summary>
-    [StringLength(200, ErrorMessage = "Application affected cannot exceed 200 characters.")]
+    [StringLength(ValidationLengths.ApplicationAffectedMaxLength, ErrorMessage = "Application affected cannot exceed {1} characters.")]
     public string? ApplicationAffected { get; set; }
 
     /// <summary>
     /// Location(s) affected by the incident.
     /// </summary>
-    [StringLength(300, ErrorMessage = "Locations affected cannot exceed 300 characters.")]
+    [StringLength(ValidationLengths.LocationsAffectedMaxLength, ErrorMessage = "Locations affected cannot exceed {1} characters.")]
     public string? LocationsAffected { get; set; }
 
     /// <summary>
     /// Available workaround for the incident (optional).
     /// </summary>
-    [StringLength(500, ErrorMessage = "Workaround cannot exceed 500 characters.")]
+    [StringLength(ValidationLengths.WorkaroundMaxLength, ErrorMessage = "Workaround cannot exceed {1} characters.")]
     public string? Workaround { get; set; }
 
     /// <summary>
     /// Unique incident number for tracking.
     /// </summary>
-    [StringLength(50, ErrorMessage = "Incident number cannot exceed 50 characters.")]
-    public string? IncidentNumber { get; set; }
+    [Required(ErrorMessage = "Incident number is required.")]
+    [StringLength(ValidationLengths.IncidentNumberMaxLength, ErrorMessage = "Incident number cannot exceed {1} characters.")]
+    public string IncidentNumber { get; set; } = string.Empty;
 
     /// <summary>
     /// Urgency level of the incident (1=High, 2=Medium, 3=Low).
     /// </summary>
-    [Range(1, 3, ErrorMessage = "Urgency must be between 1 (High) and 3 (Low).")]
+    [Range(UrgencyLevels.Minimum, UrgencyLevels.Maximum, ErrorMessage = "Urgency must be between {1} (High) and {2} (Low).")]
     public int Urgency { get; set; } = 3;
 
     /// <summary>

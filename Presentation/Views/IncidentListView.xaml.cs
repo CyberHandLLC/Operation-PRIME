@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using OperationPrime.Presentation.ViewModels;
 
@@ -9,6 +11,8 @@ public sealed partial class IncidentListView : Page
     /// Gets the ViewModel for this view.
     /// </summary>
     public IncidentListViewModel ViewModel { get; private set; }
+    
+    private readonly ILogger<IncidentListView> _logger;
 
     /// <summary>
     /// Initializes a new instance of the IncidentListView.
@@ -19,16 +23,10 @@ public sealed partial class IncidentListView : Page
     {
         this.InitializeComponent();
         
-        // Resolve ViewModel from DI container with error handling
-        try
-        {
-            ViewModel = App.Current.GetService<IncidentListViewModel>();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Failed to resolve IncidentListViewModel: {ex.Message}");
-            throw; // Re-throw as this is a critical failure
-        }
+        // Resolve dependencies from DI container following established patterns
+        // Uses service locator pattern consistent with IncidentCreateView
+        ViewModel = App.Current.Services.GetRequiredService<IncidentListViewModel>();
+        _logger = App.Current.Services.GetRequiredService<ILogger<IncidentListView>>();
         
         // Load incidents when page is loaded with proper exception handling
         this.Loaded += OnPageLoaded;
@@ -45,7 +43,7 @@ public sealed partial class IncidentListView : Page
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to load incidents on page load: {ex.Message}");
+            _logger.LogError(ex, "Failed to load incidents on page load");
             // The ViewModel should handle the error display, but we log it here for debugging
         }
     }

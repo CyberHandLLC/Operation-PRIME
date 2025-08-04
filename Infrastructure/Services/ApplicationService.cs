@@ -13,16 +13,19 @@ namespace OperationPrime.Infrastructure.Services;
 public class ApplicationService : IApplicationService
 {
     private readonly IDbContextFactory<OperationPrimeDbContext> _contextFactory;
+    private readonly IDateTimeService _dateTimeService;
     private readonly ILogger<ApplicationService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the ApplicationService.
     /// </summary>
     /// <param name="contextFactory">Factory for creating DbContext instances (thread-safe).</param>
+    /// <param name="dateTimeService">Service for centralized datetime operations.</param>
     /// <param name="logger">Logger for structured logging.</param>
-    public ApplicationService(IDbContextFactory<OperationPrimeDbContext> contextFactory, ILogger<ApplicationService> logger)
+    public ApplicationService(IDbContextFactory<OperationPrimeDbContext> contextFactory, IDateTimeService dateTimeService, ILogger<ApplicationService> logger)
     {
         _contextFactory = contextFactory;
+        _dateTimeService = dateTimeService;
         _logger = logger;
     }
 
@@ -107,7 +110,7 @@ public class ApplicationService : IApplicationService
             using var context = _contextFactory.CreateDbContext();
             await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
-            application.CreatedDate = DateTimeOffset.UtcNow;
+            application.CreatedDate = _dateTimeService.GetCurrentUtcTime();
             context.Applications.Add(application);
             
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

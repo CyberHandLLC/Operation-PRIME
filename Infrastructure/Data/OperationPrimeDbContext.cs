@@ -37,7 +37,7 @@ public class OperationPrimeDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            // Simple local SQLite database file
+            // Fallback connection string if not configured via DI
             optionsBuilder.UseSqlite("Data Source=incidents.db");
         }
     }

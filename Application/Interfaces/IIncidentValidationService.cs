@@ -1,3 +1,4 @@
+using OperationPrime.Application.Models;
 using OperationPrime.Domain.Enums;
 
 namespace OperationPrime.Application.Interfaces;
@@ -49,23 +50,23 @@ public interface IIncidentValidationService
     /// <returns>True if step is valid</returns>
     bool ValidateStep4(IncidentType incidentType, Priority priority, Status status);
 
+
+
     /// <summary>
-    /// Validates all required properties for incident creation
+    /// Validates a specific step using form data.
+    /// Follows 2024 best practices for simplified validation delegation.
     /// </summary>
-    /// <param name="incidentNumber">Incident number</param>
-    /// <param name="title">Incident title</param>
-    /// <param name="description">Incident description</param>
-    /// <param name="impactedUsers">Number of impacted users</param>
-    /// <param name="urgency">Urgency level</param>
-    /// <param name="businessImpact">Business impact description</param>
-    /// <param name="applicationAffected">Affected application</param>
-    /// <param name="locationsAffected">Affected locations</param>
-    /// <param name="workaround">Workaround description</param>
-    /// <param name="timeIssueStarted">When the issue started</param>
-    /// <param name="timeReported">When the issue was reported</param>
-    /// <returns>True if all properties are valid</returns>
-    bool ValidateAllProperties(IncidentType incidentType, string? incidentNumber, string? title, string? description,
-        int? impactedUsers, int urgency, string? businessImpact, string? applicationAffected,
-        string? locationsAffected, string? workaround, DateTimeOffset? timeIssueStarted,
-        DateTimeOffset? timeReported);
+    /// <param name="currentStep">The step to validate</param>
+    /// <param name="formData">Complete form data</param>
+    /// <returns>True if the current step is valid</returns>
+    bool ValidateCurrentStep(int currentStep, Application.DTOs.IncidentFormData formData);
+
+    /// <summary>
+    /// Validates complete incident form data across all business rules.
+    /// Consolidates validation logic to eliminate duplication with orchestration services.
+    /// Provides detailed error messages for comprehensive validation feedback.
+    /// </summary>
+    /// <param name="formData">The incident form data to validate</param>
+    /// <returns>Validation result with detailed error information</returns>
+    ValidationResult ValidateCompleteIncidentData(Application.DTOs.IncidentFormData formData);
 }

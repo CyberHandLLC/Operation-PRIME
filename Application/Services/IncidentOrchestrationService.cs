@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
 using OperationPrime.Application.DTOs;
 using OperationPrime.Application.Interfaces;
+using OperationPrime.Application.Models;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Domain.Enums;
+using OperationPrime.Domain.Constants;
 
 namespace OperationPrime.Application.Services;
 
@@ -41,8 +43,8 @@ public class IncidentOrchestrationService : IIncidentOrchestrationService
         {
             _logger.LogInformation("Starting incident creation process for: {Title}", formData.Title);
 
-            // Comprehensive business validation
-            var validationResult = ValidateIncidentData(formData);
+            // Comprehensive business validation using consolidated validation service
+            var validationResult = _validationService.ValidateCompleteIncidentData(formData);
             if (!validationResult.IsValid)
             {
                 _logger.LogWarning("Incident validation failed: {Errors}", string.Join(", ", validationResult.Errors));
@@ -70,49 +72,7 @@ public class IncidentOrchestrationService : IIncidentOrchestrationService
         }
     }
 
-    /// <summary>
-    /// Validates complete incident form data across all business rules.
-    /// </summary>
-    public ValidationResult ValidateIncidentData(IncidentFormData formData)
-    {
-        var errors = new List<string>();
 
-        // Basic required field validation
-        if (string.IsNullOrWhiteSpace(formData.Title))
-            errors.Add("Incident title is required");
-
-        if (string.IsNullOrWhiteSpace(formData.Description))
-            errors.Add("Incident description is required");
-            
-        if (string.IsNullOrWhiteSpace(formData.IncidentNumber))
-            errors.Add("Incident number is required");
-
-        if (string.IsNullOrWhiteSpace(formData.ApplicationAffected))
-            errors.Add("Application affected is required");
-
-        if (string.IsNullOrWhiteSpace(formData.LocationsAffected))
-            errors.Add("Locations affected is required");
-
-        // Business rule: Major incidents require business impact
-        if (formData.IncidentType == IncidentType.MajorIncident && string.IsNullOrWhiteSpace(formData.BusinessImpact))
-            errors.Add("Business Impact is required for Major Incidents");
-
-        // Date/time validation using dedicated service
-        if (!_dateTimeService.ValidateIssueStartTime(formData.TimeIssueStarted))
-            errors.Add("Issue start time cannot be in the future");
-
-        if (!_dateTimeService.ValidateReportedTime(formData.TimeIssueStarted, formData.TimeReported))
-            errors.Add("Reported time must be after or equal to issue start time");
-
-        // Numeric validation
-        if (!formData.ImpactedUsers.HasValue || formData.ImpactedUsers.Value <= 0)
-            errors.Add("Number of impacted users is required");
-
-        if (formData.Urgency < 1 || formData.Urgency > 5)
-            errors.Add("Urgency must be between 1 and 5");
-
-        return errors.Count == 0 ? ValidationResult.Success() : ValidationResult.Failure(errors);
-    }
 
     /// <summary>
     /// Initializes default values for a new incident form.
@@ -126,11 +86,9 @@ public class IncidentOrchestrationService : IIncidentOrchestrationService
             IncidentType = IncidentType.PreIncident,
             Priority = Priority.P3,
             Status = Status.New,
-            Urgency = 3,
+            Urgency = UrgencyLevels.Default,
             TimeIssueStarted = currentTime,
-            TimeReported = currentTime,
-            CurrentStep = 1,
-            IsSubmitting = false
+            TimeReported = currentTime
         };
     }
 } 

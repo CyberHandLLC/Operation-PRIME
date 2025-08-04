@@ -1,10 +1,10 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.Logging;
 using OperationPrime.Presentation.ViewModels;
 using OperationPrime.Presentation.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 
 namespace OperationPrime;
 
@@ -14,15 +14,17 @@ namespace OperationPrime;
 public sealed partial class MainWindow : Window
 {
     public ShellViewModel ViewModel { get; }
+    private readonly ILogger<MainWindow> _logger;
     private IncidentCreateViewModel? _currentIncidentViewModel;
     private bool _disposed = false;
 
-    public MainWindow(ShellViewModel shellViewModel)
+    public MainWindow(ShellViewModel shellViewModel, ILogger<MainWindow> logger)
     {
         this.InitializeComponent();
         
         // Use constructor injection instead of service locator anti-pattern
         ViewModel = shellViewModel;
+        _logger = logger;
         
         // Set the navigation frame
         ViewModel.SetNavigationFrame(ContentFrame);
@@ -76,7 +78,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error updating breadcrumb context: {ex.Message}");
+            _logger.LogError(ex, "Error updating breadcrumb context");
         }
     }
 
@@ -122,7 +124,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error setting up incident create breadcrumb: {ex.Message}");
+            _logger.LogError(ex, "Error setting up incident create breadcrumb");
         }
     }
 
@@ -145,7 +147,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error handling breadcrumb navigation: {ex.Message}");
+            _logger.LogError(ex, "Error handling breadcrumb navigation");
         }
     }
 
@@ -165,7 +167,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error handling ViewModel property change: {ex.Message}");
+            _logger.LogError(ex, "Error handling ViewModel property change");
         }
     }
 
@@ -210,7 +212,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error during MainWindow disposal: {ex.Message}");
+            _logger.LogError(ex, "Error during MainWindow disposal");
         }
     }
 }

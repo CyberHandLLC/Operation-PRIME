@@ -7,10 +7,11 @@ using OperationPrime.Application.DTOs;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Domain.Enums;
-using OperationPrime.Presentation.Constants;
+using OperationPrime.Domain.Constants;
 using OperationPrime.Presentation.ViewModels.Base;
 using OperationPrime.Presentation.Extensions;
 using OperationPrime.Presentation.Helpers;
+
 
 namespace OperationPrime.Presentation.ViewModels;
 
@@ -18,24 +19,34 @@ namespace OperationPrime.Presentation.ViewModels;
 /// ViewModel for creating new incidents.
 /// Refactored to follow Microsoft's 2024 MVVM Community Toolkit patterns with service extraction.
 /// Business logic delegated to dedicated services for improved testability and maintainability.
+/// Implements async initialization pattern following 2024 best practices.
 /// </summary>
-public partial class IncidentCreateViewModel : BaseValidatingViewModel
+public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncInitializable
 {
     private readonly IIncidentWorkflowService _workflowService;
     private readonly IIncidentOrchestrationService _orchestrationService;
     private readonly IIncidentValidationService _validationService;
+    private readonly IIncidentDataMappingService _dataMappingService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ViewModelCollectionsManager _collectionsManager;
     private readonly ILogger<IncidentCreateViewModel> _logger;
 
     /// <summary>
+    /// Indicates whether the ViewModel has been initialized.
+    /// Part of IAsyncInitializable interface following 2024 best practices.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsInitialized { get; set; }
+
+    /// <summary>
     /// Initializes a new instance of the IncidentCreateViewModel.
-    /// ✅ CLEAN: Reduced dependencies using helper classes.
+    /// ✅ IMPROVED: Fast constructor following 2024 best practices - no async operations.
     /// </summary>
     public IncidentCreateViewModel(
         IIncidentWorkflowService workflowService,
         IIncidentOrchestrationService orchestrationService,
         IIncidentValidationService validationService,
+        IIncidentDataMappingService dataMappingService,
         IDateTimeService dateTimeService,
         ViewModelCollectionsManager collectionsManager,
         ILogger<IncidentCreateViewModel> logger)
@@ -43,36 +54,45 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         _workflowService = workflowService;
         _orchestrationService = orchestrationService;
         _validationService = validationService;
+        _dataMappingService = dataMappingService;
         _dateTimeService = dateTimeService;
         _collectionsManager = collectionsManager;
         _logger = logger;
         
-        _logger.LogDebug("Initializing IncidentCreateViewModel");
+        _logger.LogDebug("Initializing IncidentCreateViewModel - constructor only");
         
         // Initialize with current Eastern Time (business timezone)
         var easternTime = _dateTimeService.GetCurrentEasternTime();
         TimeIssueStarted = easternTime;
         TimeReported = easternTime;
         
-        // Load collections asynchronously
-        _ = InitializeAsync();
+        // ✅ IMPROVED: No async operations in constructor - explicit initialization required
     }
 
     /// <summary>
     /// Initializes ViewModel asynchronously.
+    /// ✅ IMPROVED: Explicit async initialization following 2024 best practices.
     /// </summary>
-    private async Task InitializeAsync()
+    public async Task InitializeAsync()
     {
+        if (IsInitialized)
+        {
+            _logger.LogDebug("IncidentCreateViewModel already initialized, skipping");
+            return;
+        }
+
         try
         {
-            _logger.LogDebug("Starting ViewModel initialization");
+            _logger.LogDebug("Starting ViewModel async initialization");
             await _collectionsManager.LoadAllCollectionsAsync().ConfigureAwait(true);
+            IsInitialized = true;
             _logger.LogInformation("IncidentCreateViewModel initialized successfully");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to initialize IncidentCreateViewModel");
             ErrorMessage = "Failed to load form data. Please refresh the page.";
+            IsInitialized = false;
         }
     }
 
@@ -175,45 +195,23 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     public partial DateTimeOffset? TimeReported { get; set; }
 
     /// <summary>
-    /// Number of users impacted by the incident.
-    /// Selected from predefined values for consistent reporting.
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
-    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    public partial int? ImpactedUsers { get; set; }
-    
-    /// <summary>
     /// Selected impacted users count enum for ComboBox binding.
-    /// Automatically syncs with ImpactedUsers integer value.
+    /// ✅ IMPROVED: Single source of truth following 2024 best practices.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep))]
+    [NotifyPropertyChangedFor(nameof(CanGoNext), nameof(IsLastStep), nameof(ImpactedUsers))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     public partial ImpactedUsersCount? SelectedImpactedUsersCount { get; set; }
     
     /// <summary>
-    /// Handles changes to SelectedImpactedUsersCount and syncs with ImpactedUsers.
+    /// Number of users impacted by the incident (computed from SelectedImpactedUsersCount).
+    /// ✅ IMPROVED: Computed property eliminates synchronization issues.
     /// </summary>
-    partial void OnSelectedImpactedUsersCountChanged(ImpactedUsersCount? value)
+    public int? ImpactedUsers => SelectedImpactedUsersCount switch
     {
-        ImpactedUsers = value.HasValue ? (int)value.Value : null;
-    }
-    
-    /// <summary>
-    /// Handles changes to ImpactedUsers and syncs with SelectedImpactedUsersCount.
-    /// </summary>
-    partial void OnImpactedUsersChanged(int? value)
-    {
-        if (value.HasValue && Enum.IsDefined(typeof(ImpactedUsersCount), value.Value))
-        {
-            SelectedImpactedUsersCount = (ImpactedUsersCount)value.Value;
-        }
-        else
-        {
-            SelectedImpactedUsersCount = null;
-        }
-    }
+        ImpactedUsersCount count => (int)count,
+        null => null
+    };
 
     /// <summary>
     /// Application(s) affected by the incident.
@@ -248,7 +246,9 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
     [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Incident number is required")]
     [StringLength(ValidationLengths.IncidentNumberMaxLength, ErrorMessage = "Incident number cannot exceed {1} characters")]
     public partial string IncidentNumber { get; set; } = string.Empty;
 
@@ -258,7 +258,7 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UrgencyIndex), nameof(CanGoNext), nameof(IsLastStep))]
     [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
-    public partial int Urgency { get; set; } = 3;
+    public partial int Urgency { get; set; } = UrgencyLevels.Default;
 
     /// <summary>
     /// Gets or sets the urgency index for ComboBox binding (0-based).
@@ -271,15 +271,15 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
 
     // ✅ CLEAN: Computed Properties using Helper Classes (Reduced Complexity)
     public bool IsMajorIncident => IncidentType == IncidentType.MajorIncident;
-    public bool IsStep1 => StepNavigationHelper.IsStep(CurrentStep, 1);
-    public bool IsStep2 => StepNavigationHelper.IsStep(CurrentStep, 2);
-    public bool IsStep3 => StepNavigationHelper.IsStep(CurrentStep, 3);
-    public bool IsStep4 => StepNavigationHelper.IsStep(CurrentStep, 4) && IsMajorIncident;
-    public int TotalSteps => StepNavigationHelper.GetTotalSteps(IncidentType);
-    public bool ShowNextButton => StepNavigationHelper.ShouldShowNextButton(CurrentStep, IncidentType);
-    public bool CanGoNext => _workflowService.CanGoNext(CurrentStep, IncidentType, IsCurrentStepValid()) && CurrentStep < TotalSteps;
-    public bool CanGoPrevious => CurrentStep > 1;
-    public bool IsLastStep => StepNavigationHelper.IsLastStep(CurrentStep, IncidentType);
+    public bool IsStep1 => CurrentStep == 1;
+    public bool IsStep2 => CurrentStep == 2;
+    public bool IsStep3 => CurrentStep == 3;
+    public bool IsStep4 => CurrentStep == 4 && IsMajorIncident;
+    public int TotalSteps => _workflowService.GetTotalSteps(IncidentType);
+    public bool ShowNextButton => _workflowService.ShowNextButton(CurrentStep, IncidentType);
+    public bool CanGoNext => _workflowService.CanGoNext(CurrentStep, IncidentType, IsCurrentStepValid());
+    public bool CanGoPrevious => _workflowService.CanGoPrevious(CurrentStep);
+    public bool IsLastStep => _workflowService.IsLastStep(CurrentStep, IncidentType);
 
     /// <summary>
     /// Gets the breadcrumb items for navigation.
@@ -292,7 +292,7 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         "Checklist"
     };
 
-    public int CurrentBreadcrumbIndex => StepNavigationHelper.GetBreadcrumbIndex(CurrentStep);
+    public int CurrentBreadcrumbIndex => CurrentStep - 1; // Convert 1-based step to 0-based index
 
     // ✅ CLEAN: Delegated Collection Properties (Managed by Helper)
     public ObservableCollection<IncidentType> AvailableIncidentTypes => _collectionsManager.IncidentTypes;
@@ -315,7 +315,10 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
             IsSubmitting = true;
             ClearMessages();
 
-            var formData = this.ToFormData();
+            var formData = _dataMappingService.MapFromViewModel(
+                Title, Description, BusinessImpact, TimeIssueStarted, TimeReported,
+                ImpactedUsers, ApplicationAffected, LocationsAffected, Workaround,
+                IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount);
             _logger.LogDebug("Created form data for incident: {IncidentType} - {Title}", formData.IncidentType, formData.Title);
 
             var result = await _orchestrationService.CreateIncidentAsync(formData, cancellationToken).ConfigureAwait(true);
@@ -382,7 +385,9 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
     [RelayCommand]
     private void GoToStep(int step)
     {
-        if (StepNavigationHelper.IsValidStep(step, IncidentType))
+        // Validate step is within bounds for the incident type
+        var totalSteps = _workflowService.GetTotalSteps(IncidentType);
+        if (step >= 1 && step <= totalSteps)
         {
             _logger.LogDebug("Navigating to step {Step} for {IncidentType}", step, IncidentType);
             CurrentStep = step;
@@ -434,7 +439,7 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         IncidentType = IncidentType.PreIncident;
         Priority = Priority.P3;
         Status = Status.New;
-        Urgency = 3;
+        Urgency = UrgencyLevels.Default;
         CurrentStep = 1;
         
         // Clear all form fields
@@ -448,8 +453,7 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
         _logger.LogDebug("ViewModel Reset: TimeIssueStarted={TimeIssueStarted}, TimeReported={TimeReported}", 
             TimeIssueStarted, TimeReported);
         
-        // Clear user count
-        ImpactedUsers = null;
+        // Clear user count (only need to clear the source of truth)
         SelectedImpactedUsersCount = null;
     }
 
@@ -476,9 +480,12 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
             return false;
         }
         
-        // ✅ CLEAN: Use orchestration service for comprehensive validation
-        var formData = this.ToFormData();
-        var validationResult = _orchestrationService.ValidateIncidentData(formData);
+        // ✅ CLEAN: Use consolidated validation service for comprehensive validation
+        var formData = _dataMappingService.MapFromViewModel(
+            Title, Description, BusinessImpact, TimeIssueStarted, TimeReported,
+            ImpactedUsers, ApplicationAffected, LocationsAffected, Workaround,
+            IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount);
+        var validationResult = _validationService.ValidateCompleteIncidentData(formData);
         var isValid = validationResult.IsValid;
         _logger.LogDebug("Form validation result: {IsValid}. Errors: {Errors}", isValid, string.Join(", ", validationResult.Errors));
         return isValid;
@@ -522,22 +529,17 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel
 
     /// <summary>
     /// Validates the current step's required fields using the validation service.
-    /// ✅ CLEAN: Uses service layer for validation, maintaining clean architecture.
+    /// ✅ IMPROVED: Simplified validation delegation following 2024 best practices.
     /// </summary>
     private bool IsCurrentStepValid()
     {
         _logger.LogDebug("Validating step {CurrentStep} for {IncidentType}", CurrentStep, IncidentType);
         
-        return CurrentStep switch
-        {
-            1 => _validationService.ValidateStep1(IncidentType),
-            2 => _validationService.ValidateStep2(ImpactedUsers, Urgency, BusinessImpact, 
-                    ApplicationAffected, LocationsAffected, Workaround),
-            3 => _validationService.ValidateStep3(IncidentNumber, Title, Description, 
-                    TimeIssueStarted, TimeReported),
-            4 => _validationService.ValidateStep4(IncidentType, Priority, Status),
-            _ => false
-        };
+        var formData = _dataMappingService.MapFromViewModel(
+            Title, Description, BusinessImpact, TimeIssueStarted, TimeReported,
+            ImpactedUsers, ApplicationAffected, LocationsAffected, Workaround,
+            IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount);
+        return _validationService.ValidateCurrentStep(CurrentStep, formData);
     }
 
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using OperationPrime.Domain.Constants;
 
 namespace OperationPrime.Domain.Entities;
 
@@ -17,13 +18,13 @@ public class ApplicationInfo
     /// Name of the application.
     /// </summary>
     [Required(ErrorMessage = "Application name is required.")]
-    [StringLength(200, ErrorMessage = "Application name cannot exceed 200 characters.")]
+    [StringLength(ValidationLengths.ApplicationNameMaxLength, ErrorMessage = "Application name cannot exceed {1} characters.")]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Optional description of the application.
     /// </summary>
-    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+    [StringLength(ValidationLengths.ApplicationDescriptionMaxLength, ErrorMessage = "Description cannot exceed {1} characters.")]
     public string? Description { get; set; }
 
     /// <summary>
@@ -33,8 +34,9 @@ public class ApplicationInfo
 
     /// <summary>
     /// Date and time when the application record was created.
+    /// Set by the Application layer service using centralized datetime logic.
     /// </summary>
-    public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedDate { get; set; }
 
     /// <summary>
     /// Date and time when the application record was last modified.

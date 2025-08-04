@@ -45,10 +45,7 @@ public interface INavigationService
     /// </summary>
     bool CanGoBack { get; }
 
-    /// <summary>
-    /// Clears the navigation history
-    /// </summary>
-    void ClearHistory();
+
 
     /// <summary>
     /// Event raised when navigation occurs

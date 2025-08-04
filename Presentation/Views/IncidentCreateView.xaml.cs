@@ -1,9 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using OperationPrime.Presentation.ViewModels;
+using OperationPrime.Presentation.ViewModels.Base;
 using OperationPrime.Domain.Entities;
-using System.Diagnostics;
 using System.Linq;
 
 namespace OperationPrime.Presentation.Views;
@@ -20,15 +21,21 @@ public sealed partial class IncidentCreateView : Page
     public IncidentCreateViewModel ViewModel { get; }
 
     /// <summary>
+    /// Logger for this view.
+    /// </summary>
+    private readonly ILogger<IncidentCreateView> _logger;
+
+    /// <summary>
     /// Initializes a new instance of the IncidentCreateView.
     /// Uses service locator pattern to resolve ViewModel from DI container.
     /// This approach is necessary for WinUI 3 Frame navigation which uses reflection.
     /// </summary>
     public IncidentCreateView()
     {
-        // Resolve ViewModel from DI container using service locator pattern
+        // Resolve ViewModel and Logger from DI container using service locator pattern
         // This is the recommended approach for WinUI 3 pages with Frame navigation
         ViewModel = App.Current.Services.GetRequiredService<IncidentCreateViewModel>();
+        _logger = App.Current.Services.GetRequiredService<ILogger<IncidentCreateView>>();
         
         this.InitializeComponent();
         this.DataContext = ViewModel;
@@ -36,6 +43,7 @@ public sealed partial class IncidentCreateView : Page
 
     /// <summary>
     /// Handles navigation to this page.
+    /// ✅ IMPROVED: Implements async initialization pattern following 2024 best practices.
     /// Supports navigation parameters for editing existing incidents or loading templates.
     /// </summary>
     /// <param name="e">Navigation event arguments.</param>
@@ -45,6 +53,12 @@ public sealed partial class IncidentCreateView : Page
         
         try
         {
+            // ✅ IMPROVED: Explicit async initialization following 2024 best practices
+            if (ViewModel is IAsyncInitializable initializable)
+            {
+                await initializable.InitializeAsync();
+            }
+            
             // Handle navigation parameters for editing or templates
             await HandleNavigationParametersAsync(e.Parameter);
             
@@ -59,7 +73,7 @@ public sealed partial class IncidentCreateView : Page
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error during navigation: {ex.Message}");
+            _logger.LogError(ex, "Error during navigation");
         }
     }
     
@@ -69,13 +83,9 @@ public sealed partial class IncidentCreateView : Page
     /// <param name="parameter">Navigation parameter (incident ID, template, etc.)</param>
     private async Task HandleNavigationParametersAsync(object? parameter)
     {
-        // TODO: Future enhancement - handle navigation parameters
+                    // Navigation parameters can be handled here in future versions
         // Examples:
-        // - if (parameter is string incidentId) await ViewModel.LoadIncidentForEditingAsync(incidentId);
-        // - if (parameter is IncidentTemplate template) await ViewModel.LoadFromTemplateAsync(template);
-        // - await ViewModel.InitializeDataAsync(); // Preload dropdown data
-        
-        await Task.CompletedTask; // Placeholder to satisfy async requirement
+        await Task.CompletedTask; // No parameters currently supported
     }
 
     /// <summary>
@@ -163,7 +173,7 @@ public sealed partial class IncidentCreateView : Page
                 TimeIssueStartedDatePicker.SelectedDate = easternTime;
                 TimeIssueStartedTimePicker.SelectedTime = easternTime.TimeOfDay;
                 
-                Debug.WriteLine($"UI: Set TimeIssueStarted to {easternTime} (offset: {easternTime.Offset})");
+                _logger.LogDebug("UI: Set TimeIssueStarted to {EasternTime} (offset: {Offset})", easternTime, easternTime.Offset);
             }
             
             // Initialize TimeReported controls with ViewModel Eastern Time
@@ -173,14 +183,14 @@ public sealed partial class IncidentCreateView : Page
                 TimeReportedDatePicker.SelectedDate = easternTime;
                 TimeReportedTimePicker.SelectedTime = easternTime.TimeOfDay;
                 
-                Debug.WriteLine($"UI: Set TimeReported to {easternTime} (offset: {easternTime.Offset})");
+                _logger.LogDebug("UI: Set TimeReported to {EasternTime} (offset: {Offset})", easternTime, easternTime.Offset);
             }
             
             // ✅ CLEAN: ViewModel handles validation automatically via property change notifications
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error initializing date/time controls: {ex.Message}");
+            _logger.LogError(ex, "Error initializing date/time controls");
         }
     }
 
@@ -230,7 +240,7 @@ public sealed partial class IncidentCreateView : Page
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error filtering applications: {ex.Message}");
+            _logger.LogError(ex, "Error filtering applications");
         }
     }
     
@@ -253,7 +263,7 @@ public sealed partial class IncidentCreateView : Page
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error handling application selection: {ex.Message}");
+            _logger.LogError(ex, "Error handling application selection");
         }
     }
 }

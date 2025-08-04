@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Domain.Entities;
 using OperationPrime.Presentation.Constants;
+using OperationPrime.Presentation.ViewModels.Base;
+using OperationPrime.Presentation.Extensions;
 
 namespace OperationPrime.Presentation.ViewModels;
 
@@ -11,11 +14,13 @@ namespace OperationPrime.Presentation.ViewModels;
 /// ViewModel for the incident list view.
 /// Handles data loading and user interactions for incident management.
 /// Follows MVVM Community Toolkit patterns with async data loading.
+/// Inherits from BaseValidatingViewModel for consistent error handling and validation patterns.
 /// </summary>
-public partial class IncidentListViewModel : ObservableObject
+public partial class IncidentListViewModel : BaseValidatingViewModel
 {
     private readonly IIncidentService _incidentService;
     private readonly INavigationService _navigationService;
+    private readonly ILogger<IncidentListViewModel> _logger;
 
     /// <summary>
     /// Collection of incidents to display in the UI.
@@ -25,25 +30,29 @@ public partial class IncidentListViewModel : ObservableObject
 
     /// <summary>
     /// Indicates whether data is currently being loaded.
+    /// Hides the inherited IsLoading property from BaseValidatingViewModel to maintain existing binding compatibility.
     /// </summary>
     [ObservableProperty]
-    public partial bool IsLoading { get; set; }
+    public new partial bool IsLoading { get; set; }
 
-    /// <summary>
-    /// Error message to display if data loading fails.
-    /// </summary>
-    [ObservableProperty]
-    public partial string? ErrorMessage { get; set; }
+    // Note: ErrorMessage and SuccessMessage are inherited from BaseValidatingViewModel
 
     /// <summary>
     /// Initializes a new instance of the IncidentListViewModel.
     /// </summary>
     /// <param name="incidentService">Service for incident data operations.</param>
     /// <param name="navigationService">Service for navigation operations.</param>
-    public IncidentListViewModel(IIncidentService incidentService, INavigationService navigationService)
+    /// <param name="logger">Logger for this ViewModel.</param>
+    public IncidentListViewModel(
+        IIncidentService incidentService, 
+        INavigationService navigationService,
+        ILogger<IncidentListViewModel> logger)
     {
         _incidentService = incidentService;
         _navigationService = navigationService;
+        _logger = logger;
+        
+        _logger.LogDebug("Initializing IncidentListViewModel");
     }
 
     /// <summary>
@@ -53,38 +62,39 @@ public partial class IncidentListViewModel : ObservableObject
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task LoadIncidentsAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Starting incident list loading process");
+        
         try
         {
             IsLoading = true;
-            ErrorMessage = null;
+            ClearMessages();
 
-            var incidentData = await _incidentService.GetAllAsync(cancellationToken);
+            var incidentData = await _incidentService.GetAllAsync(cancellationToken).ConfigureAwait(true);
             
             // Check for cancellation before UI updates
             cancellationToken.ThrowIfCancellationRequested();
             
-            // Clear existing data and add new incidents
-            Incidents.Clear();
-            foreach (var incident in incidentData)
-            {
-                Incidents.Add(incident);
-                
-                // Allow cancellation during UI updates for large datasets
-                cancellationToken.ThrowIfCancellationRequested();
-            }
+            // Use extension method for better performance
+            Incidents.LoadFrom(incidentData);
+            
+            _logger.LogInformation("Successfully loaded {IncidentCount} incidents", Incidents.Count);
+            SuccessMessage = $"Loaded {Incidents.Count} incidents successfully";
         }
         catch (OperationCanceledException)
         {
             // Handle cancellation gracefully - don't show error for user-initiated cancellation
-            ErrorMessage = null;
+            _logger.LogInformation("Incident loading was cancelled by user");
+            ClearMessages();
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Failed to load incidents: {ex.Message}";
+            _logger.LogError(ex, "Failed to load incidents");
+            SetErrorMessage($"Failed to load incidents: {ex.Message}");
         }
         finally
         {
             IsLoading = false;
+            _logger.LogDebug("Incident loading process completed, IsLoading set to false");
         }
     }
 
@@ -94,7 +104,8 @@ public partial class IncidentListViewModel : ObservableObject
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task RefreshAsync(CancellationToken cancellationToken)
     {
-        await LoadIncidentsAsync(cancellationToken);
+        _logger.LogDebug("User requested incident list refresh");
+        await LoadIncidentsAsync(cancellationToken).ConfigureAwait(true);
     }
 
     /// <summary>
@@ -103,6 +114,7 @@ public partial class IncidentListViewModel : ObservableObject
     [RelayCommand]
     private void CreateIncident()
     {
+        _logger.LogDebug("Navigating to incident creation page");
         _navigationService.NavigateTo(NavigationKeys.IncidentCreate);
     }
 }

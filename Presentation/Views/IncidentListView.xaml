@@ -22,8 +22,7 @@
             </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0" Spacing="20">
-                <TextBlock Text="Incident Management 2" 
-                           
+                <TextBlock Text="Incident Management" 
                            Style="{StaticResource TitleTextBlockStyle}"/>
                 
                 <!-- Error Message -->
@@ -31,6 +30,12 @@
                          Severity="Error"
                          Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                          Visibility="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
+                
+                <!-- Success Message -->
+                <InfoBar IsOpen="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
+                         Severity="Success"
+                         Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}"
+                         Visibility="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
             </StackPanel>
             
             <!-- Action Buttons -->
