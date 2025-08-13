@@ -64,7 +64,9 @@ public class NavigationService : INavigationService
             var result = _frame.Navigate(pageType, parameter);
             if (result)
             {
-                NavigationChanged?.Invoke(this, pageType.Name);
+                // Prefer raising the registered navigation key instead of view type name
+                var key = _pageRegistry.FirstOrDefault(kvp => kvp.Value == pageType).Key;
+                NavigationChanged?.Invoke(this, string.IsNullOrEmpty(key) ? pageType.Name : key);
             }
             return result;
         }

@@ -13,6 +13,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <!-- Other merged dictionaries here -->
+                <ResourceDictionary Source="/Presentation/Resources/ThemeResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <!-- Converters (Essential Only) -->
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>

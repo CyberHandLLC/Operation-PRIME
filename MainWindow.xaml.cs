@@ -56,16 +56,14 @@ public sealed partial class MainWindow : Window
     {
         try
         {
-            // Update page title and breadcrumb visibility based on current page
+            // Update breadcrumb visibility based on current page (title is handled by ShellViewModel)
             if (e.Content is IncidentCreateView)
             {
-                PageTitleText.Text = "Create New Incident";
                 SetupIncidentCreateBreadcrumb();
                 MainBreadcrumbBar.Visibility = Visibility.Visible;
             }
             else
             {
-                PageTitleText.Text = "Operation Prime";
                 MainBreadcrumbBar.Visibility = Visibility.Collapsed;
                 
                 // Unsubscribe from ViewModel when leaving incident creation page

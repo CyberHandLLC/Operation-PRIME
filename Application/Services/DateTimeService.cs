@@ -36,7 +36,8 @@ public class DateTimeService : IDateTimeService
 
     /// <summary>
     /// Validates that the issue start time is not in the future.
-    /// Converts both times to UTC for proper comparison regardless of timezone.
+    /// Normalizes the input to the configured Eastern time zone to account for UI offset issues,
+    /// then compares against the current Eastern time with a small tolerance.
     /// </summary>
     /// <param name="timeIssueStarted">The time when the issue started</param>
     /// <returns>True if the time is valid (not in future)</returns>
@@ -64,7 +65,8 @@ public class DateTimeService : IDateTimeService
 
     /// <summary>
     /// Validates that the reported time is not before the issue start time.
-    /// Converts both times to UTC for proper comparison regardless of timezone.
+    /// Normalizes both inputs to the configured Eastern time zone to account for UI offset issues
+    /// and compares them in that zone.
     /// </summary>
     /// <param name="timeIssueStarted">When the issue started</param>
     /// <param name="timeReported">When the issue was reported</param>

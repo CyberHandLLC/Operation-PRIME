@@ -34,6 +34,8 @@ public class ViewModelCollectionsManager
     public ObservableCollection<Priority> Priorities { get; } = new();
     public ObservableCollection<Status> Statuses { get; } = new();
     public ObservableCollection<ImpactedUsersCount> ImpactedUsersCounts { get; } = new();
+    public ObservableCollection<IncidentSource> IncidentSources { get; } = new();
+    public ObservableCollection<GeneratingMultipleCalls> GeneratingMultipleCallsOptions { get; } = new();
     public ObservableCollection<ApplicationInfo> Applications { get; } = new();
 
     /// <summary>
@@ -71,9 +73,11 @@ public class ViewModelCollectionsManager
         Priorities.LoadFrom(_enumService.GetPriorities());
         Statuses.LoadFrom(_enumService.GetStatuses());
         ImpactedUsersCounts.LoadFrom(_enumService.GetImpactedUsersCounts());
+        IncidentSources.LoadFrom(_enumService.GetIncidentSources());
+        GeneratingMultipleCallsOptions.LoadFrom(_enumService.GetGeneratingMultipleCallsOptions());
         
-        _logger.LogDebug("Loaded {IncidentTypeCount} incident types, {PriorityCount} priorities, {StatusCount} statuses, {UserCountCount} user counts",
-            IncidentTypes.Count, Priorities.Count, Statuses.Count, ImpactedUsersCounts.Count);
+        _logger.LogDebug("Loaded {IncidentTypeCount} incident types, {PriorityCount} priorities, {StatusCount} statuses, {UserCountCount} user counts, {SourceCount} sources, {CallsFlagCount} multi-calls options",
+            IncidentTypes.Count, Priorities.Count, Statuses.Count, ImpactedUsersCounts.Count, IncidentSources.Count, GeneratingMultipleCallsOptions.Count);
     }
 
     /// <summary>

@@ -3,8 +3,6 @@ using OperationPrime.Application.DTOs;
 using OperationPrime.Application.Interfaces;
 using OperationPrime.Application.Models;
 using OperationPrime.Domain.Entities;
-using OperationPrime.Domain.Enums;
-using OperationPrime.Domain.Constants;
 
 namespace OperationPrime.Application.Services;
 
@@ -17,20 +15,17 @@ public class IncidentOrchestrationService : IIncidentOrchestrationService
     private readonly IIncidentService _incidentService;
     private readonly IIncidentValidationService _validationService;
     private readonly IIncidentDataMappingService _dataMappingService;
-    private readonly IDateTimeService _dateTimeService;
     private readonly ILogger<IncidentOrchestrationService> _logger;
 
     public IncidentOrchestrationService(
         IIncidentService incidentService,
         IIncidentValidationService validationService,
         IIncidentDataMappingService dataMappingService,
-        IDateTimeService dateTimeService,
         ILogger<IncidentOrchestrationService> logger)
     {
         _incidentService = incidentService;
         _validationService = validationService;
         _dataMappingService = dataMappingService;
-        _dateTimeService = dateTimeService;
         _logger = logger;
     }
 
@@ -76,19 +71,10 @@ public class IncidentOrchestrationService : IIncidentOrchestrationService
 
     /// <summary>
     /// Initializes default values for a new incident form.
+    /// Delegates to the mapping service to ensure a single source of truth for defaults.
     /// </summary>
     public IncidentFormData CreateDefaultIncidentForm()
     {
-        var currentTime = _dateTimeService.GetCurrentUtcTime();
-        
-        return new IncidentFormData
-        {
-            IncidentType = IncidentType.PreIncident,
-            Priority = Priority.P3,
-            Status = Status.New,
-            Urgency = UrgencyLevels.Default,
-            TimeIssueStarted = currentTime,
-            TimeReported = currentTime
-        };
+        return _dataMappingService.CreateDefaultFormData();
     }
 } 

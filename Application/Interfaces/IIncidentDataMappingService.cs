@@ -72,5 +72,7 @@ public interface IIncidentDataMappingService
         IncidentType incidentType,
         Priority priority,
         Status status,
-        ImpactedUsersCount? selectedImpactedUsersCount);
+        ImpactedUsersCount? selectedImpactedUsersCount,
+        IncidentSource incidentSource,
+        GeneratingMultipleCalls generatingMultipleCalls);
 }

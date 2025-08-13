@@ -15,6 +15,9 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     private readonly INavigationService _navigationService;
 
     [ObservableProperty]
+    public partial string PageTitle { get; set; } = "Operation Prime";
+
+    [ObservableProperty]
     public partial bool IsBackEnabled { get; set; }
 
     [ObservableProperty]
@@ -151,6 +154,9 @@ public partial class ShellViewModel : ObservableObject, IDisposable
         
         // Update selected item based on current page
         UpdateSelectedItem(pageName);
+
+        // Update page title from navigation key
+        PageTitle = NavigationKeys.GetFriendlyName(pageName);
     }
 
     /// <summary>

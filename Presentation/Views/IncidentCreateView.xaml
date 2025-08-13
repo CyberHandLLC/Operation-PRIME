@@ -11,52 +11,90 @@
     <!-- Converters are registered globally in App.xaml -->
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WidthStates">
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WizardCard.MaxWidth" Value="680"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Medium">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WizardCard.MaxWidth" Value="960"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1200"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WizardCard.MaxWidth" Value="1120"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header Section -->
-        <Grid Grid.Row="0" Margin="20,20,20,20">
+        <!-- Header Section is not used (shell shows title/breadcrumb); keep collapsed -->
+        <Grid x:Name="TopHeader" Grid.Row="0" Margin="{StaticResource SpacingXL}" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
-            <StackPanel Grid.Column="0" Spacing="20">
-                <TextBlock Text="Create New Incident" 
-                           Style="{StaticResource TitleTextBlockStyle}"/>
-                
-                <!-- Error Message -->
-                <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
-                         Severity="Error"
-                         Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-                         Visibility="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
-                
-                <!-- Success Message -->
-                <InfoBar IsOpen="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
-                         Severity="Success"
-                         Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}"
-                         Visibility="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
-            </StackPanel>
-            
-            <!-- Action Buttons -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Top">
-                <Button Command="{x:Bind ViewModel.ResetFormCommand}"
-                        ToolTipService.ToolTip="Reset form">
-                    <SymbolIcon Symbol="Clear"/>
-                </Button>
-                
-                <ProgressRing IsActive="{x:Bind ViewModel.IsSubmitting, Mode=OneWay}"
-                              Width="20" Height="20"
-                              Visibility="{x:Bind ViewModel.IsSubmitting, Mode=OneWay}"/>
-            </StackPanel>
         </Grid>
 
-        <!-- Step-Based Form Section -->
-        <ScrollViewer Grid.Row="1" Margin="20,10,20,20">
-            <StackPanel Spacing="24" MaxWidth="700" HorizontalAlignment="Left">
+        <!-- Step-Based Form Section: Centered Card Layout -->
+        <ScrollViewer Grid.Row="1" Padding="{StaticResource SpacingXL}">
+            <Grid HorizontalAlignment="Center">
+                <Border x:Name="WizardCard"
+                        MaxWidth="960"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="{StaticResource CardCornerRadius}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        Padding="{StaticResource SpacingXL}"
+                        VerticalAlignment="Top">
+                    <StackPanel Spacing="{StaticResource GapXL}">
+                        <!-- In-card messages -->
+                        <StackPanel Spacing="{StaticResource GapL}">
+                            <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
+                                     Severity="Error"
+                                     Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                                     Visibility="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
+                            <InfoBar IsOpen="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
+                                     Severity="Success"
+                                     Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}"
+                                     Visibility="{x:Bind ViewModel.SuccessMessage, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}"/>
+                        </StackPanel>
+
+                        <!-- Step header with progress -->
+                        <StackPanel Spacing="{StaticResource GapM}">
+                            <TextBlock Text="{x:Bind ViewModel.CurrentStep, Mode=OneWay}"
+                                       Visibility="Collapsed"/>
+                            <TextBlock>
+                                <Run Text="Step "/>
+                                <Run Text="{x:Bind ViewModel.CurrentStep, Mode=OneWay}"/>
+                                <Run Text=" of "/>
+                                <Run Text="{x:Bind ViewModel.TotalSteps, Mode=OneWay}"/>
+                            </TextBlock>
+                            <ProgressBar Minimum="0"
+                                         Maximum="{x:Bind ViewModel.TotalSteps, Mode=OneWay}"
+                                         Value="{x:Bind ViewModel.CurrentStep, Mode=OneWay}"
+                                         IsIndeterminate="False"/>
+                        </StackPanel>
+
+                        <!-- Steps content -->
+                        <StackPanel Spacing="{StaticResource GapXL}">
                 
                 <!-- Step 1: Incident Type Selection -->
                 <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsStep1, Mode=OneWay}">
@@ -138,91 +176,135 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Step 2: Basic Information -->
-                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsStep2, Mode=OneWay}">
-                    <TextBlock Text="Step 2: Basic Information" 
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               Margin="0,0,0,8"/>
-                    
+                <!-- Step 2: Basic Information (two-column structured layout) -->
+                <StackPanel Spacing="24" Visibility="{x:Bind ViewModel.IsStep2, Mode=OneWay}">
+                    <TextBlock Text="Assignment" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                    <!-- Row 1: Time fields -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        
-                        <!-- Time Issue Started -->
-                        <StackPanel Grid.Column="0" Spacing="8">
+
+                        <StackPanel Grid.Column="0" Spacing="12">
                             <TextBlock Text="Time Issue Started *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                             <DatePicker x:Name="TimeIssueStartedDatePicker"
-                                        Header="Date"
-                                        SelectedDateChanged="TimeIssueStartedDatePicker_SelectedDateChanged"/>
+                                        SelectedDateChanged="TimeIssueStartedDatePicker_SelectedDateChanged"
+                                        HorizontalAlignment="Stretch"/>
                             <TimePicker x:Name="TimeIssueStartedTimePicker"
-                                        Header="Time"
                                         MinuteIncrement="5"
-                                        SelectedTimeChanged="TimeIssueStartedTimePicker_SelectedTimeChanged"/>
+                                        SelectedTimeChanged="TimeIssueStartedTimePicker_SelectedTimeChanged"
+                                        HorizontalAlignment="Stretch"/>
                         </StackPanel>
-                        
-                        <!-- Time Reported -->
-                        <StackPanel Grid.Column="2" Spacing="8">
+
+                        <StackPanel Grid.Column="2" Spacing="12">
                             <TextBlock Text="Time Reported *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                             <DatePicker x:Name="TimeReportedDatePicker"
-                                        Header="Date"
-                                        SelectedDateChanged="TimeReportedDatePicker_SelectedDateChanged"/>
+                                        SelectedDateChanged="TimeReportedDatePicker_SelectedDateChanged"
+                                        HorizontalAlignment="Stretch"/>
                             <TimePicker x:Name="TimeReportedTimePicker"
-                                        Header="Time"
                                         MinuteIncrement="5"
-                                        SelectedTimeChanged="TimeReportedTimePicker_SelectedTimeChanged"/>
+                                        SelectedTimeChanged="TimeReportedTimePicker_SelectedTimeChanged"
+                                        HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Grid>
-                    
-                    <!-- Impacted Users -->
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Impacted Users *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <ComboBox ItemsSource="{x:Bind ViewModel.AvailableImpactedUsersCounts, Mode=OneWay}"
-                                  SelectedItem="{x:Bind ViewModel.SelectedImpactedUsersCount, Mode=TwoWay}"
-                                  PlaceholderText="Select number of impacted users"
-                                  HorizontalAlignment="Stretch">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="enums:ImpactedUsersCount">
-                                    <TextBlock Text="{x:Bind Converter={StaticResource EnumDisplayNameConverter}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                    
-                    <!-- Application Affected -->
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Application Affected *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <AutoSuggestBox x:Name="ApplicationAutoSuggestBox"
-                                        Text="{x:Bind ViewModel.ApplicationAffected, Mode=TwoWay}"
-                                        ItemsSource="{x:Bind ViewModel.AvailableApplications, Mode=OneWay}"
-                                        DisplayMemberPath="Name"
-                                        TextMemberPath="Name"
-                                        PlaceholderText="Start typing to search applications..."
-                                        QueryIcon="Find"
-                                        MaxSuggestionListHeight="200"
-                                        TextChanged="ApplicationAutoSuggestBox_TextChanged"
-                                        SuggestionChosen="ApplicationAutoSuggestBox_SuggestionChosen"/>
-                    </StackPanel>
-                    
-                    <!-- Locations Affected -->
+
+                    <!-- Row 2: Impacted Users + Application -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="8">
+                            <TextBlock Text="Impacted Users *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableImpactedUsersCounts, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedImpactedUsersCount, Mode=TwoWay}"
+                                      PlaceholderText="Select number of impacted users"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="enums:ImpactedUsersCount">
+                                        <TextBlock Text="{x:Bind Converter={StaticResource EnumDisplayNameConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Spacing="8">
+                            <TextBlock Text="Application Affected *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <AutoSuggestBox x:Name="ApplicationAutoSuggestBox"
+                                            Text="{x:Bind ViewModel.ApplicationAffected, Mode=TwoWay}"
+                                            ItemsSource="{x:Bind ViewModel.AvailableApplications, Mode=OneWay}"
+                                            DisplayMemberPath="Name"
+                                            TextMemberPath="Name"
+                                            PlaceholderText="Start typing to search applications..."
+                                            QueryIcon="Find"
+                                            MaxSuggestionListHeight="200"
+                                            TextChanged="ApplicationAutoSuggestBox_TextChanged"
+                                            SuggestionChosen="ApplicationAutoSuggestBox_SuggestionChosen"
+                                            HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Row 3: Incident Source + Generating Multiple Calls -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="8">
+                            <TextBlock Text="Incident Source *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableIncidentSources, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.IncidentSource, Mode=TwoWay}"
+                                      PlaceholderText="Select source"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="enums:IncidentSource">
+                                        <TextBlock Text="{x:Bind Converter={StaticResource EnumDisplayNameConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Spacing="8">
+                            <TextBlock Text="Generating Multiple Calls *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableGeneratingMultipleCallsOptions, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.GeneratingMultipleCalls, Mode=TwoWay}"
+                                      PlaceholderText="Select option"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="enums:GeneratingMultipleCalls">
+                                        <TextBlock Text="{x:Bind Converter={StaticResource EnumDisplayNameConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Full width: Locations & Workaround -->
                     <StackPanel Spacing="8">
                         <TextBlock Text="Locations Affected *" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBox Text="{x:Bind ViewModel.LocationsAffected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PlaceholderText="Geographic or organizational areas affected"
-                                 MaxLength="300"/>
+                                 MaxLength="300"
+                                 HorizontalAlignment="Stretch"/>
                     </StackPanel>
-                    
-                    <!-- Workaround (Optional) -->
+
                     <StackPanel Spacing="8">
                         <TextBlock Text="Workaround (Optional)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBox Text="{x:Bind ViewModel.Workaround, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Any temporary solutions or workarounds available"
+                                 PlaceholderText="Describe any known workaround"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
-                                 MinHeight="60"
-                                 MaxLength="500"/>
+                                 MinHeight="80"
+                                 MaxLength="500"
+                                 HorizontalAlignment="Stretch"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -301,105 +383,47 @@
                     </StackPanel>
                 </StackPanel>
 
-            </StackPanel>
-        </ScrollViewer>
+                        </StackPanel>
 
-        <!-- Step Navigation Controls -->
-        <Grid Grid.Row="2" Margin="20,10,20,20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            
-            <!-- Progress Indicator -->
-            <Grid Grid.Row="0" Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Step Progress -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <TextBlock Text="Step" Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBlock Text="{x:Bind ViewModel.CurrentStep, Mode=OneWay}" 
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                    <TextBlock Text="of" Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBlock Text="{x:Bind ViewModel.TotalSteps, Mode=OneWay}" 
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                </StackPanel>
-                
-                <!-- Required Fields Note -->
-                <TextBlock Grid.Column="1" 
-                           Text="* Required fields" 
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           VerticalAlignment="Center"/>
+                        <!-- In-card Navigation Actions (shown after step 1) -->
+                        <Grid Margin="0,8,0,0"
+                              Visibility="{x:Bind ViewModel.CanGoPrevious, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="* Required fields"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                                <Button Content="Back"
+                                        Command="{x:Bind ViewModel.GoToPreviousStepCommand}"
+                                        IsEnabled="{x:Bind ViewModel.CanGoPrevious, Mode=OneWay}"
+                                        Style="{StaticResource DefaultButtonStyle}"
+                                        MinWidth="80"/>
+                                <Button Content="Reset"
+                                        Command="{x:Bind ViewModel.ResetFormCommand}"
+                                        Style="{StaticResource DefaultButtonStyle}"
+                                        MinWidth="80"/>
+                                <Button Content="Next"
+                                        Command="{x:Bind ViewModel.GoToNextStepCommand}"
+                                        IsEnabled="{x:Bind ViewModel.CanGoNext, Mode=OneWay}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        MinWidth="96"
+                                        Visibility="{x:Bind ViewModel.ShowNextButton, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <Button Content="Create Incident"
+                                        Command="{x:Bind ViewModel.CreateIncidentCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        MinWidth="120"
+                                        Visibility="{x:Bind ViewModel.IsLastStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
             </Grid>
-            
-            <!-- Navigation Buttons -->
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Previous Button -->
-                <Button Grid.Column="0"
-                        Content="Previous"
-                        Command="{x:Bind ViewModel.GoToPreviousStepCommand}"
-                        IsEnabled="{x:Bind ViewModel.CanGoPrevious, Mode=OneWay}"
-                        Style="{StaticResource DefaultButtonStyle}"
-                        MinWidth="100"
-                        Visibility="{x:Bind ViewModel.CanGoPrevious, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Button.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="Left"/>
-                    </Button.KeyboardAccelerators>
-                </Button>
-                
-                <!-- Secondary Actions (Center) -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" 
-                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Button Content="Reset Form"
-                            Command="{x:Bind ViewModel.ResetFormCommand}"
-                            Style="{StaticResource DefaultButtonStyle}"
-                            ToolTipService.ToolTip="Clear all fields and start over">
-                        <Button.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="R"/>
-                        </Button.KeyboardAccelerators>
-                    </Button>
-                </StackPanel>
-                
-                <!-- Next/Submit Button -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
-                    <!-- Next Button (Steps 2-3 only, Step 1 auto-advances) -->
-                    <Button Content="Next"
-                            Command="{x:Bind ViewModel.GoToNextStepCommand}"
-                            IsEnabled="{x:Bind ViewModel.CanGoNext, Mode=OneWay}"
-                            Style="{StaticResource AccentButtonStyle}"
-                            MinWidth="100"
-                            Visibility="{x:Bind ViewModel.ShowNextButton, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Button.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="Right"/>
-                        </Button.KeyboardAccelerators>
-                    </Button>
-                    
-                    <!-- Submit Button (Final Step) -->
-                    <Button Content="Create Incident"
-                            Command="{x:Bind ViewModel.CreateIncidentCommand}"
-                            Style="{StaticResource AccentButtonStyle}"
-                            MinWidth="120"
-                            Visibility="{x:Bind ViewModel.IsLastStep, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Button.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="Enter"/>
-                        </Button.KeyboardAccelerators>
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </Grid>
+        </ScrollViewer>
+        
     </Grid>
 </Page>

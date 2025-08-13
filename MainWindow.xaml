@@ -28,15 +28,16 @@
                     <!-- Page Title -->
                     <TextBlock x:Name="PageTitleText" 
                                Grid.Column="0"
-                               Text="Operation Prime"
+                               Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
                                Style="{ThemeResource TitleTextBlockStyle}"
-                               Margin="20,20,20,20"
+                               Margin="{StaticResource SpacingXL}"
+                               Foreground="{StaticResource AccentBrush}"
                                VerticalAlignment="Center"/>
                     
                     <!-- Breadcrumb Navigation (Context-Aware) -->
                     <controls:BreadcrumbBar x:Name="MainBreadcrumbBar"
                                           Grid.Column="1"
-                                          Margin="20,0,12,0"
+                                          Margin="{StaticResource SpacingL}"
                                           VerticalAlignment="Center"
                                           Visibility="Collapsed"
                                           ItemClicked="BreadcrumbBar_ItemClicked"/>

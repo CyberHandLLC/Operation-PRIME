@@ -42,9 +42,13 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             LocationsAffected = formData.LocationsAffected,
             Workaround = formData.Workaround,
 
+            // New fields
+            IncidentSource = formData.IncidentSource,
+            GeneratingMultipleCalls = formData.GeneratingMultipleCalls,
+
             // Timing
-            TimeIssueStarted = formData.TimeIssueStarted?.DateTime,
-            TimeReported = formData.TimeReported?.DateTime
+            TimeIssueStarted = formData.TimeIssueStarted,
+            TimeReported = formData.TimeReported
         };
     }
 
@@ -73,8 +77,12 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             Workaround = incident.Workaround ?? string.Empty,
 
             // Timing
-            TimeIssueStarted = incident.TimeIssueStarted?.ToUniversalTime(),
-            TimeReported = incident.TimeReported?.ToUniversalTime()
+            TimeIssueStarted = incident.TimeIssueStarted,
+            TimeReported = incident.TimeReported,
+
+            // New fields
+            IncidentSource = incident.IncidentSource,
+            GeneratingMultipleCalls = incident.GeneratingMultipleCalls
         };
     }
 
@@ -90,7 +98,9 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             Status = Status.New,
             Urgency = UrgencyLevels.Default,
             TimeIssueStarted = _dateTimeService.GetCurrentUtcTime(),
-            TimeReported = _dateTimeService.GetCurrentUtcTime()
+            TimeReported = _dateTimeService.GetCurrentUtcTime(),
+            IncidentSource = IncidentSource.ServiceDesk,
+            GeneratingMultipleCalls = GeneratingMultipleCalls.No
         };
     }
 
@@ -121,6 +131,10 @@ public class IncidentDataMappingService : IIncidentDataMappingService
         // Reset nullable fields
         formData.ImpactedUsers = null;
         formData.SelectedImpactedUsersCount = null;
+
+        // New fields
+        formData.IncidentSource = IncidentSource.ServiceDesk;
+        formData.GeneratingMultipleCalls = GeneratingMultipleCalls.No;
 
 
     }
@@ -191,7 +205,9 @@ public class IncidentDataMappingService : IIncidentDataMappingService
         IncidentType incidentType,
         Priority priority,
         Status status,
-        ImpactedUsersCount? selectedImpactedUsersCount)
+        ImpactedUsersCount? selectedImpactedUsersCount,
+        IncidentSource incidentSource,
+        GeneratingMultipleCalls generatingMultipleCalls)
     {
         return new IncidentFormData
         {
@@ -209,7 +225,9 @@ public class IncidentDataMappingService : IIncidentDataMappingService
             IncidentType = incidentType,
             Priority = priority,
             Status = status,
-            SelectedImpactedUsersCount = selectedImpactedUsersCount
+            SelectedImpactedUsersCount = selectedImpactedUsersCount,
+            IncidentSource = incidentSource,
+            GeneratingMultipleCalls = generatingMultipleCalls
         };
     }
 }

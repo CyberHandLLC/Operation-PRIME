@@ -15,15 +15,13 @@
         </Grid.RowDefinitions>
 
         <!-- Header Section -->
-        <Grid Grid.Row="0" Margin="20,20,20,20" >
+        <Grid Grid.Row="0" Margin="{StaticResource SpacingXL}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
-            <StackPanel Grid.Column="0" Spacing="20">
-                <TextBlock Text="Incident Management" 
-                           Style="{StaticResource TitleTextBlockStyle}"/>
+            <StackPanel Grid.Column="0" Spacing="{StaticResource GapXL}">
                 
                 <!-- Error Message -->
                 <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Converter={StaticResource StringToBoolConverter}, Mode=OneWay}"
@@ -63,7 +61,7 @@
         <!-- Incidents List -->
         <ListView Grid.Row="1" 
                   ItemsSource="{x:Bind ViewModel.Incidents, Mode=OneWay}"
-                  Margin="20,10,20,20"
+                  Margin="{StaticResource SpacingXL}"
                   SelectionMode="Single">
             
             <ListView.Header>

@@ -24,6 +24,8 @@ public class IncidentFormData
     public string ApplicationAffected { get; set; } = string.Empty;
     public string LocationsAffected { get; set; } = string.Empty;
     public int Urgency { get; set; } = UrgencyLevels.Default;
+    public IncidentSource IncidentSource { get; set; } = IncidentSource.NOC;
+    public GeneratingMultipleCalls GeneratingMultipleCalls { get; set; } = GeneratingMultipleCalls.No;
 
     /// <summary>
     /// Computed property to determine if this is a major incident.

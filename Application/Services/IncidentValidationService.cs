@@ -138,6 +138,13 @@ public class IncidentValidationService : IIncidentValidationService
         if (formData.Urgency < UrgencyLevels.Minimum || formData.Urgency > UrgencyLevels.Maximum)
             errors.Add($"Urgency must be between {UrgencyLevels.Minimum} and {UrgencyLevels.Maximum}");
 
+        // New fields validation
+        if (!Enum.IsDefined(typeof(IncidentSource), formData.IncidentSource))
+            errors.Add("Incident source is invalid");
+
+        if (!Enum.IsDefined(typeof(GeneratingMultipleCalls), formData.GeneratingMultipleCalls))
+            errors.Add("Generating multiple calls selection is invalid");
+
         return errors.Count == 0 ? ValidationResult.Success() : ValidationResult.Failure(errors);
     }
 }

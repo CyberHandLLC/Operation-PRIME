@@ -45,4 +45,22 @@ public class EnumService : IEnumService
     {
         return Enum.GetValues<ImpactedUsersCount>();
     }
+
+    /// <summary>
+    /// Gets all available incident sources.
+    /// </summary>
+    /// <returns>Collection of incident sources.</returns>
+    public IEnumerable<IncidentSource> GetIncidentSources()
+    {
+        return Enum.GetValues<IncidentSource>();
+    }
+
+    /// <summary>
+    /// Gets options for the generating multiple calls flag.
+    /// </summary>
+    /// <returns>Collection of GeneratingMultipleCalls options.</returns>
+    public IEnumerable<GeneratingMultipleCalls> GetGeneratingMultipleCallsOptions()
+    {
+        return Enum.GetValues<GeneratingMultipleCalls>();
+    }
 }

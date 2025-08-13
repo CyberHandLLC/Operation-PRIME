@@ -242,6 +242,22 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncIn
     public partial string Workaround { get; set; } = string.Empty;
 
     /// <summary>
+    /// Source from which the incident was reported.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    public partial IncidentSource? IncidentSource { get; set; } = OperationPrime.Domain.Enums.IncidentSource.NOC;
+
+    /// <summary>
+    /// Indicates whether the incident is generating multiple calls/reports.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanGoNext))]
+    [NotifyCanExecuteChangedFor(nameof(CreateIncidentCommand))]
+    public partial GeneratingMultipleCalls? GeneratingMultipleCalls { get; set; } = OperationPrime.Domain.Enums.GeneratingMultipleCalls.No;
+
+    /// <summary>
     /// Unique incident number for tracking.
     /// </summary>
     [ObservableProperty]
@@ -299,6 +315,8 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncIn
     public ObservableCollection<Priority> AvailablePriorities => _collectionsManager.Priorities;
     public ObservableCollection<Status> AvailableStatuses => _collectionsManager.Statuses;
     public ObservableCollection<ImpactedUsersCount> AvailableImpactedUsersCounts => _collectionsManager.ImpactedUsersCounts;
+    public ObservableCollection<IncidentSource> AvailableIncidentSources => _collectionsManager.IncidentSources;
+    public ObservableCollection<GeneratingMultipleCalls> AvailableGeneratingMultipleCallsOptions => _collectionsManager.GeneratingMultipleCallsOptions;
     public ObservableCollection<ApplicationInfo> AvailableApplications => _collectionsManager.Applications;
 
     /// <summary>
@@ -318,7 +336,9 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncIn
             var formData = _dataMappingService.MapFromViewModel(
                 Title, Description, BusinessImpact, TimeIssueStarted, TimeReported,
                 ImpactedUsers, ApplicationAffected, LocationsAffected, Workaround,
-                IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount);
+                IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount,
+                IncidentSource ?? OperationPrime.Domain.Enums.IncidentSource.NOC,
+                GeneratingMultipleCalls ?? OperationPrime.Domain.Enums.GeneratingMultipleCalls.No);
             _logger.LogDebug("Created form data for incident: {IncidentType} - {Title}", formData.IncidentType, formData.Title);
 
             var result = await _orchestrationService.CreateIncidentAsync(formData, cancellationToken).ConfigureAwait(true);
@@ -440,6 +460,8 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncIn
         Priority = Priority.P3;
         Status = Status.New;
         Urgency = UrgencyLevels.Default;
+        IncidentSource = OperationPrime.Domain.Enums.IncidentSource.NOC;
+        GeneratingMultipleCalls = OperationPrime.Domain.Enums.GeneratingMultipleCalls.No;
         CurrentStep = 1;
         
         // Clear all form fields
@@ -484,7 +506,9 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncIn
         var formData = _dataMappingService.MapFromViewModel(
             Title, Description, BusinessImpact, TimeIssueStarted, TimeReported,
             ImpactedUsers, ApplicationAffected, LocationsAffected, Workaround,
-            IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount);
+            IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount,
+            IncidentSource ?? OperationPrime.Domain.Enums.IncidentSource.NOC,
+            GeneratingMultipleCalls ?? OperationPrime.Domain.Enums.GeneratingMultipleCalls.No);
         var validationResult = _validationService.ValidateCompleteIncidentData(formData);
         var isValid = validationResult.IsValid;
         _logger.LogDebug("Form validation result: {IsValid}. Errors: {Errors}", isValid, string.Join(", ", validationResult.Errors));
@@ -538,7 +562,9 @@ public partial class IncidentCreateViewModel : BaseValidatingViewModel, IAsyncIn
         var formData = _dataMappingService.MapFromViewModel(
             Title, Description, BusinessImpact, TimeIssueStarted, TimeReported,
             ImpactedUsers, ApplicationAffected, LocationsAffected, Workaround,
-            IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount);
+            IncidentNumber, Urgency, IncidentType, Priority, Status, SelectedImpactedUsersCount,
+            IncidentSource ?? OperationPrime.Domain.Enums.IncidentSource.NOC,
+            GeneratingMultipleCalls ?? OperationPrime.Domain.Enums.GeneratingMultipleCalls.No);
         return _validationService.ValidateCurrentStep(CurrentStep, formData);
     }
 

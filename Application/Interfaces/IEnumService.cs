@@ -32,4 +32,16 @@ public interface IEnumService
     /// </summary>
     /// <returns>Collection of impacted users count values.</returns>
     IEnumerable<ImpactedUsersCount> GetImpactedUsersCounts();
+
+    /// <summary>
+    /// Gets all available incident sources.
+    /// </summary>
+    /// <returns>Collection of incident sources.</returns>
+    IEnumerable<IncidentSource> GetIncidentSources();
+
+    /// <summary>
+    /// Gets options for the generating multiple calls flag.
+    /// </summary>
+    /// <returns>Collection of GeneratingMultipleCalls options.</returns>
+    IEnumerable<GeneratingMultipleCalls> GetGeneratingMultipleCallsOptions();
 }

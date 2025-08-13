@@ -74,12 +74,19 @@ namespace OperationPrime.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("GeneratingMultipleCalls")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int?>("ImpactedUsers")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("IncidentNumber")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("IncidentSource")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("IncidentType")
                         .HasColumnType("INTEGER");
@@ -98,6 +105,9 @@ namespace OperationPrime.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset?>("TimeReported")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("TimeReportedToServiceDesk")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")

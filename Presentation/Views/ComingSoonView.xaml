@@ -6,10 +6,10 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="{StaticResource SpacingXL}">
         <StackPanel HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
-                    Spacing="20">
+                    Spacing="{StaticResource GapXL}">
             
             <FontIcon Glyph="&#xE946;" 
                       FontSize="72"
@@ -17,6 +17,7 @@
             
             <TextBlock Text="Coming Soon" 
                        Style="{ThemeResource TitleLargeTextBlockStyle}"
+                       Foreground="{StaticResource AccentBrush}"
                        HorizontalAlignment="Center"/>
             
             <TextBlock x:Name="PageNameTextBlock"

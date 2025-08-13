@@ -49,12 +49,12 @@ public static class NavigationKeys
     public static string GetFriendlyName(string navigationKey) => navigationKey switch
     {
         Dashboard => "Dashboard",
-        Incidents => "Incidents",
+        Incidents => "Incident Management",
         Reports => "Reports",
         NOI => "Notice of Incident",
         Settings => "Settings",
         ComingSoon => "Coming Soon",
-        IncidentCreate => "Create Incident",
+        IncidentCreate => "Create New Incident",
         _ => navigationKey
     };
 

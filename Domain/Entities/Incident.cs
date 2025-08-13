@@ -101,6 +101,18 @@ public class Incident
     public Status Status { get; set; }
 
     /// <summary>
+    /// Source from which the incident was reported.
+    /// Determines workflow routing and additional field visibility.
+    /// </summary>
+    public IncidentSource IncidentSource { get; set; }
+
+    /// <summary>
+    /// Indicates whether this incident is generating multiple calls or reports.
+    /// Used to identify incidents causing widespread user impact.
+    /// </summary>
+    public GeneratingMultipleCalls GeneratingMultipleCalls { get; set; }
+
+    /// <summary>
     /// Date and time when the incident was created.
     /// </summary>
     public DateTimeOffset CreatedDate { get; set; }
